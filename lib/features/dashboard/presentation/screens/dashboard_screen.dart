@@ -11,6 +11,7 @@ import '../../../../core/database/user_settings_repository.dart';
 import '../../data/repositories/gift_repository.dart';
 import '../../data/repositories/wedding_repository.dart';
 import '../bloc/dashboard_bloc.dart';
+import '../widgets/gift_breakdown_chart.dart';
 import '../widgets/main_balance_card.dart';
 import '../widgets/quick_action_button.dart';
 import '../widgets/recent_entries_list.dart';
@@ -53,6 +54,8 @@ class _DashboardView extends StatelessWidget {
                 padding: EdgeInsets.all(16.w),
                 children: [
                   _header(context),
+                  SizedBox(height: 20.h),
+                  GiftBreakdownChart(breakdown: state.giftTypeBreakdown),
                   SizedBox(height: 20.h),
                   MainBalanceCard(summary: state.summary),
                   SizedBox(height: 20.h),
@@ -121,18 +124,18 @@ class _DashboardView extends StatelessWidget {
 
   Widget _header(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _greeting(context)),
+        Expanded(child: _titleAndGreeting(context)),
         Container(
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.addGift, extra: 0),
             icon: const Icon(
-              Icons.notifications_none_rounded,
+              Icons.add_rounded,
               color: AppColors.secondary,
             ),
           ),
@@ -141,34 +144,59 @@ class _DashboardView extends StatelessWidget {
     );
   }
 
-  Widget _greeting(BuildContext context) {
-    return ValueListenableBuilder<Box>(
-      valueListenable: Hive.box(BoxNames.settings).listenable(),
-      builder: (context, box, _) {
-        final name = UserSettingsRepository().getName();
-        final greeting =
-            (name == null || name.isEmpty) ? 'Merhaba! 👋' : 'Merhaba, $name 👋';
+  Widget _titleAndGreeting(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: const BoxDecoration(
+            color: AppColors.secondary,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.diamond_outlined,
+            color: AppColors.primary,
+            size: 20.sp,
+          ),
+        ),
+        SizedBox(width: 10.w),
+        Expanded(child: _titleAndName(context)),
+      ],
+    );
+  }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
+  Widget _titleAndName(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Takı Sandığım',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondary,
+                fontSize: 16.sp,
+              ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        SizedBox(height: 2.h),
+        ValueListenableBuilder<Box>(
+          valueListenable: Hive.box(BoxNames.settings).listenable(),
+          builder: (context, box, _) {
+            final name = UserSettingsRepository().getName();
+            final greeting = (name == null || name.isEmpty)
+                ? 'Merhaba! 👋'
+                : 'Merhaba, $name 👋';
+
+            return Text(
               greeting,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.secondary,
-                    fontSize: 22.sp,
-                  ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              'Ana Sayfa',
               style: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
-            ),
-          ],
-        );
-      },
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+        ),
+      ],
     );
   }
 }

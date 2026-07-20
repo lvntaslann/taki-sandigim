@@ -19,4 +19,14 @@ class BudgetCalculator {
 
     return BudgetSummary(totalReceivedTl: received, totalGivenTl: given);
   }
+
+  static Map<GiftType, double> breakdownByType(List<GiftModel> gifts) {
+    final breakdown = <GiftType, double>{};
+    for (final gift in gifts) {
+      if (gift.direction != GiftDirection.received) continue;
+      breakdown[gift.giftType] =
+          (breakdown[gift.giftType] ?? 0) + gift.estimatedValueTl;
+    }
+    return breakdown;
+  }
 }
