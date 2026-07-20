@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 
 import '../../../../core/database/box_names.dart';
+import '../../data/models/gift_enums.dart';
 import '../../data/models/gift_model.dart';
 import '../../data/models/wedding_model.dart';
 import '../../data/repositories/gift_repository.dart';
@@ -54,12 +55,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final upcomingWeddings = _weddingRepository.getUpcoming();
       final allGifts = _giftRepository.getAll();
       final summary = BudgetCalculator.calculate(allGifts);
+      final giftTypeBreakdown = BudgetCalculator.breakdownByType(allGifts);
       emit(
         state.copyWith(
           status: DashboardStatus.success,
           upcomingWeddings: upcomingWeddings,
           recentEntries: allGifts.take(5).toList(),
           summary: summary,
+          giftTypeBreakdown: giftTypeBreakdown,
         ),
       );
     } catch (e) {

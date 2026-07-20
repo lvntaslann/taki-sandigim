@@ -8,6 +8,7 @@ class DashboardState extends Equatable {
     this.upcomingWeddings = const [],
     this.recentEntries = const [],
     this.summary = BudgetSummary.empty,
+    this.giftTypeBreakdown = const {},
     this.errorMessage,
   });
 
@@ -15,6 +16,7 @@ class DashboardState extends Equatable {
   final List<WeddingModel> upcomingWeddings;
   final List<GiftModel> recentEntries;
   final BudgetSummary summary;
+  final Map<GiftType, double> giftTypeBreakdown;
   final String? errorMessage;
 
   DashboardState copyWith({
@@ -22,6 +24,7 @@ class DashboardState extends Equatable {
     List<WeddingModel>? upcomingWeddings,
     List<GiftModel>? recentEntries,
     BudgetSummary? summary,
+    Map<GiftType, double>? giftTypeBreakdown,
     String? errorMessage,
   }) {
     return DashboardState(
@@ -29,11 +32,18 @@ class DashboardState extends Equatable {
       upcomingWeddings: upcomingWeddings ?? this.upcomingWeddings,
       recentEntries: recentEntries ?? this.recentEntries,
       summary: summary ?? this.summary,
+      giftTypeBreakdown: giftTypeBreakdown ?? this.giftTypeBreakdown,
       errorMessage: errorMessage,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [status, upcomingWeddings, recentEntries, summary, errorMessage];
+  List<Object?> get props => [
+        status,
+        upcomingWeddings,
+        recentEntries,
+        summary,
+        giftTypeBreakdown,
+        errorMessage,
+      ];
 }
