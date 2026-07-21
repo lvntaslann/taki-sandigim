@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
@@ -30,6 +31,11 @@ class AppRouter {
         path: AppRoutes.nameEntry,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const NameEntryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailEntry,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const EmailEntryScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
