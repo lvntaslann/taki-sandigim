@@ -5,29 +5,34 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 
-/// Native pixel size shared with onboarding_screen.dart so both screens
+/// Native pixel size shared with name_entry_screen.dart so both screens
 /// scale identically on every device.
 const double _kCanvasWidth = 1080;
 const double _kCanvasHeight = 1920;
 
-class NameEntryScreen extends StatefulWidget {
-  const NameEntryScreen({super.key});
+class EmailEntryScreen extends StatefulWidget {
+  const EmailEntryScreen({super.key});
 
   @override
-  State<NameEntryScreen> createState() => _NameEntryScreenState();
+  State<EmailEntryScreen> createState() => _EmailEntryScreenState();
 }
 
-class _NameEntryScreenState extends State<NameEntryScreen> {
-  final TextEditingController _nameController = TextEditingController();
+class _EmailEntryScreenState extends State<EmailEntryScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  bool _skipHovered = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
   void _continue() {
-    context.go(AppRoutes.emailEntry);
+    context.go(AppRoutes.dashboard);
+  }
+
+  void _skip() {
+    context.go(AppRoutes.dashboard);
   }
 
   @override
@@ -47,7 +52,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   right: 0,
                   top: 478,
                   child: Text(
-                    'Size Nasıl Hitap Edelim?',
+                    'Yedekleme için mail adresinizi\ngiriniz...',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 64,
@@ -61,7 +66,8 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   right: 130,
                   top: 800,
                   child: TextField(
-                    controller: _nameController,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     textAlign: TextAlign.start,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 48,
@@ -71,7 +77,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                     decoration: InputDecoration(
                       filled: false,
                       border: InputBorder.none,
-                      labelText: 'İsim:',
+                      labelText: 'Mail:',
                       labelStyle: GoogleFonts.playfairDisplay(
                         fontSize: 48,
                         color: AppColors.primary,
@@ -120,6 +126,36 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                             fontSize: 36,
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 1600,
+                  child: Center(
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      onEnter: (_) => setState(() => _skipHovered = true),
+                      onExit: (_) => setState(() => _skipHovered = false),
+                      child: GestureDetector(
+                        onTap: _skip,
+                        child: Text(
+                          'ATLA',
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 30,
+                            color: _skipHovered
+                                ? AppColors.primaryDark
+                                : AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.5,
+                            decoration: _skipHovered
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                            decorationColor: AppColors.primaryDark,
                           ),
                         ),
                       ),
