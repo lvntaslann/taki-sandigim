@@ -8,13 +8,14 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../data/models/gift_enums.dart';
 import '../../data/repositories/gift_repository.dart';
 import '../../data/repositories/wedding_repository.dart';
 import '../bloc/dashboard_bloc.dart';
-import '../widgets/gift_breakdown_chart.dart';
-import '../widgets/main_balance_card.dart';
+import '../widgets/balance_breakdown_card.dart';
+import '../widgets/direction_toggle.dart';
+import '../widgets/person_totals_list.dart';
 import '../widgets/quick_action_button.dart';
-import '../widgets/recent_entries_list.dart';
 import '../widgets/upcoming_weddings_list.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -32,12 +33,20 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-class _DashboardView extends StatelessWidget {
+class _DashboardView extends StatefulWidget {
   const _DashboardView();
+
+  @override
+  State<_DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<_DashboardView> {
+  GiftDirection _direction = GiftDirection.received;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
@@ -45,6 +54,16 @@ class _DashboardView extends StatelessWidget {
                 state.status == DashboardStatus.initial) {
               return const Center(child: CircularProgressIndicator());
             }
+
+            final isReceived = _direction == GiftDirection.received;
+            final breakdown =
+                isReceived ? state.receivedBreakdown : state.givenBreakdown;
+            final people =
+                isReceived ? state.receivedByPerson : state.givenByPerson;
+            final peopleTotal =
+                people.fold<double>(0, (sum, p) => sum + p.totalTl);
+            final listTitle =
+                isReceived ? 'Sana takılanlar' : 'Senin taktıkların';
 
             return RefreshIndicator(
               onRefresh: () async {
@@ -55,9 +74,13 @@ class _DashboardView extends StatelessWidget {
                 children: [
                   _header(context),
                   SizedBox(height: 20.h),
-                  GiftBreakdownChart(breakdown: state.giftTypeBreakdown),
+                  DirectionToggle(
+                    selected: _direction,
+                    onChanged: (direction) =>
+                        setState(() => _direction = direction),
+                  ),
                   SizedBox(height: 20.h),
-                  MainBalanceCard(summary: state.summary),
+                  BalanceBreakdownCard(breakdown: breakdown),
                   SizedBox(height: 20.h),
                   if (state.upcomingWeddings.isNotEmpty) ...[
                     Text(
@@ -104,15 +127,11 @@ class _DashboardView extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 24.h),
-                  Text(
-                    'Son Kayıtlar',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                  PersonTotalsList(
+                    title: listTitle,
+                    total: peopleTotal,
+                    people: people,
                   ),
-                  SizedBox(height: 12.h),
-                  RecentEntriesList(entries: state.recentEntries),
                 ],
               ),
             );
