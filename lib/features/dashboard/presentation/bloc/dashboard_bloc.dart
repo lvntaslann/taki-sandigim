@@ -55,14 +55,29 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final upcomingWeddings = _weddingRepository.getUpcoming();
       final allGifts = _giftRepository.getAll();
       final summary = BudgetCalculator.calculate(allGifts);
-      final giftTypeBreakdown = BudgetCalculator.breakdownByType(allGifts);
+      final receivedBreakdown = BudgetCalculator.breakdownByType(
+        allGifts,
+        direction: GiftDirection.received,
+      );
+      final givenBreakdown = BudgetCalculator.breakdownByType(
+        allGifts,
+        direction: GiftDirection.given,
+      );
+      final receivedByPerson =
+          BudgetCalculator.groupByPerson(allGifts, GiftDirection.received);
+      final givenByPerson =
+          BudgetCalculator.groupByPerson(allGifts, GiftDirection.given);
       emit(
         state.copyWith(
           status: DashboardStatus.success,
           upcomingWeddings: upcomingWeddings,
           recentEntries: allGifts.take(5).toList(),
           summary: summary,
-          giftTypeBreakdown: giftTypeBreakdown,
+          giftTypeBreakdown: receivedBreakdown,
+          receivedBreakdown: receivedBreakdown,
+          givenBreakdown: givenBreakdown,
+          receivedByPerson: receivedByPerson,
+          givenByPerson: givenByPerson,
         ),
       );
     } catch (e) {
