@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
 import '../../../../core/database/user_settings_repository.dart';
@@ -15,7 +13,6 @@ import '../bloc/dashboard_bloc.dart';
 import '../widgets/balance_breakdown_card.dart';
 import '../widgets/direction_toggle.dart';
 import '../widgets/person_totals_list.dart';
-import '../widgets/quick_action_button.dart';
 import '../widgets/upcoming_weddings_list.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -93,40 +90,6 @@ class _DashboardViewState extends State<_DashboardView> {
                     UpcomingWeddingsList(weddings: state.upcomingWeddings),
                     SizedBox(height: 20.h),
                   ],
-                  Row(
-                    children: [
-                      Expanded(
-                        child: QuickActionButton(
-                          icon: Icons.add_circle_outline,
-                          label: 'Yeni Ekle',
-                          onTap: () => context.push(
-                            AppRoutes.addGift,
-                            extra: 0,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: QuickActionButton(
-                          icon: Icons.document_scanner_outlined,
-                          label: 'Defter Tara',
-                          onTap: () => context.push(
-                            AppRoutes.addGift,
-                            extra: 1,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: QuickActionButton(
-                          icon: Icons.settings_outlined,
-                          label: 'Ayarlar',
-                          onTap: () => context.go(AppRoutes.profile),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.h),
                   PersonTotalsList(
                     title: listTitle,
                     total: peopleTotal,
@@ -142,43 +105,17 @@ class _DashboardViewState extends State<_DashboardView> {
   }
 
   Widget _header(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: _titleAndGreeting(context)),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: () => context.push(AppRoutes.addGift, extra: 0),
-            icon: const Icon(
-              Icons.add_rounded,
-              color: AppColors.secondary,
-            ),
-          ),
-        ),
-      ],
-    );
+    return _titleAndGreeting(context);
   }
 
   Widget _titleAndGreeting(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 40.w,
-          height: 40.w,
-          decoration: const BoxDecoration(
-            color: AppColors.secondary,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.diamond_outlined,
-            color: AppColors.primary,
-            size: 20.sp,
-          ),
+        Icon(
+          Icons.card_giftcard_outlined,
+          color: AppColors.primary,
+          size: 36.sp,
         ),
         SizedBox(width: 10.w),
         Expanded(child: _titleAndName(context)),
@@ -194,8 +131,8 @@ class _DashboardViewState extends State<_DashboardView> {
           'Takı Sandığım',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.secondary,
-                fontSize: 16.sp,
+                color: AppColors.primary,
+                fontSize: 20.sp,
               ),
           overflow: TextOverflow.ellipsis,
         ),
