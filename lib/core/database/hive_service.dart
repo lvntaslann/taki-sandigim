@@ -22,6 +22,7 @@ class HiveService {
     Hive.registerAdapter(GiftTypeAdapter());
     Hive.registerAdapter(GiftDirectionAdapter());
     Hive.registerAdapter(RelationTypeAdapter());
+    Hive.registerAdapter(EventTypeAdapter());
 
     await Future.wait([
       Hive.openBox<WeddingModel>(BoxNames.weddings),

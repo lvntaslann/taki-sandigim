@@ -39,11 +39,11 @@ class TrackerState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        balances,
-        allEntries,
-        personLedgers,
-        currentGoldRateTl,
-        errorMessage,
-      ];
+    status,
+    balances,
+    allEntries,
+    personLedgers,
+    currentGoldRateTl,
+    errorMessage,
+  ];
 }

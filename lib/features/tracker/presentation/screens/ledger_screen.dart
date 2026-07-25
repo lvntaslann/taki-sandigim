@@ -77,8 +77,9 @@ class _LedgerViewState extends State<_LedgerView> {
                 }
 
                 final ledgers = state.personLedgers
-                    .where((l) =>
-                        l.personName.toLowerCase().contains(_searchQuery))
+                    .where(
+                      (l) => l.personName.toLowerCase().contains(_searchQuery),
+                    )
                     .toList();
 
                 if (ledgers.isEmpty) {
@@ -194,20 +195,14 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Color(0x11000000)),
-        ),
+        border: Border(top: BorderSide(color: Color(0x11000000))),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
           if (ledger.lastGiven != null)
-            _summaryRow(
-              'SENİN TAKTIĞIN',
-              ledger.lastGiven!,
-              AppColors.accent,
-            ),
+            _summaryRow('SENİN TAKTIĞIN', ledger.lastGiven!, AppColors.accent),
           if (ledger.lastReceived != null) ...[
             const SizedBox(height: 8),
             _summaryRow(
@@ -231,8 +226,8 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
                   color: status.isBalanced
                       ? AppColors.textMuted
                       : status.weOwe
-                          ? AppColors.error
-                          : AppColors.success,
+                      ? AppColors.error
+                      : AppColors.success,
                 ),
               ),
             ],

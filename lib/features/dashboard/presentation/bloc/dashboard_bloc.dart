@@ -20,18 +20,18 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   DashboardBloc({
     required WeddingRepository weddingRepository,
     required GiftRepository giftRepository,
-  })  : _weddingRepository = weddingRepository,
-        _giftRepository = giftRepository,
-        super(const DashboardState()) {
+  }) : _weddingRepository = weddingRepository,
+       _giftRepository = giftRepository,
+       super(const DashboardState()) {
     on<DashboardStarted>(_onStarted);
     on<DashboardRefreshed>(_onStarted);
 
-    _giftSub = Hive.box<GiftModel>(BoxNames.gifts).watch().listen(
-          (_) => add(const DashboardRefreshed()),
-        );
-    _weddingSub = Hive.box<WeddingModel>(BoxNames.weddings).watch().listen(
-          (_) => add(const DashboardRefreshed()),
-        );
+    _giftSub = Hive.box<GiftModel>(
+      BoxNames.gifts,
+    ).watch().listen((_) => add(const DashboardRefreshed()));
+    _weddingSub = Hive.box<WeddingModel>(
+      BoxNames.weddings,
+    ).watch().listen((_) => add(const DashboardRefreshed()));
   }
 
   final WeddingRepository _weddingRepository;
@@ -63,10 +63,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         allGifts,
         direction: GiftDirection.given,
       );
-      final receivedByPerson =
-          BudgetCalculator.groupByPerson(allGifts, GiftDirection.received);
-      final givenByPerson =
-          BudgetCalculator.groupByPerson(allGifts, GiftDirection.given);
+      final receivedByPerson = BudgetCalculator.groupByPerson(
+        allGifts,
+        GiftDirection.received,
+      );
+      final givenByPerson = BudgetCalculator.groupByPerson(
+        allGifts,
+        GiftDirection.given,
+      );
       emit(
         state.copyWith(
           status: DashboardStatus.success,

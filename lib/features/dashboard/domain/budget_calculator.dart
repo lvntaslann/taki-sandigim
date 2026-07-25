@@ -43,10 +43,11 @@ class BudgetCalculator {
       totals[gift.personName] =
           (totals[gift.personName] ?? 0) + gift.estimatedValueTl;
     }
-    final list = totals.entries
-        .map((e) => PersonTotal(name: e.key, totalTl: e.value))
-        .toList()
-      ..sort((a, b) => b.totalTl.compareTo(a.totalTl));
+    final list =
+        totals.entries
+            .map((e) => PersonTotal(name: e.key, totalTl: e.value))
+            .toList()
+          ..sort((a, b) => b.totalTl.compareTo(a.totalTl));
     return list;
   }
 }

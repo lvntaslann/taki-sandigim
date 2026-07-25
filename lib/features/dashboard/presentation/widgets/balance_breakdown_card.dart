@@ -60,46 +60,41 @@ class BalanceBreakdownCard extends StatelessWidget {
           if (entries.isEmpty || total <= 0)
             _emptyState()
           else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 110.w,
-                  height: 110.w,
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 3,
-                      centerSpaceRadius: 34.r,
-                      startDegreeOffset: -90,
-                      sections: [
-                        for (var i = 0; i < entries.length; i++)
-                          PieChartSectionData(
-                            value: entries[i].value,
-                            color: _palette[i % _palette.length],
-                            radius: 20.r,
-                            showTitle: false,
-                          ),
-                      ],
+                Center(
+                  child: SizedBox(
+                    width: 110.w,
+                    height: 110.w,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 3,
+                        centerSpaceRadius: 34.r,
+                        startDegreeOffset: -90,
+                        sections: [
+                          for (var i = 0; i < entries.length; i++)
+                            PieChartSectionData(
+                              value: entries[i].value,
+                              color: _palette[i % _palette.length],
+                              radius: 20.r,
+                              showTitle: false,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(width: 20.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var i = 0; i < entries.length; i++)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 10.h),
-                          child: _legendRow(
-                            color: _palette[i % _palette.length],
-                            label: entries[i].key.label,
-                            percent: (entries[i].value / total * 100).round(),
-                          ),
-                        ),
-                    ],
+                SizedBox(height: 20.h),
+                for (var i = 0; i < entries.length; i++)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: _legendRow(
+                      color: _palette[i % _palette.length],
+                      label: entries[i].key.label,
+                      percent: (entries[i].value / total * 100).round(),
+                    ),
                   ),
-                ),
               ],
             ),
         ],

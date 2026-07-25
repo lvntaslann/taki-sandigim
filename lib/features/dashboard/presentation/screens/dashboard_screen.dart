@@ -53,14 +53,19 @@ class _DashboardViewState extends State<_DashboardView> {
             }
 
             final isReceived = _direction == GiftDirection.received;
-            final breakdown =
-                isReceived ? state.receivedBreakdown : state.givenBreakdown;
-            final people =
-                isReceived ? state.receivedByPerson : state.givenByPerson;
-            final peopleTotal =
-                people.fold<double>(0, (sum, p) => sum + p.totalTl);
-            final listTitle =
-                isReceived ? 'Sana takılanlar' : 'Senin taktıkların';
+            final breakdown = isReceived
+                ? state.receivedBreakdown
+                : state.givenBreakdown;
+            final people = isReceived
+                ? state.receivedByPerson
+                : state.givenByPerson;
+            final peopleTotal = people.fold<double>(
+              0,
+              (sum, p) => sum + p.totalTl,
+            );
+            final listTitle = isReceived
+                ? 'Sana takılanlar'
+                : 'Senin taktıkların';
 
             return RefreshIndicator(
               onRefresh: () async {
@@ -77,24 +82,36 @@ class _DashboardViewState extends State<_DashboardView> {
                         setState(() => _direction = direction),
                   ),
                   SizedBox(height: 20.h),
-                  BalanceBreakdownCard(breakdown: breakdown),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: BalanceBreakdownCard(breakdown: breakdown),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: PersonTotalsList(
+                            title: listTitle,
+                            total: peopleTotal,
+                            people: people,
+                            direction: _direction,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 20.h),
                   if (state.upcomingWeddings.isNotEmpty) ...[
                     Text(
                       'Yaklaşan Düğünler',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 12.h),
                     UpcomingWeddingsList(weddings: state.upcomingWeddings),
-                    SizedBox(height: 20.h),
                   ],
-                  PersonTotalsList(
-                    title: listTitle,
-                    total: peopleTotal,
-                    people: people,
-                  ),
                 ],
               ),
             );
@@ -130,10 +147,10 @@ class _DashboardViewState extends State<_DashboardView> {
         Text(
           'Takı Sandığım',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: AppColors.primary,
-                fontSize: 20.sp,
-              ),
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+            fontSize: 20.sp,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
         SizedBox(height: 2.h),
@@ -142,8 +159,8 @@ class _DashboardViewState extends State<_DashboardView> {
           builder: (context, box, _) {
             final name = UserSettingsRepository().getName();
             final greeting = (name == null || name.isEmpty)
-                ? 'Merhaba! 👋'
-                : 'Merhaba, $name 👋';
+                ? 'Merhaba!'
+                : 'Merhaba, $name';
 
             return Text(
               greeting,

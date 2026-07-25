@@ -98,3 +98,37 @@ extension RelationTypeLabel on RelationType {
     }
   }
 }
+
+@HiveType(typeId: 5)
+enum EventType {
+  @HiveField(0)
+  wedding,
+  @HiveField(1)
+  engagement,
+  @HiveField(2)
+  henna,
+}
+
+extension EventTypeLabel on EventType {
+  String get label {
+    switch (this) {
+      case EventType.wedding:
+        return 'Düğün';
+      case EventType.engagement:
+        return 'Nişan';
+      case EventType.henna:
+        return 'Kına';
+    }
+  }
+
+  String get locationLabel {
+    switch (this) {
+      case EventType.wedding:
+        return 'Düğünde takıldı';
+      case EventType.engagement:
+        return 'Nişanda takıldı';
+      case EventType.henna:
+        return 'Kınada takıldı';
+    }
+  }
+}

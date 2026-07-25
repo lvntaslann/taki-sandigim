@@ -28,14 +28,15 @@ class AddGiftScreen extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Yeni Ekle'),
-              Tab(text: 'Defter Tara'),
+              Tab(text: 'Defter/Davetiye Tara'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
             BlocProvider(
-              create: (_) => TrackerBloc(trackerRepository: TrackerRepository()),
+              create: (_) =>
+                  TrackerBloc(trackerRepository: TrackerRepository()),
               child: const _AddGiftForm(),
             ),
             const ScannerBody(),
@@ -63,7 +64,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
 
   GiftType _giftType = GiftType.quarterGold;
   GiftDirection _direction = GiftDirection.received;
-  RelationType _relationType = RelationType.friend;
+  EventType _eventType = EventType.wedding;
   DateTime _date = DateTime.now();
   double? _goldRateTl;
   bool _isLoadingRate = true;
@@ -126,7 +127,9 @@ class _AddGiftFormState extends State<_AddGiftForm> {
     final double? goldRateTl;
 
     if (isCash) {
-      final value = double.parse(_cashAmountController.text.replaceAll(',', '.'));
+      final value = double.parse(
+        _cashAmountController.text.replaceAll(',', '.'),
+      );
       amount = value;
       estimatedValueTl = value;
       goldRateTl = null;
@@ -137,20 +140,20 @@ class _AddGiftFormState extends State<_AddGiftForm> {
     }
 
     context.read<TrackerBloc>().add(
-          TrackerGiftAdded(
-            personName: _personNameController.text.trim(),
-            giftType: _giftType,
-            amount: amount,
-            estimatedValueTl: estimatedValueTl,
-            direction: _direction,
-            date: _date,
-            note: _noteController.text.trim().isEmpty
-                ? null
-                : _noteController.text.trim(),
-            goldRateTl: goldRateTl,
-            relationType: _relationType,
-          ),
-        );
+      TrackerGiftAdded(
+        personName: _personNameController.text.trim(),
+        giftType: _giftType,
+        amount: amount,
+        estimatedValueTl: estimatedValueTl,
+        direction: _direction,
+        date: _date,
+        note: _noteController.text.trim().isEmpty
+            ? null
+            : _noteController.text.trim(),
+        goldRateTl: goldRateTl,
+        eventType: _eventType,
+      ),
+    );
     Navigator.of(context).pop();
   }
 
@@ -184,22 +187,20 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                 (v == null || v.trim().isEmpty) ? 'Kişi adı gerekli' : null,
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<RelationType>(
-            initialValue: _relationType,
-            decoration: const InputDecoration(labelText: 'İlişki'),
-            items: RelationType.values
-                .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
+          DropdownButtonFormField<EventType>(
+            initialValue: _eventType,
+            decoration: const InputDecoration(labelText: 'Nerede Takıldı'),
+            items: EventType.values
+                .map((e) => DropdownMenuItem(value: e, child: Text(e.label)))
                 .toList(),
-            onChanged: (v) => setState(() => _relationType = v!),
+            onChanged: (v) => setState(() => _eventType = v!),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<GiftType>(
             initialValue: _giftType,
             decoration: const InputDecoration(labelText: 'Takı Türü'),
             items: GiftType.values
-                .map(
-                  (t) => DropdownMenuItem(value: t, child: Text(t.label)),
-                )
+                .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                 .toList(),
             onChanged: (v) => setState(() => _giftType = v!),
           ),
@@ -211,8 +212,8 @@ class _AddGiftFormState extends State<_AddGiftForm> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              validator: (v) => (v == null ||
-                      double.tryParse(v.replaceAll(',', '.')) == null)
+              validator: (v) =>
+                  (v == null || double.tryParse(v.replaceAll(',', '.')) == null)
                   ? 'Geçerli bir miktar girin'
                   : null,
             ),
@@ -254,8 +255,8 @@ class _AddGiftFormState extends State<_AddGiftForm> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              validator: (v) => (v == null ||
-                      double.tryParse(v.replaceAll(',', '.')) == null)
+              validator: (v) =>
+                  (v == null || double.tryParse(v.replaceAll(',', '.')) == null)
                   ? 'Geçerli bir tutar girin'
                   : null,
             ),

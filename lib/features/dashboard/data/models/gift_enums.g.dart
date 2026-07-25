@@ -157,3 +157,47 @@ class RelationTypeAdapter extends TypeAdapter<RelationType> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class EventTypeAdapter extends TypeAdapter<EventType> {
+  @override
+  final int typeId = 5;
+
+  @override
+  EventType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return EventType.wedding;
+      case 1:
+        return EventType.engagement;
+      case 2:
+        return EventType.henna;
+      default:
+        return EventType.wedding;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, EventType obj) {
+    switch (obj) {
+      case EventType.wedding:
+        writer.writeByte(0);
+        break;
+      case EventType.engagement:
+        writer.writeByte(1);
+        break;
+      case EventType.henna:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EventTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

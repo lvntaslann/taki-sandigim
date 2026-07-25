@@ -6,7 +6,7 @@ import '../../dashboard/data/repositories/gift_repository.dart';
 
 class TrackerRepository {
   TrackerRepository({GiftRepository? giftRepository})
-      : _giftRepository = giftRepository ?? GiftRepository();
+    : _giftRepository = giftRepository ?? GiftRepository();
 
   final GiftRepository _giftRepository;
   final Uuid _uuid = const Uuid();
@@ -24,6 +24,7 @@ class TrackerRepository {
     String? note,
     double? goldRateTl,
     RelationType relationType = RelationType.friend,
+    EventType? eventType,
   }) async {
     final gift = GiftModel(
       id: _uuid.v4(),
@@ -37,6 +38,7 @@ class TrackerRepository {
       note: note,
       goldRateTl: goldRateTl,
       relationType: relationType,
+      eventType: eventType,
     );
     await _giftRepository.save(gift);
     return gift;

@@ -22,6 +22,7 @@ class TrackerGiftAdded extends TrackerEvent {
     this.note,
     this.goldRateTl,
     this.relationType = RelationType.friend,
+    this.eventType,
   });
 
   final String personName;
@@ -33,19 +34,21 @@ class TrackerGiftAdded extends TrackerEvent {
   final String? note;
   final double? goldRateTl;
   final RelationType relationType;
+  final EventType? eventType;
 
   @override
   List<Object?> get props => [
-        personName,
-        giftType,
-        amount,
-        estimatedValueTl,
-        direction,
-        date,
-        note,
-        goldRateTl,
-        relationType,
-      ];
+    personName,
+    giftType,
+    amount,
+    estimatedValueTl,
+    direction,
+    date,
+    note,
+    goldRateTl,
+    relationType,
+    eventType,
+  ];
 }
 
 class TrackerEntryDeleted extends TrackerEvent {

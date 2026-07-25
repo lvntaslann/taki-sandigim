@@ -68,9 +68,7 @@ class AnalyticsScreen extends StatelessWidget {
                     child: _statTile('Toplam Kayıt', '${entries.length}'),
                   ),
                   SizedBox(width: 12.w),
-                  Expanded(
-                    child: _statTile('Kişi Sayısı', '$personCount'),
-                  ),
+                  Expanded(child: _statTile('Kişi Sayısı', '$personCount')),
                 ],
               ),
               SizedBox(height: 16.h),
@@ -81,8 +79,8 @@ class AnalyticsScreen extends StatelessWidget {
                     Text(
                       'Bize Gelen / Bizim Verdiğimiz',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 16.h),
                     SizedBox(
@@ -119,13 +117,16 @@ class AnalyticsScreen extends StatelessWidget {
                     Text(
                       'İlişkiye Göre Dağılım',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 4.h),
                     const Text(
                       'Aile, akraba ve arkadaşlarınla toplam takı alışverişi',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                     SizedBox(height: 16.h),
                     SizedBox(
@@ -163,8 +164,8 @@ class AnalyticsScreen extends StatelessWidget {
                     Text(
                       'Kişi Bazında Net Bakiye',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 4.h),
                     const Text(
@@ -319,11 +320,7 @@ class _RelationDonut extends StatelessWidget {
         .toList();
 
     return PieChart(
-      PieChartData(
-        sectionsSpace: 3,
-        centerSpaceRadius: 46,
-        sections: sections,
-      ),
+      PieChartData(sectionsSpace: 3, centerSpaceRadius: 46, sections: sections),
     );
   }
 }
@@ -364,7 +361,9 @@ class _NetBalanceBarChart extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 final name = balances[index].personName;
-                final short = name.length > 8 ? '${name.substring(0, 7)}…' : name;
+                final short = name.length > 8
+                    ? '${name.substring(0, 7)}…'
+                    : name;
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
@@ -391,8 +390,8 @@ class _NetBalanceBarChart extends StatelessWidget {
                   color: balances[i].isBalanced
                       ? AppColors.textMuted
                       : balances[i].weOwe
-                          ? AppColors.error
-                          : AppColors.success,
+                      ? AppColors.error
+                      : AppColors.success,
                 ),
               ],
             ),
