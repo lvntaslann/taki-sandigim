@@ -18,6 +18,7 @@ class GiftModel extends HiveObject {
     this.note,
     this.goldRateTl,
     this.relationType = RelationType.friend,
+    this.eventType,
   });
 
   @HiveField(0)
@@ -52,4 +53,7 @@ class GiftModel extends HiveObject {
 
   @HiveField(10)
   RelationType relationType;
+
+  @HiveField(11)
+  EventType? eventType;
 }

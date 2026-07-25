@@ -6,11 +6,7 @@ import '../../../../core/widgets/custom_card.dart';
 import '../../data/models/wedding_model.dart';
 
 class UpcomingWeddingsList extends StatelessWidget {
-  const UpcomingWeddingsList({
-    super.key,
-    required this.weddings,
-    this.onTap,
-  });
+  const UpcomingWeddingsList({super.key, required this.weddings, this.onTap});
 
   final List<WeddingModel> weddings;
   final ValueChanged<WeddingModel>? onTap;
@@ -23,10 +19,9 @@ class UpcomingWeddingsList extends StatelessWidget {
           child: Text(
             'Yaklaşan bir düğün yok.\nSağ alttaki + ile ekleyebilirsin.',
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AppColors.textMuted),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
           ),
         ),
       );
@@ -60,17 +55,13 @@ class UpcomingWeddingsList extends StatelessWidget {
                         children: [
                           Text(
                             wedding.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
+                            style: Theme.of(context).textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             DateFormatter.dayMonthYear(wedding.date),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppColors.textMuted),
                           ),
                         ],
@@ -79,9 +70,9 @@ class UpcomingWeddingsList extends StatelessWidget {
                     Text(
                       DateFormatter.remainingDays(wedding.date),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.accent,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),

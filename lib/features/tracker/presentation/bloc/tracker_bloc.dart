@@ -21,16 +21,16 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
   TrackerBloc({
     required TrackerRepository trackerRepository,
     GoldRateService? goldRateService,
-  })  : _trackerRepository = trackerRepository,
-        _goldRateService = goldRateService ?? GoldRateService(),
-        super(const TrackerState()) {
+  }) : _trackerRepository = trackerRepository,
+       _goldRateService = goldRateService ?? GoldRateService(),
+       super(const TrackerState()) {
     on<TrackerStarted>(_onStarted);
     on<TrackerGiftAdded>(_onGiftAdded);
     on<TrackerEntryDeleted>(_onEntryDeleted);
 
-    _giftSub = Hive.box<GiftModel>(BoxNames.gifts).watch().listen(
-          (_) => add(const TrackerStarted()),
-        );
+    _giftSub = Hive.box<GiftModel>(
+      BoxNames.gifts,
+    ).watch().listen((_) => add(const TrackerStarted()));
   }
 
   final TrackerRepository _trackerRepository;
@@ -88,6 +88,7 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
         note: event.note,
         goldRateTl: event.goldRateTl,
         relationType: event.relationType,
+        eventType: event.eventType,
       );
       await _onStarted(const TrackerStarted(), emit);
     } catch (e) {
