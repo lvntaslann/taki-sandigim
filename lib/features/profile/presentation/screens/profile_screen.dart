@@ -1,10 +1,21 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../dashboard/data/repositories/gift_repository.dart';
+import '../../../dashboard/data/repositories/wedding_repository.dart';
+import '../../data/gift_export_service.dart';
+
+const _eventTypeOptions = ['Düğün', 'Nişan', 'Nikah', 'Kına'];
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,7 +26,17 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _settingsRepository = UserSettingsRepository();
+  final _giftRepository = GiftRepository();
+  final _weddingRepository = WeddingRepository();
+  final _exportService = GiftExportService();
+  bool _isExporting = false;
   late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _weddingDateController;
+  DateTime? _weddingDate;
+  String? _photoBase64;
+  String? _eventType;
+  String? _savedName;
 
   @override
   void initState() {
@@ -23,11 +44,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController = TextEditingController(
       text: _settingsRepository.getName() ?? '',
     );
+    _emailController = TextEditingController(
+      text: _settingsRepository.getEmail() ?? '',
+    );
+    _weddingDate = _settingsRepository.getWeddingDate();
+    _weddingDateController = TextEditingController(
+      text: _weddingDate == null ? '' : _formatDate(_weddingDate!),
+    );
+    _photoBase64 = _settingsRepository.getPhotoBase64();
+    _eventType = _settingsRepository.getWeddingEventType() ?? _eventTypeOptions.first;
+    _savedName = _settingsRepository.getName();
   }
+
+  String _formatDate(DateTime date) =>
+      DateFormat('d MMMM y', 'tr_TR').format(date);
 
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
+    _weddingDateController.dispose();
     super.dispose();
   }
 
@@ -38,6 +74,158 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('İsim kaydedildi.')),
     );
+    setState(() => _savedName = name);
+  }
+
+  void _saveEmail() {
+    final email = _emailController.text.trim();
+    _settingsRepository.setEmail(email);
+    FocusScope.of(context).unfocus();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mail adresi kaydedildi.')),
+    );
+  }
+
+  Future<void> _pickWeddingDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _weddingDate ?? now,
+      firstDate: DateTime(now.year - 80),
+      lastDate: DateTime(now.year + 10),
+    );
+    if (picked == null) return;
+    setState(() {
+      _weddingDate = picked;
+      _weddingDateController.text = _formatDate(picked);
+    });
+    await _settingsRepository.setWeddingDate(picked);
+  }
+
+  void _selectEventType(String eventType) {
+    setState(() => _eventType = eventType);
+    _settingsRepository.setWeddingEventType(eventType);
+  }
+
+  Future<void> _shareGiftList() async {
+    final gifts = _giftRepository.getAll();
+    if (gifts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Paylaşılacak bir takı kaydı yok.')),
+      );
+      return;
+    }
+    await _exportService.shareSummary(gifts);
+  }
+
+  Future<void> _downloadGiftList() async {
+    final gifts = _giftRepository.getAll();
+    if (gifts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('İndirilecek bir takı kaydı yok.')),
+      );
+      return;
+    }
+
+    final format = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Format Seçin'),
+        content: const Text(
+          'Takı listeni hangi formatta indirmek istersin?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Vazgeç'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Excel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('PDF'),
+          ),
+        ],
+      ),
+    );
+    if (format == null) return;
+
+    setState(() => _isExporting = true);
+    try {
+      await _exportService.exportAndShare(gifts, asPdf: format);
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
+  Future<void> _pickPhoto() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    final base64 = base64Encode(bytes);
+    setState(() => _photoBase64 = base64);
+    await _settingsRepository.setPhotoBase64(base64);
+  }
+
+  Future<void> _confirmLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Çıkış Yap'),
+        content: const Text('Hesabınızdan çıkış yapmak istediğinize emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Vazgeç'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Çıkış Yap'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    context.go(AppRoutes.onboarding);
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hesabı Sil'),
+        content: const Text(
+          'Hesabınızı silmek, profil bilgilerinizi ve tüm takı kayıtlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Vazgeç'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Hesabı Sil',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    await _settingsRepository.clearAll();
+    await _giftRepository.clearAll();
+    await _weddingRepository.clearAll();
+
+    if (!mounted) return;
+    context.go(AppRoutes.onboarding);
   }
 
   @override
@@ -47,18 +235,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const CircleAvatar(
-            radius: 36,
-            backgroundColor: AppColors.primary,
-            child: Icon(Icons.person, size: 36, color: AppColors.secondary),
-          ),
-          const SizedBox(height: 12),
-          const Center(
-            child: Text(
-              'Takı Sandığım',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          Center(
+            child: GestureDetector(
+              onTap: _pickPhoto,
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: AppColors.primary,
+                    backgroundImage: _photoBase64 != null
+                        ? MemoryImage(base64Decode(_photoBase64!))
+                        : null,
+                    child: _photoBase64 == null
+                        ? const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: AppColors.secondary,
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.secondary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          if (_savedName != null && _savedName!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                _savedName!,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           CustomCard(
             child: Column(
@@ -96,57 +320,230 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           CustomCard(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _settingRow(
-                  icon: Icons.notifications_outlined,
-                  title: 'Bildirimler',
-                  subtitle: 'Yaklaşan düğün hatırlatmaları',
+                const Text(
+                  'Mail Adresi',
+                  style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                const Divider(height: 24),
-                _settingRow(
-                  icon: Icons.currency_lira,
-                  title: 'Altın Kuru',
-                  subtitle: 'Güncel gram altın kuruna göre hesaplanır',
+                const SizedBox(height: 4),
+                const Text(
+                  'Yedekleme ve bildirimler için kullanılır.',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
-                const Divider(height: 24),
-                _settingRow(
-                  icon: Icons.info_outline,
-                  title: 'Hakkında',
-                  subtitle: 'Sürüm 0.1.0',
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(
+                        label: 'Mail',
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: Icons.mail_outline,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 100,
+                      child: CustomButton(
+                        label: 'Kaydet',
+                        onPressed: _saveEmail,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          CustomCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Özel Günlerinizin Tarihi',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _eventTypeOptions
+                      .map(
+                        (option) => ChoiceChip(
+                          label: Text(option),
+                          selected: _eventType == option,
+                          selectedColor: AppColors.primary,
+                          labelStyle: TextStyle(
+                            color: _eventType == option
+                                ? Colors.white
+                                : AppColors.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          onSelected: (_) => _selectEventType(option),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  label: '${_eventType ?? 'Düğün'} Tarihi',
+                  controller: _weddingDateController,
+                  readOnly: true,
+                  prefixIcon: Icons.calendar_month_outlined,
+                  hintText: 'Tarih seçin',
+                  onTap: _pickWeddingDate,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          CustomCard(
+            child: Row(
+              children: [
+                const Icon(Icons.ios_share, color: AppColors.primary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Takı Listeni Paylaş',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const Text(
+                        'Listeni yakınlarınla paylaş.',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 100,
+                  child: CustomButton(
+                    label: 'Paylaş',
+                    onPressed: _shareGiftList,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          CustomCard(
+            child: Row(
+              children: [
+                const Icon(Icons.download_outlined, color: AppColors.primary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Takı Listeni İndir',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const Text(
+                        'PDF veya düzenlenebilir Excel tablosu olarak indir.',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 100,
+                  child: CustomButton(
+                    label: 'İndir',
+                    isLoading: _isExporting,
+                    onPressed: _downloadGiftList,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          CustomCard(
+            child: Row(
+              children: [
+                const Icon(Icons.logout, color: AppColors.secondary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Çıkış Yap',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const Text(
+                        'Hesabınızdan çıkış yapın.',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 100,
+                  child: CustomButton(
+                    label: 'Çıkış',
+                    onPressed: _confirmLogout,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          CustomCard(
+            child: Row(
+              children: [
+                const Icon(Icons.delete_forever, color: Colors.red),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Hesabı Sil',
+                        style: TextStyle(fontWeight: FontWeight.w700, color: Colors.red),
+                      ),
+                      const Text(
+                        'Tüm verileriniz kalıcı olarak silinir.',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 100,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                    ),
+                    onPressed: _confirmDeleteAccount,
+                    child: const Text('Sil'),
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _settingRow({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.primary),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

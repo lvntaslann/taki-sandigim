@@ -26,4 +26,6 @@ class GiftRepository {
   Future<void> save(GiftModel gift) => _box.put(gift.id, gift);
 
   Future<void> delete(String id) => _box.delete(id);
+
+  Future<void> clearAll() => _box.clear();
 }
