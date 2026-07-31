@@ -8,5 +8,6 @@ class AppRoutes {
   static const String ledger = '/ledger';
   static const String analytics = '/analytics';
   static const String profile = '/profile';
+  static const String settings = '/settings';
   static const String addGift = '/add-gift';
 }

@@ -40,6 +40,11 @@ dependencies:
   fl_chart: ^0.69.0
   flutter_screenutil: ^5.9.3
 
+  # Export / Share
+  excel: ^4.0.6
+  pdf: ^3.11.1
+  share_plus: ^10.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

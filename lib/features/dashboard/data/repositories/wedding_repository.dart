@@ -29,4 +29,6 @@ class WeddingRepository {
   Future<void> save(WeddingModel wedding) => _box.put(wedding.id, wedding);
 
   Future<void> delete(String id) => _box.delete(id);
+
+  Future<void> clearAll() => _box.clear();
 }
