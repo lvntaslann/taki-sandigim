@@ -6,6 +6,7 @@ import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/tracker/presentation/screens/add_gift_screen.dart';
 import '../../features/tracker/presentation/screens/analytics_screen.dart';
 import '../../features/tracker/presentation/screens/ledger_screen.dart';
@@ -70,6 +71,14 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.settings,
+                builder: (context, state) => const SettingsScreen(),
               ),
             ],
           ),
