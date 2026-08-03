@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/database/user_settings_repository.dart';
 
 /// Native pixel size shared with onboarding_screen.dart so both screens
 /// scale identically on every device.
@@ -19,6 +20,8 @@ class NameEntryScreen extends StatefulWidget {
 
 class _NameEntryScreenState extends State<NameEntryScreen> {
   final TextEditingController _nameController = TextEditingController();
+  final _settingsRepository = UserSettingsRepository();
+  String? _errorText;
 
   @override
   void dispose() {
@@ -27,6 +30,12 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
   }
 
   void _continue() {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      setState(() => _errorText = 'Lütfen isminizi giriniz');
+      return;
+    }
+    _settingsRepository.setName(name);
     context.go(AppRoutes.emailEntry);
   }
 
@@ -63,6 +72,9 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   child: TextField(
                     controller: _nameController,
                     textAlign: TextAlign.start,
+                    onChanged: (_) {
+                      if (_errorText != null) setState(() => _errorText = null);
+                    },
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 48,
                       color: AppColors.primaryDark,
@@ -75,6 +87,11 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                       labelStyle: GoogleFonts.playfairDisplay(
                         fontSize: 48,
                         color: AppColors.primary,
+                      ),
+                      errorText: _errorText,
+                      errorStyle: GoogleFonts.playfairDisplay(
+                        fontSize: 24,
+                        color: AppColors.error,
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: AppColors.primary),

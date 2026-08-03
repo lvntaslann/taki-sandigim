@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'app/routes/app_router.dart';
 import 'app/theme/app_theme.dart';
+import 'app/theme/theme_controller.dart';
 import 'core/database/hive_service.dart';
 
 Future<void> main() async {
@@ -22,11 +23,16 @@ class TakiSandigimApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => MaterialApp.router(
-        title: 'Takı Sandığım',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        routerConfig: AppRouter.router,
+      builder: (context, child) => ValueListenableBuilder<ThemeMode>(
+        valueListenable: ThemeController.instance,
+        builder: (context, themeMode, _) => MaterialApp.router(
+          title: 'Takı Sandığım',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: themeMode,
+          routerConfig: AppRouter.router,
+        ),
       ),
     );
   }

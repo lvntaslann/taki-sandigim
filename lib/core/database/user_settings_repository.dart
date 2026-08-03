@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../../features/dashboard/data/models/gift_enums.dart';
 import 'box_names.dart';
 
 class UserSettingsRepository {
@@ -7,8 +8,6 @@ class UserSettingsRepository {
   static const _darkModeKey = 'dark_mode';
   static const _notificationsKey = 'notifications_enabled';
   static const _emailKey = 'user_email';
-  static const _weddingDateKey = 'user_wedding_date';
-  static const _weddingEventTypeKey = 'user_wedding_event_type';
   static const _photoKey = 'user_photo_base64';
 
   Box get _box => Hive.box(BoxNames.settings);
@@ -31,18 +30,15 @@ class UserSettingsRepository {
 
   Future<void> setEmail(String email) => _box.put(_emailKey, email);
 
-  DateTime? getWeddingDate() {
-    final millis = _box.get(_weddingDateKey) as int?;
+  String _eventDateKey(EventType eventType) => 'event_date_${eventType.name}';
+
+  DateTime? getEventDate(EventType eventType) {
+    final millis = _box.get(_eventDateKey(eventType)) as int?;
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
-  Future<void> setWeddingDate(DateTime date) =>
-      _box.put(_weddingDateKey, date.millisecondsSinceEpoch);
-
-  String? getWeddingEventType() => _box.get(_weddingEventTypeKey) as String?;
-
-  Future<void> setWeddingEventType(String eventType) =>
-      _box.put(_weddingEventTypeKey, eventType);
+  Future<void> setEventDate(EventType eventType, DateTime date) =>
+      _box.put(_eventDateKey(eventType), date.millisecondsSinceEpoch);
 
   String? getPhotoBase64() => _box.get(_photoKey) as String?;
 

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/network/gold_rate_service.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
+import '../../../dashboard/presentation/widgets/direction_toggle.dart';
 import '../../../scanner/presentation/widgets/scanner_body.dart';
 import '../../data/tracker_repository.dart';
 import '../bloc/tracker_bloc.dart';
@@ -61,6 +63,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
   final _cashAmountController = TextEditingController();
   final _noteController = TextEditingController();
   final _goldRateService = GoldRateService();
+  final _settingsRepository = UserSettingsRepository();
 
   GiftType _giftType = GiftType.quarterGold;
   GiftDirection _direction = GiftDirection.received;
@@ -68,6 +71,14 @@ class _AddGiftFormState extends State<_AddGiftForm> {
   DateTime _date = DateTime.now();
   double? _goldRateTl;
   bool _isLoadingRate = true;
+
+  void _selectEventType(EventType eventType) {
+    final savedDate = _settingsRepository.getEventDate(eventType);
+    setState(() {
+      _eventType = eventType;
+      if (savedDate != null) _date = savedDate;
+    });
+  }
 
   static const _manualAmountTypes = {GiftType.cash, GiftType.other};
 
@@ -87,6 +98,8 @@ class _AddGiftFormState extends State<_AddGiftForm> {
   void initState() {
     super.initState();
     _amountController.addListener(() => setState(() {}));
+    final savedDate = _settingsRepository.getEventDate(_eventType);
+    if (savedDate != null) _date = savedDate;
     _loadRate();
   }
 
@@ -164,19 +177,10 @@ class _AddGiftFormState extends State<_AddGiftForm> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SegmentedButton<GiftDirection>(
-            segments: const [
-              ButtonSegment(
-                value: GiftDirection.received,
-                label: Text('Bize Takılan'),
-              ),
-              ButtonSegment(
-                value: GiftDirection.given,
-                label: Text('Bizim Taktığımız'),
-              ),
-            ],
-            selected: {_direction},
-            onSelectionChanged: (s) => setState(() => _direction = s.first),
+          DirectionToggle(
+            selected: _direction,
+            receivedLabel: 'Bize Takılan',
+            onChanged: (direction) => setState(() => _direction = direction),
           ),
           const SizedBox(height: 16),
           CustomTextField(
@@ -193,7 +197,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
             items: EventType.values
                 .map((e) => DropdownMenuItem(value: e, child: Text(e.label)))
                 .toList(),
-            onChanged: (v) => setState(() => _eventType = v!),
+            onChanged: (v) => _selectEventType(v!),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<GiftType>(
