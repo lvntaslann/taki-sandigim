@@ -171,6 +171,8 @@ class EventTypeAdapter extends TypeAdapter<EventType> {
         return EventType.engagement;
       case 2:
         return EventType.henna;
+      case 3:
+        return EventType.nikah;
       default:
         return EventType.wedding;
     }
@@ -187,6 +189,9 @@ class EventTypeAdapter extends TypeAdapter<EventType> {
         break;
       case EventType.henna:
         writer.writeByte(2);
+        break;
+      case EventType.nikah:
+        writer.writeByte(3);
         break;
     }
   }

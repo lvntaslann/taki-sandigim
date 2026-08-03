@@ -7,6 +7,7 @@ class DashboardState extends Equatable {
     this.status = DashboardStatus.initial,
     this.upcomingWeddings = const [],
     this.recentEntries = const [],
+    this.allGifts = const [],
     this.summary = BudgetSummary.empty,
     this.giftTypeBreakdown = const {},
     this.receivedBreakdown = const {},
@@ -19,6 +20,7 @@ class DashboardState extends Equatable {
   final DashboardStatus status;
   final List<WeddingModel> upcomingWeddings;
   final List<GiftModel> recentEntries;
+  final List<GiftModel> allGifts;
   final BudgetSummary summary;
   final Map<GiftType, double> giftTypeBreakdown;
   final Map<GiftType, double> receivedBreakdown;
@@ -31,6 +33,7 @@ class DashboardState extends Equatable {
     DashboardStatus? status,
     List<WeddingModel>? upcomingWeddings,
     List<GiftModel>? recentEntries,
+    List<GiftModel>? allGifts,
     BudgetSummary? summary,
     Map<GiftType, double>? giftTypeBreakdown,
     Map<GiftType, double>? receivedBreakdown,
@@ -43,6 +46,7 @@ class DashboardState extends Equatable {
       status: status ?? this.status,
       upcomingWeddings: upcomingWeddings ?? this.upcomingWeddings,
       recentEntries: recentEntries ?? this.recentEntries,
+      allGifts: allGifts ?? this.allGifts,
       summary: summary ?? this.summary,
       giftTypeBreakdown: giftTypeBreakdown ?? this.giftTypeBreakdown,
       receivedBreakdown: receivedBreakdown ?? this.receivedBreakdown,
@@ -58,6 +62,7 @@ class DashboardState extends Equatable {
     status,
     upcomingWeddings,
     recentEntries,
+    allGifts,
     summary,
     giftTypeBreakdown,
     receivedBreakdown,

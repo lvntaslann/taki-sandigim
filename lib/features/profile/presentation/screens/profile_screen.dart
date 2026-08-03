@@ -11,11 +11,10 @@ import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../../dashboard/data/repositories/wedding_repository.dart';
 import '../../data/gift_export_service.dart';
-
-const _eventTypeOptions = ['Düğün', 'Nişan', 'Nikah', 'Kına'];
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -33,9 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _weddingDateController;
-  DateTime? _weddingDate;
+  DateTime? _eventDate;
   String? _photoBase64;
-  String? _eventType;
+  EventType _eventType = EventType.wedding;
   String? _savedName;
 
   @override
@@ -47,12 +46,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _emailController = TextEditingController(
       text: _settingsRepository.getEmail() ?? '',
     );
-    _weddingDate = _settingsRepository.getWeddingDate();
+    _eventDate = _settingsRepository.getEventDate(_eventType);
     _weddingDateController = TextEditingController(
-      text: _weddingDate == null ? '' : _formatDate(_weddingDate!),
+      text: _eventDate == null ? '' : _formatDate(_eventDate!),
     );
     _photoBase64 = _settingsRepository.getPhotoBase64();
-    _eventType = _settingsRepository.getWeddingEventType() ?? _eventTypeOptions.first;
     _savedName = _settingsRepository.getName();
   }
 
@@ -90,21 +88,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _weddingDate ?? now,
+      initialDate: _eventDate ?? now,
       firstDate: DateTime(now.year - 80),
       lastDate: DateTime(now.year + 10),
     );
     if (picked == null) return;
     setState(() {
-      _weddingDate = picked;
+      _eventDate = picked;
       _weddingDateController.text = _formatDate(picked);
     });
-    await _settingsRepository.setWeddingDate(picked);
+    await _settingsRepository.setEventDate(_eventType, picked);
   }
 
-  void _selectEventType(String eventType) {
-    setState(() => _eventType = eventType);
-    _settingsRepository.setWeddingEventType(eventType);
+  void _selectEventType(EventType eventType) {
+    final date = _settingsRepository.getEventDate(eventType);
+    setState(() {
+      _eventType = eventType;
+      _eventDate = date;
+      _weddingDateController.text = date == null ? '' : _formatDate(date);
+    });
   }
 
   Future<void> _shareGiftList() async {
@@ -368,10 +370,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _eventTypeOptions
+                  children: EventType.values
                       .map(
                         (option) => ChoiceChip(
-                          label: Text(option),
+                          label: Text(option.label),
                           selected: _eventType == option,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
@@ -387,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
-                  label: '${_eventType ?? 'Düğün'} Tarihi',
+                  label: '${_eventType.label} Tarihi',
                   controller: _weddingDateController,
                   readOnly: true,
                   prefixIcon: Icons.calendar_month_outlined,

@@ -33,6 +33,15 @@ class BudgetCalculator {
     return breakdown;
   }
 
+  static Map<GiftType, double> breakdownByTypeCombined(List<GiftModel> gifts) {
+    final breakdown = <GiftType, double>{};
+    for (final gift in gifts) {
+      breakdown[gift.giftType] =
+          (breakdown[gift.giftType] ?? 0) + gift.estimatedValueTl;
+    }
+    return breakdown;
+  }
+
   static List<PersonTotal> groupByPerson(
     List<GiftModel> gifts,
     GiftDirection direction,

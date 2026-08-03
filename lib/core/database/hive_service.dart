@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../features/dashboard/data/models/gift_enums.dart';
 import '../../features/dashboard/data/models/gift_model.dart';
@@ -10,7 +9,6 @@ class HiveService {
   HiveService._();
 
   static bool _initialized = false;
-  static const Uuid _uuid = Uuid();
 
   static Future<void> init() async {
     if (_initialized) return;
@@ -30,81 +28,36 @@ class HiveService {
       Hive.openBox(BoxNames.settings),
     ]);
 
-    await _seedSampleGiftsIfEmpty();
+    await _removeLegacySampleGifts();
 
     _initialized = true;
   }
 
-  static Future<void> _seedSampleGiftsIfEmpty() async {
+  /// One-time cleanup: earlier builds seeded the gifts box with sample
+  /// entries (Ayşe Kurt, Sümeyye Türk, Zeynep Güngör) if it was empty.
+  /// This removes any leftover entries matching that exact seed data.
+  static Future<void> _removeLegacySampleGifts() async {
     final box = Hive.box<GiftModel>(BoxNames.gifts);
-    if (box.isNotEmpty) return;
+    final legacyFingerprints = {
+      ('Ayşe Kurt', GiftType.quarterGold, 4280.0),
+      ('Sümeyye Türk', GiftType.cash, 2500.0),
+      ('Zeynep Güngör', GiftType.bracelet, 1850.0),
+      ('Ayşe Kurt', GiftType.other, 1110.0),
+      ('Zeynep Güngör', GiftType.quarterGold, 6420.0),
+      ('Sümeyye Türk', GiftType.cash, 2290.0),
+    };
 
-    final now = DateTime.now();
-    final sampleGifts = [
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Ayşe Kurt',
-        giftType: GiftType.quarterGold,
-        amount: 4,
-        estimatedValueTl: 4280,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 20)),
-        relationType: RelationType.family,
-      ),
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Sümeyye Türk',
-        giftType: GiftType.cash,
-        amount: 2500,
-        estimatedValueTl: 2500,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 15)),
-        relationType: RelationType.friend,
-      ),
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Zeynep Güngör',
-        giftType: GiftType.bracelet,
-        amount: 1,
-        estimatedValueTl: 1850,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 10)),
-        relationType: RelationType.relative,
-      ),
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Ayşe Kurt',
-        giftType: GiftType.other,
-        amount: 1,
-        estimatedValueTl: 1110,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 5)),
-        relationType: RelationType.family,
-      ),
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Zeynep Güngör',
-        giftType: GiftType.quarterGold,
-        amount: 6,
-        estimatedValueTl: 6420,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 3)),
-        relationType: RelationType.relative,
-      ),
-      GiftModel(
-        id: _uuid.v4(),
-        personName: 'Sümeyye Türk',
-        giftType: GiftType.cash,
-        amount: 2290,
-        estimatedValueTl: 2290,
-        direction: GiftDirection.received,
-        date: now.subtract(const Duration(days: 1)),
-        relationType: RelationType.friend,
-      ),
-    ];
-
-    for (final gift in sampleGifts) {
-      await box.put(gift.id, gift);
+    final keysToRemove = <dynamic>[];
+    for (final key in box.keys) {
+      final gift = box.get(key);
+      if (gift == null) continue;
+      final fingerprint = (gift.personName, gift.giftType, gift.estimatedValueTl);
+      if (legacyFingerprints.contains(fingerprint)) {
+        keysToRemove.add(key);
+      }
+    }
+    if (keysToRemove.isNotEmpty) {
+      await box.deleteAll(keysToRemove);
     }
   }
 }

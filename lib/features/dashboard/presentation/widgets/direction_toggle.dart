@@ -9,10 +9,14 @@ class DirectionToggle extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onChanged,
+    this.receivedLabel = 'Bize Takılanlar',
+    this.givenLabel = 'Bizim Taktığımız',
   });
 
   final GiftDirection selected;
   final ValueChanged<GiftDirection> onChanged;
+  final String receivedLabel;
+  final String givenLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +30,14 @@ class DirectionToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _segment(
-              label: 'sana takılan',
+              label: receivedLabel,
               isSelected: selected == GiftDirection.received,
               onTap: () => onChanged(GiftDirection.received),
             ),
           ),
           Expanded(
             child: _segment(
-              label: 'senin taktığın',
+              label: givenLabel,
               isSelected: selected == GiftDirection.given,
               onTap: () => onChanged(GiftDirection.given),
             ),
@@ -60,8 +64,11 @@ class DirectionToggle extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 10.sp,
             fontWeight: FontWeight.w700,
             color: isSelected ? Colors.white : AppColors.primaryDark,
           ),

@@ -55,6 +55,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       final upcomingWeddings = _weddingRepository.getUpcoming();
       final allGifts = _giftRepository.getAll();
       final summary = BudgetCalculator.calculate(allGifts);
+      final giftTypeBreakdown = BudgetCalculator.breakdownByTypeCombined(
+        allGifts,
+      );
       final receivedBreakdown = BudgetCalculator.breakdownByType(
         allGifts,
         direction: GiftDirection.received,
@@ -76,8 +79,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           status: DashboardStatus.success,
           upcomingWeddings: upcomingWeddings,
           recentEntries: allGifts.take(5).toList(),
+          allGifts: allGifts,
           summary: summary,
-          giftTypeBreakdown: receivedBreakdown,
+          giftTypeBreakdown: giftTypeBreakdown,
           receivedBreakdown: receivedBreakdown,
           givenBreakdown: givenBreakdown,
           receivedByPerson: receivedByPerson,
