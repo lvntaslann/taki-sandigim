@@ -107,6 +107,8 @@ enum EventType {
   engagement,
   @HiveField(2)
   henna,
+  @HiveField(3)
+  nikah,
 }
 
 extension EventTypeLabel on EventType {
@@ -118,6 +120,8 @@ extension EventTypeLabel on EventType {
         return 'Nişan';
       case EventType.henna:
         return 'Kına';
+      case EventType.nikah:
+        return 'Nikah';
     }
   }
 
@@ -129,6 +133,8 @@ extension EventTypeLabel on EventType {
         return 'Nişanda takıldı';
       case EventType.henna:
         return 'Kınada takıldı';
+      case EventType.nikah:
+        return 'Nikahta takıldı';
     }
   }
 }

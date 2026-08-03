@@ -16,12 +16,6 @@ import '../../domain/balance_status.dart';
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
 
-  static const Map<RelationType, Color> _relationColors = {
-    RelationType.family: AppColors.secondary,
-    RelationType.relative: AppColors.primary,
-    RelationType.friend: AppColors.accent,
-  };
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,13 +40,6 @@ class AnalyticsScreen extends StatelessWidget {
           final totalGiven = entries
               .where((e) => e.direction == GiftDirection.given)
               .fold<double>(0, (s, e) => s + e.estimatedValueTl);
-
-          final relationTotals = <RelationType, double>{
-            for (final type in RelationType.values)
-              type: entries
-                  .where((e) => e.relationType == type)
-                  .fold<double>(0, (s, e) => s + e.estimatedValueTl),
-          };
 
           final personCount = entries.map((e) => e.personName).toSet().length;
           final balances = BalanceAnalyzer.calculate(entries)
@@ -105,53 +92,6 @@ class AnalyticsScreen extends StatelessWidget {
                           CurrencyConverter.formatTl(totalGiven),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16.h),
-              CustomCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'İlişkiye Göre Dağılım',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    const Text(
-                      'Aile, akraba ve arkadaşlarınla toplam takı alışverişi',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    SizedBox(
-                      height: 180.h,
-                      child: _RelationDonut(
-                        totals: relationTotals,
-                        colors: _relationColors,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Wrap(
-                      alignment: WrapAlignment.spaceEvenly,
-                      spacing: 12.w,
-                      runSpacing: 8.h,
-                      children: RelationType.values
-                          .map(
-                            (type) => _legendItem(
-                              _relationColors[type]!,
-                              type.label,
-                              CurrencyConverter.formatTl(
-                                relationTotals[type] ?? 0,
-                              ),
-                            ),
-                          )
-                          .toList(),
                     ),
                   ],
                 ),
@@ -283,44 +223,6 @@ class _ReceivedGivenDonut extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _RelationDonut extends StatelessWidget {
-  const _RelationDonut({required this.totals, required this.colors});
-
-  final Map<RelationType, double> totals;
-  final Map<RelationType, Color> colors;
-
-  @override
-  Widget build(BuildContext context) {
-    final total = totals.values.fold<double>(0, (a, b) => a + b);
-    if (total <= 0) {
-      return const Center(
-        child: Text('Veri yok', style: TextStyle(color: AppColors.textMuted)),
-      );
-    }
-
-    final sections = RelationType.values
-        .where((type) => (totals[type] ?? 0) > 0)
-        .map(
-          (type) => PieChartSectionData(
-            value: totals[type],
-            color: colors[type],
-            title: '${((totals[type]! / total) * 100).round()}%',
-            titleStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-            ),
-            radius: 42,
-          ),
-        )
-        .toList();
-
-    return PieChart(
-      PieChartData(sectionsSpace: 3, centerSpaceRadius: 46, sections: sections),
     );
   }
 }
