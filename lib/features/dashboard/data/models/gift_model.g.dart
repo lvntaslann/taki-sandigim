@@ -29,13 +29,15 @@ class GiftModelAdapter extends TypeAdapter<GiftModel> {
       goldRateTl: fields[9] as double?,
       relationType: fields[10] as RelationType,
       eventType: fields[11] as EventType?,
+      currencyCode: fields[12] as String?,
+      currencyRateTl: fields[13] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, GiftModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +61,11 @@ class GiftModelAdapter extends TypeAdapter<GiftModel> {
       ..writeByte(10)
       ..write(obj.relationType)
       ..writeByte(11)
-      ..write(obj.eventType);
+      ..write(obj.eventType)
+      ..writeByte(12)
+      ..write(obj.currencyCode)
+      ..writeByte(13)
+      ..write(obj.currencyRateTl);
   }
 
   @override
