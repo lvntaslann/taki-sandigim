@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:excel/excel.dart' as xls;
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
@@ -21,20 +23,32 @@ class GiftExportService {
         '[${gift.direction.label}]',
       );
     }
-    await Share.share(buffer.toString());
+    await Share.share(buffer.toString()).timeout(
+      const Duration(seconds: 20),
+      onTimeout: () => throw Exception('Paylaşım penceresi açılamadı.'),
+    );
   }
 
-  Future<void> exportAndShare(List<GiftModel> gifts, {required bool asPdf}) async {
+  Future<void> exportAndShare(
+    List<GiftModel> gifts, {
+    required bool asPdf,
+    required String fileName,
+  }) async {
     final bytes = asPdf ? await _buildPdfBytes(gifts) : await _buildExcelBytes(gifts);
     final extension = asPdf ? 'pdf' : 'xlsx';
-    final file = XFile.fromData(
-      bytes,
-      name: 'taki_listem.$extension',
-      mimeType: asPdf
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    final mimeType = asPdf
+        ? 'application/pdf'
+        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/$fileName.$extension';
+    final diskFile = await File(filePath).writeAsBytes(bytes);
+    final file = XFile(diskFile.path, name: '$fileName.$extension', mimeType: mimeType);
+
+    await Share.shareXFiles([file]).timeout(
+      const Duration(seconds: 20),
+      onTimeout: () => throw Exception('Paylaşım penceresi açılamadı.'),
     );
-    await Share.shareXFiles([file]);
   }
 
   Future<Uint8List> _buildPdfBytes(List<GiftModel> gifts) async {
