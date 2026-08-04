@@ -446,6 +446,7 @@ class _NetBalanceBarChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              reservedSize: 32,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 if (index < 0 || index >= balances.length) {

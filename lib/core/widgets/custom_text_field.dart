@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -12,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.onTap,
     this.readOnly = false,
+    this.inputFormatters,
   });
 
   final String label;
@@ -23,6 +25,7 @@ class CustomTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final VoidCallback? onTap;
   final bool readOnly;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,7 @@ class CustomTextField extends StatelessWidget {
       maxLines: maxLines,
       onTap: onTap,
       readOnly: readOnly,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,

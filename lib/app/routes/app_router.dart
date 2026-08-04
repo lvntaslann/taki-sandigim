@@ -35,7 +35,7 @@ class AppRouter {
     initialLocation: AppRoutes.onboarding,
     redirect: (context, state) {
       final hasCompletedOnboarding =
-          (UserSettingsRepository().getName() ?? '').isNotEmpty;
+          UserSettingsRepository().isOnboardingComplete();
       final isOnOnboardingPath =
           _onboardingPaths.contains(state.matchedLocation);
       if (hasCompletedOnboarding && isOnOnboardingPath) {

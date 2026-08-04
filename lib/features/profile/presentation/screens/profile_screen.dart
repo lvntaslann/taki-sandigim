@@ -14,7 +14,6 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../../dashboard/data/repositories/wedding_repository.dart';
-import '../../data/gift_export_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -27,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _settingsRepository = UserSettingsRepository();
   final _giftRepository = GiftRepository();
   final _weddingRepository = WeddingRepository();
-  final _exportService = GiftExportService();
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _weddingDateController;
@@ -106,17 +104,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _eventDate = date;
       _weddingDateController.text = date == null ? '' : _formatDate(date);
     });
-  }
-
-  Future<void> _shareGiftList() async {
-    final gifts = _giftRepository.getAll();
-    if (gifts.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Paylaşılacak bir takı kaydı yok.')),
-      );
-      return;
-    }
-    await _exportService.shareSummary(gifts);
   }
 
   void _openReports() => context.push(AppRoutes.reports);
@@ -362,42 +349,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   prefixIcon: Icons.calendar_month_outlined,
                   hintText: 'Tarih seçin',
                   onTap: _pickWeddingDate,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          CustomCard(
-            child: Row(
-              children: [
-                const Icon(Icons.ios_share, color: AppColors.primary),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Takı Listeni Paylaş',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      Text(
-                        'Listeni yakınlarınla paylaş.',
-                        style: TextStyle(
-                          color: AppColors.muted(context),
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 100,
-                  child: CustomButton(
-                    label: 'Paylaş',
-                    onPressed: _shareGiftList,
-                  ),
                 ),
               ],
             ),
