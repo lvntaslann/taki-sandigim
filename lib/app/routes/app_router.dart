@@ -6,10 +6,13 @@ import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/dashboard/data/models/gift_model.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/tracker/presentation/screens/add_gift_screen.dart';
 import '../../features/tracker/presentation/screens/analytics_screen.dart';
+import '../../features/tracker/presentation/screens/gift_value_analysis_screen.dart';
 import '../../features/tracker/presentation/screens/ledger_screen.dart';
+import '../../features/tracker/presentation/screens/value_analysis_list_screen.dart';
 import 'app_routes.dart';
 import 'app_shell.dart';
 
@@ -90,6 +93,18 @@ class AppRouter {
         builder: (context, state) => AddGiftScreen(
           initialTabIndex: state.extra is int ? state.extra as int : 0,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.giftValueAnalysis,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            GiftValueAnalysisScreen(gift: state.extra as GiftModel),
+      ),
+      GoRoute(
+        path: AppRoutes.valueAnalysisList,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            ValueAnalysisListScreen(categoryKey: state.extra as String),
       ),
     ],
   );
