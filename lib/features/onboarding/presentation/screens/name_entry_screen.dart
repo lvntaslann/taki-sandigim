@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../../../core/utils/name_capitalization_formatter.dart';
 
 /// Native pixel size shared with onboarding_screen.dart so both screens
 /// scale identically on every device.
@@ -59,7 +60,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                     'Size Nasıl Hitap Edelim?',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 64,
+                      fontSize: 72,
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w600,
                     ),
@@ -72,11 +73,12 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   child: TextField(
                     controller: _nameController,
                     textAlign: TextAlign.start,
+                    inputFormatters: const [NameCapitalizationFormatter()],
                     onChanged: (_) {
                       if (_errorText != null) setState(() => _errorText = null);
                     },
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 48,
+                      fontSize: 54,
                       color: AppColors.primaryDark,
                     ),
                     cursorColor: AppColors.primary,
@@ -85,7 +87,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                       border: InputBorder.none,
                       labelText: 'İsim:',
                       labelStyle: GoogleFonts.playfairDisplay(
-                        fontSize: 48,
+                        fontSize: 54,
                         color: AppColors.primary,
                       ),
                       errorText: _errorText,
@@ -104,15 +106,15 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   ),
                 ),
                 Positioned(
-                  left: 262,
-                  right: 262,
-                  top: 1478,
-                  height: 90,
+                  left: 207,
+                  right: 207,
+                  top: 1469,
+                  height: 108,
                   child: ElevatedButton(
                     onPressed: _continue,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(45),
+                        borderRadius: BorderRadius.circular(54),
                       ),
                       elevation: 0,
                       padding: EdgeInsets.zero,
@@ -127,16 +129,20 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        borderRadius: BorderRadius.circular(45),
+                        borderRadius: BorderRadius.circular(54),
                       ),
                       child: Container(
                         alignment: Alignment.center,
-                        child: Text(
-                          'Devam Et',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Devam Et',
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 55,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ),
