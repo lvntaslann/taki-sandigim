@@ -19,9 +19,11 @@ class UpcomingWeddingsList extends StatelessWidget {
           child: Text(
             'Yaklaşan bir düğün yok.\nSağ alttaki + ile ekleyebilirsin.',
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppColors.muted(context),
+            ),
           ),
         ),
       );
@@ -56,13 +58,17 @@ class UpcomingWeddingsList extends StatelessWidget {
                           Text(
                             wedding.title,
                             style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w700),
+                                ?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             DateFormatter.dayMonthYear(wedding.date),
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppColors.textMuted),
+                                ?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.muted(context),
+                                ),
                           ),
                         ],
                       ),
@@ -70,6 +76,7 @@ class UpcomingWeddingsList extends StatelessWidget {
                     Text(
                       DateFormatter.remainingDays(wedding.date),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 14,
                         color: AppColors.accent,
                         fontWeight: FontWeight.w600,
                       ),
