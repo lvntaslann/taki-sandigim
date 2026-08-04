@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/database/user_settings_repository.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
@@ -23,9 +24,25 @@ class AppRouter {
   static final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>();
 
+  static const _onboardingPaths = {
+    AppRoutes.onboarding,
+    AppRoutes.nameEntry,
+    AppRoutes.emailEntry,
+  };
+
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.onboarding,
+    redirect: (context, state) {
+      final hasCompletedOnboarding =
+          (UserSettingsRepository().getName() ?? '').isNotEmpty;
+      final isOnOnboardingPath =
+          _onboardingPaths.contains(state.matchedLocation);
+      if (hasCompletedOnboarding && isOnOnboardingPath) {
+        return AppRoutes.dashboard;
+      }
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
