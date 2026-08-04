@@ -57,7 +57,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.secondary,
                 ),
@@ -65,7 +65,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
               Text(
                 CurrencyConverter.formatTl(total),
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
@@ -78,7 +78,11 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
               padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Text(
                 'Henüz kayıt yok',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
           else
@@ -91,7 +95,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                   if (i != people.length - 1)
                     Divider(
                       height: 1,
-                      color: AppColors.textMuted.withValues(alpha: 0.15),
+                      color: AppColors.muted(context).withValues(alpha: 0.15),
                     ),
                 ],
               ),
@@ -129,7 +133,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                 style: TextStyle(
                   color: AppColors.secondary,
                   fontWeight: FontWeight.w700,
-                  fontSize: 13.sp,
+                  fontSize: 15.sp,
                 ),
               ),
             ),
@@ -137,16 +141,16 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
             Expanded(
               child: Text(
                 person.name,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.secondary),
+                style: TextStyle(fontSize: 16.sp, color: AppColors.secondary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
               CurrencyConverter.formatTl(person.totalTl),
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textMuted,
+                color: AppColors.muted(context),
               ),
             ),
           ],
@@ -172,7 +176,11 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
       child: gifts.isEmpty
           ? Text(
               'Henüz kayıt yok',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 12.sp),
+              style: TextStyle(
+                color: AppColors.muted(context),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +199,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                               Text(
                                 gifts[i].giftType.label,
                                 style: TextStyle(
-                                  fontSize: 12.5.sp,
+                                  fontSize: 14.5.sp,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.secondary,
                                 ),
@@ -199,8 +207,9 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                               Text(
                                 DateFormatter.shortDate(gifts[i].date),
                                 style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: AppColors.textMuted,
+                                  fontSize: 14.sp,
+                                  color: AppColors.muted(context),
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -211,7 +220,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                             gifts[i].estimatedValueTl,
                           ),
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),

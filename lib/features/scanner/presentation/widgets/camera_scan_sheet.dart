@@ -265,7 +265,7 @@ class _CameraScanSheetState extends State<_CameraScanSheet> {
                 : const Icon(
                     Icons.camera_alt_rounded,
                     color: Colors.white,
-                    size: 30,
+                    size: 32,
                   ),
           ),
         ),
