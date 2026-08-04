@@ -10,6 +10,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String addGift = '/add-gift';
+  static const String reports = '/reports';
   static const String giftValueAnalysis = '/gift-value-analysis';
   static const String valueAnalysisList = '/value-analysis';
 }

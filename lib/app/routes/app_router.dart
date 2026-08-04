@@ -6,6 +6,7 @@ import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/reports_screen.dart';
 import '../../features/dashboard/data/models/gift_model.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/tracker/presentation/screens/add_gift_screen.dart';
@@ -93,6 +94,11 @@ class AppRouter {
         builder: (context, state) => AddGiftScreen(
           initialTabIndex: state.extra is int ? state.extra as int : 0,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.reports,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ReportsScreen(),
       ),
       GoRoute(
         path: AppRoutes.giftValueAnalysis,
