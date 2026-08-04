@@ -136,9 +136,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.feedback_outlined,
                     title: 'Geri Bildirim Gönder',
                     subtitle: 'Görüş ve önerilerinizi bizimle paylaşın',
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.chevron_right,
-                      color: AppColors.textMuted,
+                      color: AppColors.muted(context),
                     ),
                   ),
                 ),
@@ -155,9 +155,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.privacy_tip_outlined,
                     title: 'Gizlilik Politikası',
                     subtitle: 'Verilerinizin nasıl kullanıldığını görüntüleyin',
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.chevron_right,
-                      color: AppColors.textMuted,
+                      color: AppColors.muted(context),
                     ),
                   ),
                 ),
@@ -231,9 +231,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 12,
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

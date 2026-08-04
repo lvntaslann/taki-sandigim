@@ -68,7 +68,7 @@ class DirectionToggle extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 10.sp,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w700,
             color: isSelected ? Colors.white : AppColors.primaryDark,
           ),

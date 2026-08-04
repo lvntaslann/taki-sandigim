@@ -210,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: _photoBase64 == null
                         ? const Icon(
                             Icons.person,
-                            size: 40,
+                            size: 42,
                             color: AppColors.secondary,
                           )
                         : null,
@@ -226,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: const Icon(
                         Icons.camera_alt,
-                        size: 16,
+                        size: 18,
                         color: Colors.white,
                       ),
                     ),
@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Center(
               child: Text(
                 _savedName!,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
               ),
             ),
           ],
@@ -254,9 +254,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Ana Sayfa\'daki selamlamada kullanılır.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: TextStyle(
+                    color: AppColors.muted(context),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -288,9 +292,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Yedekleme ve bildirimler için kullanılır.',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: TextStyle(
+                    color: AppColors.muted(context),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -372,11 +380,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Takı Listeni Paylaş',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const Text(
+                      Text(
                         'Listeni yakınlarınla paylaş.',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
+                          color: AppColors.muted(context),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -408,18 +417,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Takı Listesi Raporları',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const Text(
+                      Text(
                         'PDF, Excel olarak indir veya paylaş.',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
+                          color: AppColors.muted(context),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Icon(Icons.chevron_right, color: AppColors.textMuted),
+                Icon(Icons.chevron_right, color: AppColors.muted(context)),
               ],
             ),
           ),
@@ -437,11 +447,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Çıkış Yap',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const Text(
+                      Text(
                         'Hesabınızdan çıkış yapın.',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
+                          color: AppColors.muted(context),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -472,11 +483,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Hesabı Sil',
                         style: TextStyle(fontWeight: FontWeight.w700, color: Colors.red),
                       ),
-                      const Text(
+                      Text(
                         'Tüm verileriniz kalıcı olarak silinir.',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
+                          color: AppColors.muted(context),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

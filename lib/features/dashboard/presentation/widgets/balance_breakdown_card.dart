@@ -45,7 +45,11 @@ class BalanceBreakdownCard extends StatelessWidget {
         children: [
           Text(
             'Toplam bakiye',
-            style: TextStyle(fontSize: 14.sp, color: AppColors.textMuted),
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.muted(context),
+            ),
           ),
           SizedBox(height: 6.h),
           Text(
@@ -58,7 +62,7 @@ class BalanceBreakdownCard extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           if (entries.isEmpty || total <= 0)
-            _emptyState()
+            _emptyState(context)
           else
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +94,7 @@ class BalanceBreakdownCard extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(bottom: 10.h),
                     child: _legendRow(
+                      context: context,
                       color: _palette[i % _palette.length],
                       label: entries[i].key.label,
                       percent: (entries[i].value / total * 100).round(),
@@ -103,6 +108,7 @@ class BalanceBreakdownCard extends StatelessWidget {
   }
 
   Widget _legendRow({
+    required BuildContext context,
     required Color color,
     required String label,
     required int percent,
@@ -118,28 +124,36 @@ class BalanceBreakdownCard extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: TextStyle(fontSize: 13.sp, color: AppColors.secondary),
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.secondary,
+            ),
           ),
         ),
         Text(
           '%$percent',
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w700,
-            color: AppColors.textMuted,
+            color: AppColors.muted(context),
           ),
         ),
       ],
     );
   }
 
-  Widget _emptyState() {
+  Widget _emptyState(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 24.h),
       child: Center(
         child: Text(
           'Henüz kayıt yok',
-          style: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
+          style: TextStyle(
+            color: AppColors.muted(context),
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );

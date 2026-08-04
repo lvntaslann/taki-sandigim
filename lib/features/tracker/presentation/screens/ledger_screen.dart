@@ -88,7 +88,11 @@ class _LedgerViewState extends State<_LedgerView> {
                       _searchQuery.isEmpty
                           ? 'Henüz bir kayıt yok.'
                           : 'Sonuç bulunamadı.',
-                      style: const TextStyle(color: AppColors.textMuted),
+                      style: TextStyle(
+                        color: AppColors.muted(context),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   );
                 }
@@ -162,19 +166,26 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
                       children: [
                         Text(
                           ledger.personName,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '${lastEntry.giftType.label} (${lastEntry.date.year})',
-                          style: const TextStyle(color: AppColors.textMuted),
+                          style: TextStyle(
+                            color: AppColors.muted(context),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Icon(
                     _isExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: AppColors.textMuted,
+                    color: AppColors.muted(context),
                   ),
                 ],
               ),
@@ -215,16 +226,20 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Toplam Bakiye',
-                style: TextStyle(color: AppColors.textMuted),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               Text(
                 CurrencyConverter.formatTl(status.balanceTl.abs()),
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   color: status.isBalanced
-                      ? AppColors.textMuted
+                      ? AppColors.muted(context)
                       : status.weOwe
                       ? AppColors.error
                       : AppColors.success,
@@ -235,7 +250,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
           const SizedBox(height: 12),
           Text(
             'Tüm Kayıtlar (${ledger.entries.length})',
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...ledger.entries.map((e) => _entryRow(context, e)),
@@ -251,7 +266,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: color,
             letterSpacing: 0.5,
@@ -280,13 +295,14 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
               children: [
                 Text(
                   '${entry.giftType.label} · ${CurrencyConverter.formatTl(entry.estimatedValueTl)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 Text(
                   DateFormatter.shortDate(entry.date),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
+                  style: TextStyle(
+                    color: AppColors.muted(context),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
