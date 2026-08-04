@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/database/user_settings_repository.dart';
 
 /// Native pixel size shared with name_entry_screen.dart so both screens
 /// scale identically on every device.
@@ -19,6 +20,7 @@ class EmailEntryScreen extends StatefulWidget {
 
 class _EmailEntryScreenState extends State<EmailEntryScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final _settingsRepository = UserSettingsRepository();
   bool _skipHovered = false;
 
   @override
@@ -28,6 +30,10 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
   }
 
   void _continue() {
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty) {
+      _settingsRepository.setEmail(email);
+    }
     context.go(AppRoutes.dashboard);
   }
 
