@@ -89,6 +89,8 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
         goldRateTl: event.goldRateTl,
         relationType: event.relationType,
         eventType: event.eventType,
+        currencyCode: event.currencyCode,
+        currencyRateTl: event.currencyRateTl,
       );
       await _onStarted(const TrackerStarted(), emit);
     } catch (e) {
