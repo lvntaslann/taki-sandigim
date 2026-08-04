@@ -7,6 +7,7 @@ import '../../../../core/network/currency_rate_service.dart';
 import '../../../../core/network/gold_rate_service.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/utils/name_capitalization_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
@@ -249,6 +250,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
             label: 'Kişi Adı',
             controller: _personNameController,
             prefixIcon: Icons.person_outline,
+            inputFormatters: const [NameCapitalizationFormatter()],
             validator: (v) =>
                 (v == null || v.trim().isEmpty) ? 'Kişi adı gerekli' : null,
           ),

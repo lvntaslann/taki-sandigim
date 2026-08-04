@@ -22,6 +22,9 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
   final TextEditingController _emailController = TextEditingController();
   final _settingsRepository = UserSettingsRepository();
   bool _skipHovered = false;
+  String? _errorText;
+
+  static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   @override
   void dispose() {
@@ -31,13 +34,21 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
 
   void _continue() {
     final email = _emailController.text.trim();
-    if (email.isNotEmpty) {
-      _settingsRepository.setEmail(email);
+    if (email.isEmpty) {
+      setState(() => _errorText = 'Lütfen mail adresinizi giriniz');
+      return;
     }
+    if (!_emailPattern.hasMatch(email)) {
+      setState(() => _errorText = 'Lütfen geçerli bir mail adresi giriniz');
+      return;
+    }
+    _settingsRepository.setEmail(email);
+    _settingsRepository.setOnboardingComplete();
     context.go(AppRoutes.dashboard);
   }
 
   void _skip() {
+    _settingsRepository.setOnboardingComplete();
     context.go(AppRoutes.dashboard);
   }
 
@@ -61,7 +72,7 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                     'Yedekleme için mail adresinizi\ngiriniz...',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 64,
+                      fontSize: 72,
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w600,
                     ),
@@ -75,8 +86,11 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textAlign: TextAlign.start,
+                    onChanged: (_) {
+                      if (_errorText != null) setState(() => _errorText = null);
+                    },
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 48,
+                      fontSize: 54,
                       color: AppColors.primaryDark,
                     ),
                     cursorColor: AppColors.primary,
@@ -85,8 +99,13 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                       border: InputBorder.none,
                       labelText: 'Mail:',
                       labelStyle: GoogleFonts.playfairDisplay(
-                        fontSize: 48,
+                        fontSize: 54,
                         color: AppColors.primary,
+                      ),
+                      errorText: _errorText,
+                      errorStyle: GoogleFonts.playfairDisplay(
+                        fontSize: 24,
+                        color: AppColors.error,
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: AppColors.primary),
@@ -99,15 +118,15 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   ),
                 ),
                 Positioned(
-                  left: 262,
-                  right: 262,
-                  top: 1478,
-                  height: 90,
+                  left: 207,
+                  right: 207,
+                  top: 1469,
+                  height: 108,
                   child: ElevatedButton(
                     onPressed: _continue,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(45),
+                        borderRadius: BorderRadius.circular(54),
                       ),
                       elevation: 0,
                       padding: EdgeInsets.zero,
@@ -122,16 +141,20 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        borderRadius: BorderRadius.circular(45),
+                        borderRadius: BorderRadius.circular(54),
                       ),
                       child: Container(
                         alignment: Alignment.center,
-                        child: Text(
-                          'Devam Et',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Devam Et',
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 55,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ),
