@@ -28,7 +28,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _giftRepository = GiftRepository();
   final _weddingRepository = WeddingRepository();
   final _exportService = GiftExportService();
-  bool _isExporting = false;
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _weddingDateController;
@@ -120,47 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await _exportService.shareSummary(gifts);
   }
 
-  Future<void> _downloadGiftList() async {
-    final gifts = _giftRepository.getAll();
-    if (gifts.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('İndirilecek bir takı kaydı yok.')),
-      );
-      return;
-    }
-
-    final format = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Format Seçin'),
-        content: const Text(
-          'Takı listeni hangi formatta indirmek istersin?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Vazgeç'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Excel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('PDF'),
-          ),
-        ],
-      ),
-    );
-    if (format == null) return;
-
-    setState(() => _isExporting = true);
-    try {
-      await _exportService.exportAndShare(gifts, asPdf: format);
-    } finally {
-      if (mounted) setState(() => _isExporting = false);
-    }
-  }
+  void _openReports() => context.push(AppRoutes.reports);
 
   Future<void> _pickPhoto() async {
     final picked = await ImagePicker().pickImage(
@@ -436,20 +395,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           CustomCard(
+            onTap: _openReports,
             child: Row(
               children: [
-                const Icon(Icons.download_outlined, color: AppColors.primary),
+                const Icon(Icons.description_outlined, color: AppColors.primary),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Takı Listeni İndir',
+                        'Takı Listesi Raporları',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const Text(
-                        'PDF veya düzenlenebilir Excel tablosu olarak indir.',
+                        'PDF, Excel olarak indir veya paylaş.',
                         style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 12,
@@ -459,14 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                SizedBox(
-                  width: 100,
-                  child: CustomButton(
-                    label: 'İndir',
-                    isLoading: _isExporting,
-                    onPressed: _downloadGiftList,
-                  ),
-                ),
+                const Icon(Icons.chevron_right, color: AppColors.textMuted),
               ],
             ),
           ),
