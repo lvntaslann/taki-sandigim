@@ -19,6 +19,8 @@ class GiftModel extends HiveObject {
     this.goldRateTl,
     this.relationType = RelationType.friend,
     this.eventType,
+    this.currencyCode,
+    this.currencyRateTl,
   });
 
   @HiveField(0)
@@ -56,4 +58,10 @@ class GiftModel extends HiveObject {
 
   @HiveField(11)
   EventType? eventType;
+
+  @HiveField(12)
+  String? currencyCode;
+
+  @HiveField(13)
+  double? currencyRateTl;
 }
