@@ -55,10 +55,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           final entries = TrackerRepository().getAll();
 
           if (entries.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'Analiz için henüz yeterli kayıt yok.',
-                style: TextStyle(color: AppColors.textMuted),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             );
           }
@@ -99,6 +103,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     Text(
                       'Bize Gelen / Bizim Verdiğimiz',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -137,25 +142,31 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     Text(
                       'Kişi Bazında Net Bakiye',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 4.h),
-                    const Text(
+                    Text(
                       'Yeşil: bize borçlu · Kırmızı: biz borçluyuz',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted,
+                        fontSize: 15,
+                        color: AppColors.muted(context),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 16.h),
                     SizedBox(
                       height: 220.h,
                       child: topBalances.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
                                 'Herkesle hesap dengede.',
-                                style: TextStyle(color: AppColors.textMuted),
+                                style: TextStyle(
+                                  color: AppColors.muted(context),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             )
                           : _NetBalanceBarChart(balances: topBalances),
@@ -170,14 +181,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   style: Theme.of(context)
                       .textTheme
                       .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                      ?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
-                const Text(
+                Text(
                   'Bir kategoriye dokun, içindeki kişileri ve değer '
                   'değişimlerini incele.',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
+                    fontSize: 15,
+                    color: AppColors.muted(context),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -189,7 +201,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 2.4,
+                    childAspectRatio: 2.05,
                   ),
                   itemBuilder: (context, index) {
                     final entry = categories[index];
@@ -228,11 +240,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 const SizedBox(height: 2),
                 _isRateLoading
-                    ? const Text(
+                    ? Text(
                         'Güncelleniyor...',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
+                          color: AppColors.muted(context),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                         ),
                       )
                     : Text(
@@ -248,7 +261,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
           IconButton(
             onPressed: _isRateLoading ? null : _loadRate,
-            icon: const Icon(Icons.refresh, color: AppColors.textMuted),
+            icon: Icon(Icons.refresh, color: AppColors.muted(context)),
           ),
         ],
       ),
@@ -257,6 +270,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Widget _categoryTile(GiftValueCategory category, int count) {
     return CustomCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       onTap: () => context.push(
         AppRoutes.valueAnalysisList,
         extra: category.key,
@@ -277,9 +291,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 Text(
                   '$count kayıt',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
+                  style: TextStyle(
+                    color: AppColors.muted(context),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -295,12 +310,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted)),
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.muted(context),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           SizedBox(height: 6.h),
           Text(
             value,
             style: TextStyle(
-              fontSize: 22.sp,
+              fontSize: 23.sp,
               fontWeight: FontWeight.w800,
               color: AppColors.secondary,
             ),
@@ -322,7 +344,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: 6),
-            Text(label, style: const TextStyle(color: AppColors.textMuted)),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppColors.muted(context),
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -342,8 +371,15 @@ class _ReceivedGivenDonut extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = received + given;
     if (total <= 0) {
-      return const Center(
-        child: Text('Veri yok', style: TextStyle(color: AppColors.textMuted)),
+      return Center(
+        child: Text(
+          'Veri yok',
+          style: TextStyle(
+            color: AppColors.muted(context),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       );
     }
 
@@ -359,7 +395,7 @@ class _ReceivedGivenDonut extends StatelessWidget {
             titleStyle: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 14,
             ),
             radius: 42,
           ),
@@ -370,7 +406,7 @@ class _ReceivedGivenDonut extends StatelessWidget {
             titleStyle: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 14,
             ),
             radius: 42,
           ),
@@ -423,9 +459,10 @@ class _NetBalanceBarChart extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
                     short,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppColors.textMuted,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.muted(context),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 );
@@ -443,7 +480,7 @@ class _NetBalanceBarChart extends StatelessWidget {
                   width: 22,
                   borderRadius: BorderRadius.circular(6),
                   color: balances[i].isBalanced
-                      ? AppColors.textMuted
+                      ? AppColors.muted(context)
                       : balances[i].weOwe
                       ? AppColors.error
                       : AppColors.success,
