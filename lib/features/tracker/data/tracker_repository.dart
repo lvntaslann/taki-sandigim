@@ -25,6 +25,8 @@ class TrackerRepository {
     double? goldRateTl,
     RelationType relationType = RelationType.friend,
     EventType? eventType,
+    String? currencyCode,
+    double? currencyRateTl,
   }) async {
     final gift = GiftModel(
       id: _uuid.v4(),
@@ -39,6 +41,8 @@ class TrackerRepository {
       goldRateTl: goldRateTl,
       relationType: relationType,
       eventType: eventType,
+      currencyCode: currencyCode,
+      currencyRateTl: currencyRateTl,
     );
     await _giftRepository.save(gift);
     return gift;

@@ -23,6 +23,8 @@ class TrackerGiftAdded extends TrackerEvent {
     this.goldRateTl,
     this.relationType = RelationType.friend,
     this.eventType,
+    this.currencyCode,
+    this.currencyRateTl,
   });
 
   final String personName;
@@ -35,6 +37,8 @@ class TrackerGiftAdded extends TrackerEvent {
   final double? goldRateTl;
   final RelationType relationType;
   final EventType? eventType;
+  final String? currencyCode;
+  final double? currencyRateTl;
 
   @override
   List<Object?> get props => [
@@ -48,6 +52,8 @@ class TrackerGiftAdded extends TrackerEvent {
     goldRateTl,
     relationType,
     eventType,
+    currencyCode,
+    currencyRateTl,
   ];
 }
 
