@@ -1,10 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
+import '../../../../core/network/gold_rate_service.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
@@ -12,9 +15,35 @@ import '../../../dashboard/data/models/gift_model.dart';
 import '../../data/tracker_repository.dart';
 import '../../domain/balance_analyzer.dart';
 import '../../domain/balance_status.dart';
+import '../../domain/gift_value_category.dart';
 
-class AnalyticsScreen extends StatelessWidget {
+class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
+
+  @override
+  State<AnalyticsScreen> createState() => _AnalyticsScreenState();
+}
+
+class _AnalyticsScreenState extends State<AnalyticsScreen> {
+  final _goldRateService = GoldRateService();
+  double? _currentGoldRateTl;
+  bool _isRateLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRate();
+  }
+
+  Future<void> _loadRate() async {
+    setState(() => _isRateLoading = true);
+    final rate = await _goldRateService.getGoldRateTl();
+    if (!mounted) return;
+    setState(() {
+      _currentGoldRateTl = rate;
+      _isRateLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +75,13 @@ class AnalyticsScreen extends StatelessWidget {
             ..sort((a, b) => b.balanceTl.abs().compareTo(a.balanceTl.abs()));
           final topBalances = balances.take(6).toList();
 
+          final categories = GiftValueCategory.groupBy(entries);
+
           return ListView(
             padding: EdgeInsets.all(16.w),
             children: [
+              _goldRateCard(),
+              SizedBox(height: 16.h),
               Row(
                 children: [
                   Expanded(
@@ -130,9 +163,129 @@ class AnalyticsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (categories.isNotEmpty) ...[
+                SizedBox(height: 16.h),
+                Text(
+                  'Değer Analizi',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const Text(
+                  'Bir kategoriye dokun, içindeki kişileri ve değer '
+                  'değişimlerini incele.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: categories.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 2.4,
+                  ),
+                  itemBuilder: (context, index) {
+                    final entry = categories[index];
+                    return _categoryTile(entry.key, entry.value.length);
+                  },
+                ),
+              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _goldRateCard() {
+    return CustomCard(
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.monetization_on_outlined, color: AppColors.primary),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Güncel Gram Altın Kuru',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 2),
+                _isRateLoading
+                    ? const Text(
+                        'Güncelleniyor...',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      )
+                    : Text(
+                        CurrencyConverter.formatTl(_currentGoldRateTl ?? 0),
+                        style: const TextStyle(
+                          color: AppColors.secondary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                        ),
+                      ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: _isRateLoading ? null : _loadRate,
+            icon: const Icon(Icons.refresh, color: AppColors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _categoryTile(GiftValueCategory category, int count) {
+    return CustomCard(
+      onTap: () => context.push(
+        AppRoutes.valueAnalysisList,
+        extra: category.key,
+      ),
+      child: Row(
+        children: [
+          Icon(category.icon, color: AppColors.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category.label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                Text(
+                  '$count kayıt',
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
