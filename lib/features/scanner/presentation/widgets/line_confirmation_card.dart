@@ -137,9 +137,11 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
               Expanded(
                 child: Text(
                   'Taranan: "${widget.line.rawText}"',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
+                  style: TextStyle(
+                    color: AppColors.muted(context),
                     fontStyle: FontStyle.italic,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

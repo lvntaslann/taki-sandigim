@@ -20,6 +20,8 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: GoogleFonts.plusJakartaSansTextTheme(),
+      iconTheme: const IconThemeData(size: 26),
+      primaryIconTheme: const IconThemeData(size: 26),
     );
 
     return base.copyWith(
@@ -30,7 +32,7 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: GoogleFonts.plusJakartaSans(
           color: AppColors.secondary,
-          fontSize: 20,
+          fontSize: 21,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -95,7 +97,11 @@ class AppTheme {
         secondary: AppColors.accent,
         error: AppColors.error,
       ),
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData(brightness: Brightness.dark).textTheme),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(
+        ThemeData(brightness: Brightness.dark).textTheme,
+      ),
+      iconTheme: const IconThemeData(size: 26),
+      primaryIconTheme: const IconThemeData(size: 26),
     );
 
     return base.copyWith(
@@ -107,7 +113,7 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: GoogleFonts.plusJakartaSans(
           color: base.colorScheme.onSurface,
-          fontSize: 20,
+          fontSize: 21,
           fontWeight: FontWeight.w700,
         ),
       ),

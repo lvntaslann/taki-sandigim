@@ -56,6 +56,11 @@ class _DashboardViewState extends State<_DashboardView> {
   String? _expandedPerson;
   GiftDirection _direction = GiftDirection.received;
 
+  Color _titleColorFor(Color background) =>
+      ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+      ? Colors.white
+      : AppColors.secondary;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,8 +111,8 @@ class _DashboardViewState extends State<_DashboardView> {
               'Takı Sandığım',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.textMuted,
-                fontSize: 20.sp,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 21.sp,
               ),
             ),
             SizedBox(height: 2.h),
@@ -121,8 +126,9 @@ class _DashboardViewState extends State<_DashboardView> {
                 return Text(
                   greeting,
                   style: TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 13.sp,
+                    color: AppColors.muted(context),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
                   ),
                 );
               },
@@ -154,10 +160,14 @@ class _DashboardViewState extends State<_DashboardView> {
           ),
           SizedBox(height: 16.h),
           if (total <= 0)
-            const Center(
+            Center(
               child: Text(
                 'Henüz takı eklenmedi.',
-                style: TextStyle(color: AppColors.textMuted),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
           else
@@ -177,10 +187,10 @@ class _DashboardViewState extends State<_DashboardView> {
                             color: _giftTypeColors[type],
                             title:
                                 '${((breakdown[type]! / total) * 100).round()}%',
-                            titleStyle: const TextStyle(
-                              color: Colors.white,
+                            titleStyle: TextStyle(
+                              color: _titleColorFor(_giftTypeColors[type]!),
                               fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                              fontSize: 14,
                             ),
                             radius: 42,
                           ),
@@ -222,14 +232,16 @@ class _DashboardViewState extends State<_DashboardView> {
             children: [
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               if (people.isNotEmpty)
                 Text(
                   '${total.toStringAsFixed(0)}TL',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.secondary,
                   ),
@@ -238,10 +250,14 @@ class _DashboardViewState extends State<_DashboardView> {
           ),
           SizedBox(height: 16.h),
           if (people.isEmpty)
-            const Center(
+            Center(
               child: Text(
                 'Henüz takı eklenmedi.',
-                style: TextStyle(color: AppColors.textMuted),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
           else
@@ -283,11 +299,12 @@ class _DashboardViewState extends State<_DashboardView> {
             Padding(
               padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
               child: gifts.isEmpty
-                  ? const Text(
+                  ? Text(
                       'Kayıt bulunamadı.',
                       style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 13,
+                        color: AppColors.muted(context),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
                     )
                   : Column(
@@ -328,14 +345,18 @@ class _DashboardViewState extends State<_DashboardView> {
           Text(
             '${gift.giftType.label} · $dateText · $locationText · '
             '${gift.estimatedValueTl.toStringAsFixed(0)}TL',
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+            style: TextStyle(
+              color: AppColors.muted(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 2.h),
           Text(
             noteText,
             style: TextStyle(
               color: noteColor,
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -397,7 +418,11 @@ class _DashboardViewState extends State<_DashboardView> {
           label,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          style: TextStyle(
+            color: AppColors.muted(context),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

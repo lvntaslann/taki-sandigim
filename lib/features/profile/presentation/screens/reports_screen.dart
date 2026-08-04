@@ -118,7 +118,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Text(
                         'Verilerinizi PDF veya Excel formatında dışa aktarın.',
                         style: TextStyle(
-                          color: AppColors.textMuted,
+                          color: AppColors.muted(context),
                           fontSize: 14.5,
                           fontWeight: FontWeight.w500,
                         ),
@@ -193,7 +193,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: AppColors.textMuted,
+                        color: AppColors.muted(context),
                         fontSize: 14.5,
                         fontWeight: FontWeight.w500,
                       ),
@@ -208,7 +208,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               else
-                Icon(Icons.chevron_right, color: AppColors.textMuted),
+                Icon(Icons.chevron_right, color: AppColors.muted(context)),
             ],
           ),
         ),

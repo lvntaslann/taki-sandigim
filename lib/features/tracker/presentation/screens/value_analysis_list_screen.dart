@@ -80,7 +80,7 @@ class _ValueAnalysisListScreenState extends State<ValueAnalysisListScreen> {
                           ? 'Bu kategoride bir kayıt yok.'
                           : 'Sonuç bulunamadı.',
                       style: TextStyle(
-                        color: AppColors.textMuted,
+                        color: AppColors.muted(context),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
@@ -134,7 +134,7 @@ class _ValueGiftRow extends StatelessWidget {
                 Text(
                   DateFormatter.shortDate(gift.date),
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.muted(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -144,7 +144,7 @@ class _ValueGiftRow extends StatelessWidget {
           ),
           BasisBadge(label: basisLabel),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right, color: AppColors.textMuted),
+          Icon(Icons.chevron_right, color: AppColors.muted(context)),
         ],
       ),
     );

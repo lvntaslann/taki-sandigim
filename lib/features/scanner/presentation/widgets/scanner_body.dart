@@ -147,10 +147,14 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
                 );
               }
               if (state.status != ScannerStatus.success) {
-                return const Center(
+                return Center(
                   child: Text(
                     'Bir defter fotoğrafı tarayın ya da galeriden seçin.',
-                    style: TextStyle(color: AppColors.textMuted),
+                    style: TextStyle(
+                      color: AppColors.muted(context),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 );
               }
@@ -164,10 +168,14 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
 
   Widget _reviewArea(ScannerState state) {
     if (state.lines.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Görüntüde okunabilir bir satır bulunamadı.',
-          style: TextStyle(color: AppColors.textMuted),
+          style: TextStyle(
+            color: AppColors.muted(context),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       );
     }

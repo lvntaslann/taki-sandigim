@@ -37,7 +37,11 @@ class PersonGiftsScreen extends StatelessWidget {
           ? Center(
               child: Text(
                 'Henüz kayıt yok',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 13.sp),
+                style: TextStyle(
+                  color: AppColors.muted(context),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
           : ListView.separated(
@@ -95,7 +99,7 @@ class _GiftTile extends StatelessWidget {
                 Text(
                   gift.giftType.label,
                   style: TextStyle(
-                    fontSize: 13.5.sp,
+                    fontSize: 15.5.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.secondary,
                   ),
@@ -104,16 +108,18 @@ class _GiftTile extends StatelessWidget {
                 Text(
                   DateFormatter.shortDate(gift.date),
                   style: TextStyle(
-                    fontSize: 11.5.sp,
-                    color: AppColors.textMuted,
+                    fontSize: 14.5.sp,
+                    color: AppColors.muted(context),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 3.h),
                 Text(
                   gift.eventType?.locationLabel ?? 'Etkinlik belirtilmemiş',
                   style: TextStyle(
-                    fontSize: 11.5.sp,
-                    color: AppColors.textMuted,
+                    fontSize: 14.5.sp,
+                    color: AppColors.muted(context),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -122,7 +128,7 @@ class _GiftTile extends StatelessWidget {
           Text(
             CurrencyConverter.formatTl(gift.estimatedValueTl),
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
             ),

@@ -12,5 +12,14 @@ class AppColors {
   static const Color error = Color(0xFFBA1A1A);
   static const Color success = Color(0xFF2E7D32);
   static const Color textMuted = Color(0xFF736757);
+  static const Color textMutedDark = Color(0xFFD6CCBC);
   static const Color cream = Color(0xFFFFEBD1);
+
+  /// Muted/secondary text color that stays legible on both the light
+  /// (cream) and dark backgrounds. [textMuted] alone is a brown-gray tuned
+  /// for the light background and reads as low-contrast on dark surfaces.
+  static Color muted(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? textMutedDark
+      : textMuted;
 }

@@ -299,7 +299,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                         Text(
                           'Bugünkü gram altın kuru: '
                           '${CurrencyConverter.formatTl(_goldRateTl ?? 0)}',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500),
+                          style: TextStyle(color: AppColors.muted(context), fontSize: 15, fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -384,7 +384,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                           Text(
                             'Güncel kur: 1 ${_currency.code} = '
                             '${CurrencyConverter.formatTl(_currencyRateTl ?? 0)}',
-                            style: TextStyle(color: AppColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500),
+                            style: TextStyle(color: AppColors.muted(context), fontSize: 15, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 4),
                           Text(
