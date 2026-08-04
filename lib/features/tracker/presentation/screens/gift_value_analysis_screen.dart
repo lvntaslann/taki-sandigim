@@ -170,7 +170,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                             Text(
                               'Takıldığı Tarih: ${DateFormatter.shortDate(gift.date)}',
                               style: TextStyle(
-                                color: AppColors.textMuted,
+                                color: AppColors.muted(context),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -184,7 +184,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                                     : 'Güncel gram altın kuru: '
                                           '${CurrencyConverter.formatTl(_currentRateTl!)}',
                                 style: TextStyle(
-                                  color: AppColors.textMuted,
+                                  color: AppColors.muted(context),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -230,7 +230,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                 Text(
                   'O günkü değeri',
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.muted(context),
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -249,7 +249,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
           Container(
             width: 1,
             height: 36,
-            color: AppColors.textMuted.withValues(alpha: 0.2),
+            color: AppColors.muted(context).withValues(alpha: 0.2),
           ),
           Expanded(
             child: Padding(
@@ -260,7 +260,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                   Text(
                     'Bugünkü değeri',
                     style: TextStyle(
-                      color: AppColors.textMuted,
+                      color: AppColors.muted(context),
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
@@ -305,7 +305,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
               Text(
                 'Değer Artışı',
                 style: TextStyle(
-                  color: AppColors.textMuted,
+                  color: AppColors.muted(context),
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
@@ -337,6 +337,9 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
     final minY = series.map((p) => p.valueTl).reduce((a, b) => a < b ? a : b);
     final maxY = series.map((p) => p.valueTl).reduce((a, b) => a > b ? a : b);
     final padding = (maxY - minY) * 0.15 + 1;
+    final chartMinY = minY - padding;
+    final chartMaxY = maxY + padding;
+    final yInterval = (chartMaxY - chartMinY) / 4;
 
     return CustomCard(
       child: Column(
@@ -350,7 +353,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
           Text(
             'Uç noktalar gerçek, aradaki çizgi tahminidir.',
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.muted(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -362,8 +365,8 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
             height: 200,
             child: LineChart(
               LineChartData(
-                minY: minY - padding,
-                maxY: maxY + padding,
+                minY: chartMinY,
+                maxY: chartMaxY,
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
@@ -377,22 +380,31 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 44,
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toStringAsFixed(0),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      interval: yInterval,
+                      getTitlesWidget: (value, meta) {
+                        if (value <= chartMinY + yInterval * 0.4) {
+                          return const SizedBox.shrink();
+                        }
+                        return Text(
+                          value.toStringAsFixed(0),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.muted(context),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      interval: 1,
+                      reservedSize: 26,
                       getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index != 0 && index != series.length - 1) {
+                        final index = value.round();
+                        if (value != value.roundToDouble() ||
+                            (index != 0 && index != series.length - 1)) {
                           return const SizedBox.shrink();
                         }
                         return Padding(
@@ -408,7 +420,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                             ).format(series[index].date),
                             style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.textMuted,
+                              color: AppColors.muted(context),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -496,7 +508,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
           Text(
             label,
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.muted(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -511,7 +523,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
             Text(
               DateFormat('dd.MM.yyyy').format(date),
               style: TextStyle(
-                color: AppColors.textMuted,
+                color: AppColors.muted(context),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
