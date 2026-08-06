@@ -20,6 +20,8 @@ enum GiftType {
   cash,
   @HiveField(7)
   other,
+  @HiveField(8)
+  gramGold,
 }
 
 extension GiftTypeLabel on GiftType {
@@ -33,6 +35,8 @@ extension GiftTypeLabel on GiftType {
         return 'Tam Altın';
       case GiftType.gremseGold:
         return 'Gremse Altın';
+      case GiftType.gramGold:
+        return 'Gram Altın';
       case GiftType.bracelet:
         return 'Bilezik';
       case GiftType.necklace:
@@ -54,6 +58,8 @@ extension GiftTypeLabel on GiftType {
         return 7.0;
       case GiftType.gremseGold:
         return 3.0;
+      case GiftType.gramGold:
+        return 1.0;
       case GiftType.bracelet:
       case GiftType.necklace:
       case GiftType.cash:
