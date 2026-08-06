@@ -13,8 +13,9 @@ class WeddingRepository {
   }
 
   List<WeddingModel> getUpcoming({DateTime? now}) {
-    final reference = now ?? DateTime.now();
-    return getAll().where((w) => w.date.isAfter(reference)).toList()
+    final today = now ?? DateTime.now();
+    final startOfToday = DateTime(today.year, today.month, today.day);
+    return getAll().where((w) => !w.date.isBefore(startOfToday)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
