@@ -9,12 +9,23 @@ class UserSettingsRepository {
   static const _notificationsKey = 'notifications_enabled';
   static const _emailKey = 'user_email';
   static const _photoKey = 'user_photo_base64';
+  static const _onboardingCompleteKey = 'onboarding_complete';
 
   Box get _box => Hive.box(BoxNames.settings);
 
   String? getName() => _box.get(_nameKey) as String?;
 
   Future<void> setName(String name) => _box.put(_nameKey, name);
+
+  /// True only once the user has finished (or skipped) the whole onboarding
+  /// flow. Kept separate from [getName] because the name is saved partway
+  /// through the flow (before the email step), so using it as the
+  /// "onboarding done" signal would skip the remaining steps.
+  bool isOnboardingComplete() =>
+      _box.get(_onboardingCompleteKey, defaultValue: false) as bool;
+
+  Future<void> setOnboardingComplete() =>
+      _box.put(_onboardingCompleteKey, true);
 
   bool isDarkMode() => _box.get(_darkModeKey, defaultValue: false) as bool;
 
