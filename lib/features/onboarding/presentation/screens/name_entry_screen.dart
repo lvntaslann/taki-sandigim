@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../../../core/utils/name_capitalization_formatter.dart';
 import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size shared with onboarding_screen.dart so both screens
@@ -74,11 +75,12 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   child: TextField(
                     controller: _nameController,
                     textAlign: TextAlign.start,
+                    inputFormatters: const [NameCapitalizationFormatter()],
                     onChanged: (_) {
                       if (_errorText != null) setState(() => _errorText = null);
                     },
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 48,
+                      fontSize: 54,
                       color: AppColors.primaryDark,
                     ),
                     cursorColor: AppColors.primary,
@@ -87,7 +89,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                       border: InputBorder.none,
                       labelText: 'İsim:',
                       labelStyle: GoogleFonts.playfairDisplay(
-                        fontSize: 48,
+                        fontSize: 54,
                         color: AppColors.primary,
                       ),
                       errorText: _errorText,
