@@ -8,12 +8,13 @@ abstract class ScannerEvent extends Equatable {
 }
 
 class ScannerImageCaptured extends ScannerEvent {
-  const ScannerImageCaptured(this.imagePath);
+  const ScannerImageCaptured(this.imagePath, this.source);
 
   final String imagePath;
+  final ScanSource source;
 
   @override
-  List<Object?> get props => [imagePath];
+  List<Object?> get props => [imagePath, source];
 }
 
 class ScannerLineUpdated extends ScannerEvent {

@@ -29,6 +29,8 @@ class GiftTypeAdapter extends TypeAdapter<GiftType> {
         return GiftType.cash;
       case 7:
         return GiftType.other;
+      case 8:
+        return GiftType.gramGold;
       default:
         return GiftType.quarterGold;
     }
@@ -60,6 +62,9 @@ class GiftTypeAdapter extends TypeAdapter<GiftType> {
         break;
       case GiftType.other:
         writer.writeByte(7);
+        break;
+      case GiftType.gramGold:
+        writer.writeByte(8);
         break;
     }
   }
