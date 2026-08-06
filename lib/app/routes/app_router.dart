@@ -30,6 +30,23 @@ class AppRouter {
     AppRoutes.emailEntry,
   };
 
+  /// Lightweight fade transition for the onboarding flow — cheaper than
+  /// the platform default, so pushes between steps feel snappier.
+  static CustomTransitionPage<void> _onboardingPage(Widget child, GoRouterState state) {
+    return CustomTransitionPage<void>(
+      key: state.pageKey,
+      transitionDuration: const Duration(milliseconds: 220),
+      reverseTransitionDuration: const Duration(milliseconds: 180),
+      child: child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+          child: child,
+        );
+      },
+    );
+  }
+
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.onboarding,
@@ -47,17 +64,20 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.onboarding,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) =>
+            _onboardingPage(const OnboardingScreen(), state),
       ),
       GoRoute(
         path: AppRoutes.nameEntry,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const NameEntryScreen(),
+        pageBuilder: (context, state) =>
+            _onboardingPage(const NameEntryScreen(), state),
       ),
       GoRoute(
         path: AppRoutes.emailEntry,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const EmailEntryScreen(),
+        pageBuilder: (context, state) =>
+            _onboardingPage(const EmailEntryScreen(), state),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
