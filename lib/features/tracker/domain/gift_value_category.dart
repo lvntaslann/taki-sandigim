@@ -54,6 +54,12 @@ class GiftValueCategory {
           label: 'Gremse Altın',
           icon: Icons.circle,
         );
+      case GiftType.gramGold:
+        return const GiftValueCategory(
+          key: 'gramGold',
+          label: 'Gram Altın',
+          icon: Icons.circle,
+        );
       case GiftType.bracelet:
         return const GiftValueCategory(
           key: 'bracelet',
