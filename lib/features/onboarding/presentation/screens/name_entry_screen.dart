@@ -6,6 +6,7 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/utils/name_capitalization_formatter.dart';
+import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size shared with onboarding_screen.dart so both screens
 /// scale identically on every device.
@@ -44,6 +45,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFCF3E7),
+      resizeToAvoidBottomInset: false,
       body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.contain,
@@ -59,8 +61,8 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   child: Text(
                     'Size Nasıl Hitap Edelim?',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 72,
+                    style: GoogleFonts.greatVibes(
+                      fontSize: 76,
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w600,
                     ),
@@ -106,47 +108,14 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   ),
                 ),
                 Positioned(
-                  left: 207,
-                  right: 207,
-                  top: 1469,
-                  height: 108,
-                  child: ElevatedButton(
+                  left: 220,
+                  right: 220,
+                  top: 1450,
+                  height: 115,
+                  child: OnboardingGradientButton(
+                    label: 'Devam Et',
+                    fontSize: 40,
                     onPressed: _continue,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(54),
-                      ),
-                      elevation: 0,
-                      padding: EdgeInsets.zero,
-                    ).copyWith(
-                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                      shadowColor: WidgetStateProperty.all(Colors.transparent),
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primaryDark, AppColors.primary],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(54),
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Devam Et',
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 55,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ),
               ],
