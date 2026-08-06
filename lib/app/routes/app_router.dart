@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/database/user_settings_repository.dart';
+import '../../features/dashboard/presentation/screens/calendar_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
@@ -136,6 +137,11 @@ class AppRouter {
         path: AppRoutes.reports,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ReportsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.calendar,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CalendarScreen(),
       ),
       GoRoute(
         path: AppRoutes.giftValueAnalysis,
