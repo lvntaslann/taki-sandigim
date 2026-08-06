@@ -36,7 +36,13 @@ class CustomButton extends StatelessWidget {
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(label),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(label, maxLines: 1),
+                ),
+              ),
             ],
           );
 
@@ -44,8 +50,8 @@ class CustomButton extends StatelessWidget {
       return OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.secondary,
-          side: const BorderSide(color: AppColors.secondary, width: 1.4),
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary, width: 1.4),
           padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 24.w),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.r),
