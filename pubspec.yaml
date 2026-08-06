@@ -39,6 +39,7 @@ dependencies:
   uuid: ^4.5.1
   fl_chart: ^0.69.0
   flutter_screenutil: ^5.9.3
+  flutter_dotenv: ^5.2.1
 
   # Export / Share
   excel: ^4.0.6
@@ -56,3 +57,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/onboarding_background.png
+    - assets/images/onboarding_bg_new.png
+    - .env

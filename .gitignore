@@ -48,6 +48,9 @@ app.*.map.json
 .claude/
 .claude
 CLAUDE.md
+
+# Secrets - never commit real API keys
+.env
 .cursor/
 .windsurf/
 .aider*
