@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size shared with name_entry_screen.dart so both screens
 /// scale identically on every device.
@@ -34,10 +35,12 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
     if (email.isNotEmpty) {
       _settingsRepository.setEmail(email);
     }
+    _settingsRepository.setOnboardingComplete();
     context.go(AppRoutes.dashboard);
   }
 
   void _skip() {
+    _settingsRepository.setOnboardingComplete();
     context.go(AppRoutes.dashboard);
   }
 
@@ -45,6 +48,7 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFCF3E7),
+      resizeToAvoidBottomInset: false,
       body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.contain,
@@ -60,8 +64,8 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   child: Text(
                     'Yedekleme için mail adresinizi\ngiriniz...',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 64,
+                    style: GoogleFonts.greatVibes(
+                      fontSize: 76,
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w600,
                     ),
@@ -99,43 +103,14 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   ),
                 ),
                 Positioned(
-                  left: 262,
-                  right: 262,
-                  top: 1478,
-                  height: 90,
-                  child: ElevatedButton(
+                  left: 220,
+                  right: 220,
+                  top: 1440,
+                  height: 115,
+                  child: OnboardingGradientButton(
+                    label: 'Devam Et',
+                    fontSize: 40,
                     onPressed: _continue,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(45),
-                      ),
-                      elevation: 0,
-                      padding: EdgeInsets.zero,
-                    ).copyWith(
-                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                      shadowColor: WidgetStateProperty.all(Colors.transparent),
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primaryDark, AppColors.primary],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(45),
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Devam Et',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ),
                 Positioned(
