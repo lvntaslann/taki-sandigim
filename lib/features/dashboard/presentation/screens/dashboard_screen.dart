@@ -11,6 +11,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../data/models/gift_enums.dart';
@@ -84,7 +85,9 @@ class _DashboardViewState extends State<_DashboardView> {
                 padding: EdgeInsets.all(16.w),
                 children: [
                   _appHeader(context),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 12.h),
+                  const Center(child: BannerAdWidget()),
+                  SizedBox(height: 12.h),
                   DirectionToggle(
                     selected: _direction,
                     onChanged: (direction) =>
