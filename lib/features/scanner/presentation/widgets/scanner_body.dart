@@ -4,7 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/interstitial_ad_manager.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/wedding_model.dart';
 import '../../../dashboard/data/repositories/wedding_repository.dart';
@@ -47,13 +49,28 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
   final Uuid _uuid = const Uuid();
   final PageController _pageController = PageController();
   final Set<int> _addedLines = {};
+  final InterstitialAdManager _interstitialAdManager = InterstitialAdManager();
   int _activePage = 0;
   bool _invitationSaved = false;
+  bool _adShownForThisScan = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _interstitialAdManager.preload();
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _interstitialAdManager.dispose();
     super.dispose();
+  }
+
+  void _maybeShowInterstitial() {
+    if (_adShownForThisScan) return;
+    _adShownForThisScan = true;
+    _interstitialAdManager.showIfReady();
   }
 
   Future<void> _openCamera(BuildContext context) async {
@@ -87,6 +104,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
       _addedLines.clear();
       _activePage = 0;
       _invitationSaved = false;
+      _adShownForThisScan = false;
     });
     if (_pageController.hasClients) {
       _pageController.jumpToPage(0);
@@ -120,6 +138,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     );
     if (!mounted) return;
     setState(() => _addedLines.add(index));
+    _maybeShowInterstitial();
     if (index < totalLines - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 250),
@@ -145,6 +164,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     );
     if (!mounted) return;
     setState(() => _invitationSaved = true);
+    _maybeShowInterstitial();
   }
 
   @override
@@ -225,6 +245,8 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
             },
           ),
         ),
+        const SizedBox(height: 8),
+        const Center(child: BannerAdWidget()),
       ],
     );
   }
