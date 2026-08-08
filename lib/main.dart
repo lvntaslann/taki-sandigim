@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'app/routes/app_router.dart';
@@ -14,6 +17,7 @@ Future<void> main() async {
   await dotenv.load();
   await HiveService.init();
   await initializeDateFormatting('tr_TR');
+  unawaited(MobileAds.instance.initialize());
   // Warm the onboarding flow's custom fonts before first paint so the
   // initial screen (and the transitions right after it) don't stall on a
   // first-use network font fetch.
