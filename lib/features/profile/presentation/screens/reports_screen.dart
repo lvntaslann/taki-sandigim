@@ -7,6 +7,7 @@ import '../../../../core/widgets/custom_card.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../data/gift_export_service.dart';
+import '../../data/gift_import_service.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -19,8 +20,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   final _giftRepository = GiftRepository();
   final _settingsRepository = UserSettingsRepository();
   final _exportService = GiftExportService();
+  late final _importService = GiftImportService(_giftRepository);
 
-  // Which row is currently busy: 'pdf', 'excel', 'share', or null when idle.
+  // Which row is currently busy: 'pdf', 'excel', 'share', 'import', or null when idle.
   String? _processingKey;
 
   void _showMessage(String message) {
@@ -65,6 +67,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
       );
     } catch (e) {
       _showMessage('Rapor oluşturulamadı: $e');
+    } finally {
+      if (mounted) setState(() => _processingKey = null);
+    }
+  }
+
+  Future<void> _import() async {
+    if (_processingKey != null) return;
+    setState(() => _processingKey = 'import');
+    try {
+      final result = await _importService.pickAndImport();
+      if (result == null) return; // user cancelled the picker
+      _showMessage('${result.addedCount} kayıt eklendi.');
+    } on GiftImportFormatException catch (e) {
+      _showMessage(e.message);
+    } catch (e) {
+      _showMessage('Veriler içe aktarılamadı: $e');
     } finally {
       if (mounted) setState(() => _processingKey = null);
     }
@@ -156,6 +174,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   title: 'Paylaş',
                   subtitle: 'Aile bireyleriyle bilgi paylaşın',
                   onTap: _share,
+                ),
+                const Divider(height: 1),
+                _reportRow(
+                  rowKey: 'import',
+                  icon: Icons.upload_file_outlined,
+                  title: 'Verileri Yükle',
+                  subtitle: 'Daha önce dışa aktarılan Excel dosyasını içe aktarın',
+                  onTap: _import,
                 ),
               ],
             ),
