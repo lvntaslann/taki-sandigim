@@ -442,6 +442,11 @@ class _DashboardViewState extends State<_DashboardView> {
         : (isMatched ? 'Karşılığı Alındı' : 'Karşılığı Bekleniyor');
     final noteColor = isMatched ? AppColors.success : AppColors.primaryDark;
     final typeColor = _giftTypeColors[gift.giftType] ?? AppColors.primary;
+    final titleText = gift.giftType == GiftType.cash && gift.currencyCode != null
+        ? '${gift.giftType.label} '
+              '(${gift.amount.toStringAsFixed(gift.amount % 1 == 0 ? 0 : 2)} '
+              '${gift.currencyCode})'
+        : gift.giftType.label;
 
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -462,7 +467,7 @@ class _DashboardViewState extends State<_DashboardView> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  gift.giftType.label,
+                  titleText,
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
                 ),
               ),
