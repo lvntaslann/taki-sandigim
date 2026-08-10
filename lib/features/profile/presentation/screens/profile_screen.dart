@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -107,6 +108,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _openReports() => context.push(AppRoutes.reports);
+
+  void _openPremium() => context.push(AppRoutes.premium);
 
   Future<void> _pickPhoto() async {
     final picked = await ImagePicker().pickImage(
@@ -231,6 +234,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
+          const SizedBox(height: 20),
+          _premiumBanner(),
           const SizedBox(height: 24),
           CustomCard(
             child: Column(
@@ -461,6 +466,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _premiumBanner() {
+    return InkWell(
+      onTap: _openPremium,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.35),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primaryDark, AppColors.primary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: -30,
+                right: -20,
+                child: Icon(
+                  Icons.workspace_premium,
+                  size: 140,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+              Positioned(
+                bottom: -36,
+                right: 56,
+                child: Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.workspace_premium,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                        ),
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Premium\'a Geç',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 19,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Reklamsız deneyim, daha fazla tarama hakkı ve esnek dışa aktarım',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

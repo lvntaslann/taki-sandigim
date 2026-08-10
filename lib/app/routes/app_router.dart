@@ -7,6 +7,7 @@ import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/onboarding/presentation/screens/email_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/name_entry_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/premium/presentation/screens/premium_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/reports_screen.dart';
 import '../../features/dashboard/data/models/gift_model.dart';
@@ -142,6 +143,11 @@ class AppRouter {
         path: AppRoutes.calendar,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const CalendarScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.premium,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const PremiumScreen(),
       ),
       GoRoute(
         path: AppRoutes.giftValueAnalysis,
