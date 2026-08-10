@@ -12,6 +12,7 @@ class AppRoutes {
   static const String addGift = '/add-gift';
   static const String reports = '/reports';
   static const String calendar = '/calendar';
+  static const String premium = '/premium';
   static const String giftValueAnalysis = '/gift-value-analysis';
   static const String valueAnalysisList = '/value-analysis';
 }
