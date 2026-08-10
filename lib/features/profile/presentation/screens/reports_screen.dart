@@ -8,6 +8,8 @@ import '../../../dashboard/data/models/gift_model.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../data/gift_export_service.dart';
 import '../../data/gift_import_service.dart';
+import '../../domain/import_source.dart';
+import '../widgets/import_source_sheet.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -74,11 +76,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<void> _import() async {
     if (_processingKey != null) return;
+    final source = await showImportSourceSheet(context);
+    if (source == null || !mounted) return;
+
+    if (source == ImportSource.pdf) {
+      _showMessage('PDF\'den içe aktarma yakında eklenecek.');
+      return;
+    }
+
     setState(() => _processingKey = 'import');
     try {
       final result = await _importService.pickAndImport();
       if (result == null) return; // user cancelled the picker
-      _showMessage('${result.addedCount} kayıt eklendi.');
+      _showMessage(
+        '${result.addedCount} kayıt, ${result.addedWeddingCount} davetiye eklendi.',
+      );
     } on GiftImportFormatException catch (e) {
       _showMessage(e.message);
     } catch (e) {
