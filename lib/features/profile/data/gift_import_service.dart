@@ -5,7 +5,9 @@ import 'package:uuid/uuid.dart';
 
 import '../../dashboard/data/models/gift_enums.dart';
 import '../../dashboard/data/models/gift_model.dart';
+import '../../dashboard/data/models/wedding_model.dart';
 import '../../dashboard/data/repositories/gift_repository.dart';
+import '../../dashboard/data/repositories/wedding_repository.dart';
 
 /// Thrown when the picked file's header row doesn't match the app's export format.
 class GiftImportFormatException implements Exception {
@@ -18,15 +20,18 @@ class GiftImportFormatException implements Exception {
 }
 
 class GiftImportResult {
-  const GiftImportResult({required this.addedCount});
+  const GiftImportResult({required this.addedCount, required this.addedWeddingCount});
 
   final int addedCount;
+  final int addedWeddingCount;
 }
 
 class GiftImportService {
-  GiftImportService(this._repository);
+  GiftImportService(this._repository, {WeddingRepository? weddingRepository})
+    : _weddingRepository = weddingRepository ?? WeddingRepository();
 
   final GiftRepository _repository;
+  final WeddingRepository _weddingRepository;
 
   static const _expectedHeaders = [
     'Tarih',
@@ -37,12 +42,16 @@ class GiftImportService {
     'Yön',
   ];
 
+  static const _expectedWeddingHeaders = ['Başlık', 'Tarih', 'Konum', 'Not'];
+
   final _dateFormat = DateFormat('d MMM y', 'tr_TR');
   final _uuid = const Uuid();
 
-  /// Opens a file picker for .xlsx files, validates the format, parses valid
-  /// rows and appends them to the existing gift list. Duplicate rows (same
-  /// date + person name + amount as an existing record) are skipped.
+  /// Opens a file picker for .xlsx files, validates the format, and restores
+  /// both the gift list ("Takı Listem" sheet) and the wedding/invitation
+  /// records ("Davetiye Bilgileri" sheet) our own export writes. Duplicate
+  /// rows are skipped (same date + person name + amount for gifts, same
+  /// title + date for weddings).
   ///
   /// Returns null if the user cancelled the file picker.
   Future<GiftImportResult?> pickAndImport() async {
@@ -83,31 +92,65 @@ class GiftImportService {
       );
     }
     final columnIndex = {
-      for (final header in _expectedHeaders) header: headerCells.indexOf(header),
+      for (final header in headerCells) header: headerCells.indexOf(header),
     };
 
-    final existing = _repository.getAll();
-    final existingKeys = existing.map(_keyFor).toSet();
+    final addedCount = await _importGifts(rows, columnIndex);
+    final addedWeddingCount = await _importWeddings(workbook.tables['Davetiye Bilgileri']);
+
+    return GiftImportResult(addedCount: addedCount, addedWeddingCount: addedWeddingCount);
+  }
+
+  Future<int> _importGifts(List<List<xls.Data?>> rows, Map<String, int> columnIndex) async {
+    final existingKeys = _repository.getAll().map(_giftKeyFor).toSet();
 
     var addedCount = 0;
     for (final row in rows.skip(1)) {
-      final gift = _parseRow(row, columnIndex);
+      final gift = _parseGiftRow(row, columnIndex);
       if (gift == null) continue;
-      final key = _keyFor(gift);
+      final key = _giftKeyFor(gift);
       if (existingKeys.contains(key)) continue;
 
       await _repository.save(gift);
       existingKeys.add(key);
       addedCount++;
     }
-
-    return GiftImportResult(addedCount: addedCount);
+    return addedCount;
   }
 
-  GiftModel? _parseRow(List<xls.Data?> row, Map<String, int> columnIndex) {
+  Future<int> _importWeddings(xls.Sheet? sheet) async {
+    if (sheet == null || sheet.rows.isEmpty) return 0;
+
+    final headerCells = sheet.rows.first
+        .map((cell) => cell?.value?.toString().trim() ?? '')
+        .toList();
+    if (!_expectedWeddingHeaders.every((expected) => headerCells.contains(expected))) {
+      return 0;
+    }
+    final columnIndex = {
+      for (final header in headerCells) header: headerCells.indexOf(header),
+    };
+
+    final existingKeys = _weddingRepository.getAll().map(_weddingKeyFor).toSet();
+
+    var addedCount = 0;
+    for (final row in sheet.rows.skip(1)) {
+      final wedding = _parseWeddingRow(row, columnIndex);
+      if (wedding == null) continue;
+      final key = _weddingKeyFor(wedding);
+      if (existingKeys.contains(key)) continue;
+
+      await _weddingRepository.save(wedding);
+      existingKeys.add(key);
+      addedCount++;
+    }
+    return addedCount;
+  }
+
+  GiftModel? _parseGiftRow(List<xls.Data?> row, Map<String, int> columnIndex) {
     String textAt(String header) {
-      final index = columnIndex[header]!;
-      if (index >= row.length) return '';
+      final index = columnIndex[header];
+      if (index == null || index >= row.length) return '';
       return row[index]?.value?.toString().trim() ?? '';
     }
 
@@ -115,6 +158,7 @@ class GiftImportService {
     final personName = textAt('Kişi');
     final giftLabel = textAt('Hediye');
     final amountText = textAt('Miktar');
+    final unitText = textAt('Birim');
     final valueText = textAt('Değer (TL)');
     final directionLabel = textAt('Yön');
 
@@ -135,6 +179,13 @@ class GiftImportService {
     final estimatedValueTl = double.tryParse(valueText.replaceAll(',', '.'));
     if (estimatedValueTl == null) return null;
 
+    // "Birim" is only meaningful for cash gifts: 'TL', a foreign currency
+    // code (e.g. 'USD'), or '-' for gold/other types.
+    final isForeignCurrency =
+        giftType == GiftType.cash && unitText.isNotEmpty && unitText != '-' && unitText != 'TL';
+    final currencyCode = isForeignCurrency ? unitText : null;
+    final currencyRateTl = isForeignCurrency && amount != 0 ? estimatedValueTl / amount : null;
+
     return GiftModel(
       id: _uuid.v4(),
       personName: personName,
@@ -143,6 +194,34 @@ class GiftImportService {
       estimatedValueTl: estimatedValueTl,
       direction: direction,
       date: date,
+      currencyCode: currencyCode,
+      currencyRateTl: currencyRateTl,
+    );
+  }
+
+  WeddingModel? _parseWeddingRow(List<xls.Data?> row, Map<String, int> columnIndex) {
+    String textAt(String header) {
+      final index = columnIndex[header];
+      if (index == null || index >= row.length) return '';
+      return row[index]?.value?.toString().trim() ?? '';
+    }
+
+    final title = textAt('Başlık');
+    final dateText = textAt('Tarih');
+    final location = textAt('Konum');
+    final note = textAt('Not');
+
+    if (title.isEmpty) return null;
+
+    final date = _tryParseDate(dateText);
+    if (date == null) return null;
+
+    return WeddingModel(
+      id: _uuid.v4(),
+      title: title,
+      date: date,
+      location: location.isEmpty || location == '-' ? null : location,
+      note: note.isEmpty || note == '-' ? null : note,
     );
   }
 
@@ -170,6 +249,10 @@ class GiftImportService {
   }
 
   /// Key used for duplicate detection: same date + person + amount.
-  String _keyFor(GiftModel gift) =>
+  String _giftKeyFor(GiftModel gift) =>
       '${_dateFormat.format(gift.date)}|${gift.personName.toLowerCase()}|${gift.amount}';
+
+  /// Key used for duplicate detection: same title + date.
+  String _weddingKeyFor(WeddingModel wedding) =>
+      '${wedding.title.toLowerCase()}|${_dateFormat.format(wedding.date)}';
 }
