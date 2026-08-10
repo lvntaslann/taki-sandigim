@@ -55,6 +55,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   hive_generator: ^2.0.1
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
@@ -62,3 +63,17 @@ flutter:
     - assets/images/onboarding_background.png
     - assets/images/onboarding_bg_new.png
     - .env
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/takisandigim_icon.png"
+  adaptive_icon_background: "#C09F8E"
+  adaptive_icon_foreground: "assets/takisandigim_icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/takisandigim_icon.png"
+    background_color: "#C09F8E"
+    theme_color: "#C09F8E"
