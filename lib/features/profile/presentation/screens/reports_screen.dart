@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../../../core/services/purchase_service.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
@@ -160,42 +163,48 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          CustomCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _reportRow(
-                  rowKey: 'pdf',
-                  icon: Icons.picture_as_pdf_outlined,
-                  title: 'PDF Raporu (A4)',
-                  subtitle: 'Detaylı takı listesi',
-                  onTap: _exportPdf,
-                ),
-                const Divider(height: 1),
-                _reportRow(
-                  rowKey: 'excel',
-                  icon: Icons.table_chart_outlined,
-                  title: 'Excel (CSV)',
-                  subtitle: 'Düzenlenebilir tablo',
-                  onTap: _exportExcel,
-                ),
-                const Divider(height: 1),
-                _reportRow(
-                  rowKey: 'share',
-                  icon: Icons.ios_share,
-                  title: 'Paylaş',
-                  subtitle: 'Aile bireyleriyle bilgi paylaşın',
-                  onTap: _share,
-                ),
-                const Divider(height: 1),
-                _reportRow(
-                  rowKey: 'import',
-                  icon: Icons.upload_file_outlined,
-                  title: 'Verileri Yükle',
-                  subtitle: 'Daha önce dışa aktarılan Excel dosyasını içe aktarın',
-                  onTap: _import,
-                ),
-              ],
+          ValueListenableBuilder<bool>(
+            valueListenable: PurchaseService.instance.isPremium,
+            builder: (context, isPremium, _) => CustomCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _reportRow(
+                    rowKey: 'pdf',
+                    icon: Icons.picture_as_pdf_outlined,
+                    title: 'PDF Raporu (A4)',
+                    subtitle: 'Detaylı takı listesi',
+                    onTap: _exportPdf,
+                    locked: !isPremium,
+                  ),
+                  const Divider(height: 1),
+                  _reportRow(
+                    rowKey: 'excel',
+                    icon: Icons.table_chart_outlined,
+                    title: 'Excel (CSV)',
+                    subtitle: 'Düzenlenebilir tablo',
+                    onTap: _exportExcel,
+                    locked: !isPremium,
+                  ),
+                  const Divider(height: 1),
+                  _reportRow(
+                    rowKey: 'share',
+                    icon: Icons.ios_share,
+                    title: 'Paylaş',
+                    subtitle: 'Aile bireyleriyle bilgi paylaşın',
+                    onTap: _share,
+                  ),
+                  const Divider(height: 1),
+                  _reportRow(
+                    rowKey: 'import',
+                    icon: Icons.upload_file_outlined,
+                    title: 'Verileri Yükle',
+                    subtitle: 'Daha önce dışa aktarılan Excel dosyasını içe aktarın',
+                    onTap: _import,
+                    locked: !isPremium,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -209,14 +218,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool locked = false,
   }) {
     final isBusy = _processingKey == rowKey;
     final isDisabled = _processingKey != null && !isBusy;
+    final effectiveOnTap = locked ? () => context.push(AppRoutes.premium) : onTap;
 
     return InkWell(
-      onTap: _processingKey == null ? onTap : null,
+      onTap: _processingKey == null ? effectiveOnTap : null,
       child: Opacity(
-        opacity: isDisabled ? 0.5 : 1,
+        opacity: (isDisabled || locked) ? 0.5 : 1,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -229,7 +240,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   children: [
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text(
-                      subtitle,
+                      locked ? 'Premium gerekli' : subtitle,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 14.5,
@@ -245,6 +256,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
+              else if (locked)
+                Icon(Icons.lock_outline, color: AppColors.muted(context))
               else
                 Icon(Icons.chevron_right, color: AppColors.muted(context)),
             ],
