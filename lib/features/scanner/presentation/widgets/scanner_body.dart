@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/database/scan_usage_repository.dart';
+import '../../../../core/services/purchase_service.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/interstitial_ad_manager.dart';
@@ -19,6 +23,7 @@ import 'camera_scan_sheet.dart';
 import 'image_preview_sheet.dart';
 import 'invitation_confirmation_card.dart';
 import 'line_confirmation_card.dart';
+import 'scan_limit_sheet.dart';
 import 'scan_source_sheet.dart';
 
 class ScannerBody extends StatelessWidget {
@@ -50,21 +55,32 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
   final PageController _pageController = PageController();
   final Set<int> _addedLines = {};
   final InterstitialAdManager _interstitialAdManager = InterstitialAdManager();
+  final ScanUsageRepository _scanUsageRepository = ScanUsageRepository();
   int _activePage = 0;
   bool _invitationSaved = false;
   bool _adShownForThisScan = false;
+  Timer? _quotaTicker;
 
   @override
   void initState() {
     super.initState();
     _interstitialAdManager.preload();
+    _quotaTicker = Timer.periodic(const Duration(minutes: 1), (_) => setState(() {}));
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     _interstitialAdManager.dispose();
+    _quotaTicker?.cancel();
     super.dispose();
+  }
+
+  bool _checkQuotaOrUpsell(BuildContext context) {
+    if (PurchaseService.instance.isPremium.value) return true;
+    if (_scanUsageRepository.canScan) return true;
+    showScanLimitSheet(context, resetIn: _scanUsageRepository.timeUntilReset());
+    return false;
   }
 
   void _maybeShowInterstitial() {
@@ -73,18 +89,73 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     _interstitialAdManager.showIfReady();
   }
 
+  String _formatResetIn(Duration? duration) {
+    if (duration == null || duration <= Duration.zero) return 'birazdan';
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    if (hours <= 0) return '$minutes dk';
+    return '$hours sa $minutes dk';
+  }
+
+  Widget _quotaBanner() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: PurchaseService.instance.isPremium,
+      builder: (context, isPremium, _) {
+        if (isPremium) return const SizedBox.shrink();
+        final remaining = _scanUsageRepository.remainingScans();
+        final hasQuota = remaining > 0;
+        final text = hasQuota
+            ? '$remaining/${ScanUsageRepository.freeScanLimit} tarama hakkın var'
+            : 'Tarama hakkın bitti · ${_formatResetIn(_scanUsageRepository.timeUntilReset())} sonra yenilenir';
+        final color = hasQuota ? AppColors.primary : AppColors.error;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  hasQuota ? Icons.document_scanner_outlined : Icons.lock_clock_outlined,
+                  color: color,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _openCamera(BuildContext context) async {
+    if (!_checkQuotaOrUpsell(context)) return;
     final source = await showScanSourceSheet(context);
     if (source == null || !context.mounted) return;
     final imagePath = await showCameraScanSheet(context);
     if (imagePath == null || !context.mounted) return;
     final confirmed = await showImagePreviewSheet(context, imagePath);
     if (!confirmed || !context.mounted) return;
+    await _scanUsageRepository.recordScan();
+    if (!context.mounted) return;
     _startNewScan();
     context.read<ScannerBloc>().add(ScannerImageCaptured(imagePath, source));
   }
 
   Future<void> _pickFromGallery(BuildContext context) async {
+    if (!_checkQuotaOrUpsell(context)) return;
     final source = await showScanSourceSheet(context);
     if (source == null || !context.mounted) return;
     final picker = ImagePicker();
@@ -95,6 +166,8 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     if (file == null || !context.mounted) return;
     final confirmed = await showImagePreviewSheet(context, file.path);
     if (!confirmed || !context.mounted) return;
+    await _scanUsageRepository.recordScan();
+    if (!context.mounted) return;
     _startNewScan();
     context.read<ScannerBloc>().add(ScannerImageCaptured(file.path, source));
   }
@@ -171,6 +244,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        _quotaBanner(),
         Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
