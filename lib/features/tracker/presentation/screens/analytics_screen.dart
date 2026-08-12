@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -75,9 +74,30 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               .fold<double>(0, (s, e) => s + e.estimatedValueTl);
 
           final personCount = entries.map((e) => e.personName).toSet().length;
-          final balances = BalanceAnalyzer.calculate(entries)
-            ..sort((a, b) => b.balanceTl.abs().compareTo(a.balanceTl.abs()));
-          final topBalances = balances.take(6).toList();
+          final balances = BalanceAnalyzer.calculate(entries);
+
+          final appearanceOrder = <String, int>{};
+          for (final e in entries) {
+            appearanceOrder.putIfAbsent(
+              e.personName,
+              () => appearanceOrder.length,
+            );
+          }
+          int orderOf(BalanceStatus b) => appearanceOrder[b.personName] ?? 0;
+
+          final theyOweBalances =
+              balances.where((b) => !b.isBalanced && !b.weOwe).toList()
+                ..sort((a, b) => a.balanceTl.compareTo(b.balanceTl));
+          final weOweBalances =
+              balances.where((b) => !b.isBalanced && b.weOwe).toList()
+                ..sort((a, b) => a.balanceTl.compareTo(b.balanceTl));
+          final balancedBalances = balances.where((b) => b.isBalanced).toList()
+            ..sort((a, b) => orderOf(a).compareTo(orderOf(b)));
+          final topBalances = [
+            ...theyOweBalances,
+            ...weOweBalances,
+            ...balancedBalances,
+          ];
 
           final categories = GiftValueCategory.groupBy(entries);
 
@@ -101,35 +121,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bize Gelen / Bizim Verdiğimiz',
+                      'Hediye Dağılımı',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    SizedBox(
-                      height: 180.h,
-                      child: _ReceivedGivenDonut(
-                        received: totalReceived,
-                        given: totalGiven,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _legendItem(
-                          AppColors.success,
-                          'Bize Gelen',
-                          CurrencyConverter.formatTl(totalReceived),
-                        ),
-                        _legendItem(
-                          AppColors.accent,
-                          'Bizim Verdiğimiz',
-                          CurrencyConverter.formatTl(totalGiven),
-                        ),
-                      ],
+                    _ReceivedGivenBar(
+                      received: totalReceived,
+                      given: totalGiven,
                     ),
                   ],
                 ),
@@ -147,19 +148,33 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ),
                     SizedBox(height: 4.h),
-                    Text(
-                      'Yeşil: bize borçlu · Kırmızı: biz borçluyuz',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: AppColors.muted(context),
-                        fontWeight: FontWeight.w500,
+                    if (topBalances.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Biz borçluyuz',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: _NetBalanceBarChart._weOweColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'Bize borçlu',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: _NetBalanceBarChart._theyOweColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
                     SizedBox(height: 16.h),
-                    SizedBox(
-                      height: 220.h,
-                      child: topBalances.isEmpty
-                          ? Center(
+                    topBalances.isEmpty
+                        ? SizedBox(
+                            height: 80.h,
+                            child: Center(
                               child: Text(
                                 'Herkesle hesap dengede.',
                                 style: TextStyle(
@@ -168,9 +183,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            )
-                          : _NetBalanceBarChart(balances: topBalances),
-                    ),
+                            ),
+                          )
+                        : SizedBox(
+                            height:
+                                topBalances.length * 32.h - 10.h,
+                            child: _NetBalanceBarChart(balances: topBalances),
+                          ),
                   ],
                 ),
               ),
@@ -332,37 +351,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _legendItem(Color color, String label, String value) {
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: AppColors.muted(context),
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-      ],
-    );
-  }
 }
 
-class _ReceivedGivenDonut extends StatelessWidget {
-  const _ReceivedGivenDonut({required this.received, required this.given});
+class _ReceivedGivenBar extends StatelessWidget {
+  const _ReceivedGivenBar({required this.received, required this.given});
 
   final double received;
   final double given;
@@ -383,35 +375,128 @@ class _ReceivedGivenDonut extends StatelessWidget {
       );
     }
 
-    return PieChart(
-      PieChartData(
-        sectionsSpace: 3,
-        centerSpaceRadius: 46,
-        sections: [
-          PieChartSectionData(
-            value: received,
-            color: AppColors.success,
-            title: '${(received / total * 100).round()}%',
-            titleStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
+    final receivedRatio = received / total;
+    final receivedPercent = (receivedRatio * 100).round();
+    final givenPercent = 100 - receivedPercent;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _amountColumn(
+              context,
+              'BİZE GELEN',
+              CurrencyConverter.formatTl(received),
+              AppColors.primary,
+              CrossAxisAlignment.start,
             ),
-            radius: 42,
-          ),
-          PieChartSectionData(
-            value: given,
-            color: AppColors.accent,
-            title: '${(given / total * 100).round()}%',
-            titleStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
+            _amountColumn(
+              context,
+              'BİZİM VERDİĞİMİZ',
+              CurrencyConverter.formatTl(given),
+              AppColors.secondary,
+              CrossAxisAlignment.end,
             ),
-            radius: 42,
+          ],
+        ),
+        SizedBox(height: 14.h),
+        SizedBox(
+          height: 28.h,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final barHeight = 28.h;
+              final totalWidth = constraints.maxWidth;
+              final splitWidth = totalWidth * receivedRatio;
+              final givenWidth = totalWidth - splitWidth;
+              final capOverlap = barHeight / 2;
+              final receivedOnTop = receivedRatio >= 0.5;
+
+              Widget bar(double width, List<Color> colors) => Container(
+                width: width.clamp(0, totalWidth),
+                height: barHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  gradient: LinearGradient(colors: colors),
+                ),
+              );
+
+              const receivedColors = [AppColors.primary, Color(0xFFFFD873)];
+              const givenColors = [Color(0xFF6B4A26), AppColors.secondary];
+
+              return Stack(
+                children: receivedOnTop
+                    ? [
+                        bar(totalWidth, givenColors),
+                        bar(splitWidth + capOverlap, receivedColors),
+                      ]
+                    : [
+                        bar(totalWidth, receivedColors),
+                        Positioned(
+                          right: 0,
+                          child: bar(givenWidth + capOverlap, givenColors),
+                        ),
+                      ],
+              );
+            },
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 8.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '%$receivedPercent',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.muted(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              '%$givenPercent',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.muted(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _amountColumn(
+    BuildContext context,
+    String label,
+    String value,
+    Color valueColor,
+    CrossAxisAlignment align,
+  ) {
+    return Column(
+      crossAxisAlignment: align,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.muted(context),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: valueColor,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -421,73 +506,190 @@ class _NetBalanceBarChart extends StatelessWidget {
 
   final List<BalanceStatus> balances;
 
+  static const _theyOweColor = Color(0xFF4A5D5A);
+  static const _weOweColor = Color(0xFF964B3B);
+
   @override
   Widget build(BuildContext context) {
     final maxValue = balances
         .map((b) => b.balanceTl.abs())
         .fold<double>(1, (a, b) => a > b ? a : b);
 
-    return BarChart(
-      BarChartData(
-        maxY: maxValue * 1.2,
-        minY: -maxValue * 1.2,
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 32,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= balances.length) {
-                  return const SizedBox.shrink();
-                }
-                final name = balances[index].personName;
-                final short = name.length > 8
-                    ? '${name.substring(0, 7)}…'
-                    : name;
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6),
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: balances.length,
+      separatorBuilder: (context, index) => SizedBox(height: 10.h),
+      itemBuilder: (context, index) {
+        final balance = balances[index];
+        final fraction = maxValue <= 0
+            ? 0.0
+            : (balance.balanceTl.abs() / maxValue).clamp(0.0, 1.0);
+        final barColor = balance.isBalanced
+            ? AppColors.muted(context)
+            : balance.weOwe
+            ? _weOweColor
+            : _theyOweColor;
+        final name = balance.personName;
+        final short = name.length > 10 ? '${name.substring(0, 9)}…' : name;
+
+        return InkWell(
+          onTap: () => _showBalanceInfo(context, balance),
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            height: 22.h,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerRight,
+                      widthFactor: balance.weOwe ? fraction : 0,
+                      child: Container(
+                        height: 20.h,
+                        decoration: BoxDecoration(
+                          color: _weOweColor,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(999),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 92.w,
                   child: Text(
                     short,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.muted(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: !balance.weOwe && !balance.isBalanced
+                          ? fraction
+                          : 0,
+                      child: Container(
+                        height: 20.h,
+                        decoration: BoxDecoration(
+                          color: barColor,
+                          borderRadius: BorderRadius.horizontal(
+                            right: Radius.circular(999),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showBalanceInfo(BuildContext context, BalanceStatus balance) {
+    final statusText = balance.isBalanced
+        ? 'Hesap dengede'
+        : balance.weOwe
+        ? 'Biz borçluyuz'
+        : 'Bize borçlu';
+    final statusColor = balance.isBalanced
+        ? AppColors.muted(context)
+        : balance.weOwe
+        ? _weOweColor
+        : _theyOweColor;
+
+    final hasBothSides = balance.receivedTl > 0 && balance.givenTl > 0;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(balance.personName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasBothSides) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${balance.personName} taktı',
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.muted(context),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                );
-              },
+                  Text(
+                    CurrencyConverter.formatTl(balance.receivedTl),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Biz taktık',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.muted(context),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    CurrencyConverter.formatTl(balance.givenTl),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 20),
+            ],
+            Text(
+              CurrencyConverter.formatTl(balance.balanceTl.abs()),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondary,
+              ),
             ),
-          ),
+            const SizedBox(height: 6),
+            Text(
+              statusText,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ],
         ),
-        barGroups: [
-          for (var i = 0; i < balances.length; i++)
-            BarChartGroupData(
-              x: i,
-              barRods: [
-                BarChartRodData(
-                  toY: balances[i].balanceTl,
-                  width: 22,
-                  borderRadius: BorderRadius.circular(6),
-                  color: balances[i].isBalanced
-                      ? AppColors.muted(context)
-                      : balances[i].weOwe
-                      ? AppColors.error
-                      : AppColors.success,
-                ),
-              ],
-            ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Kapat'),
+          ),
         ],
       ),
     );

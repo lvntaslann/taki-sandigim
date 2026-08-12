@@ -268,6 +268,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
             initialValue: _giftType,
             decoration: const InputDecoration(labelText: 'Takı Türü'),
             items: GiftType.values
+                .where((t) => t != GiftType.other)
                 .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                 .toList(),
             onChanged: (v) => setState(() => _giftType = v!),
