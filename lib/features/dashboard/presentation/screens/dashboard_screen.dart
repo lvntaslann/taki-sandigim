@@ -1,4 +1,5 @@
-import 'package:fl_chart/fl_chart.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +11,7 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -45,26 +47,20 @@ class _DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<_DashboardView> {
-  static const List<Color> _chartColors = [
-    Color(0xFFD89E30),
-    Color(0xFFA67926),
-    Color(0xFF463219),
-    Color(0xFF736757),
-    Color(0xFFFFEBD1),
-  ];
-
-  static final Map<GiftType, Color> _giftTypeColors = {
-    for (final entry in GiftType.values.indexed)
-      entry.$2: _chartColors[entry.$1 % _chartColors.length],
+  static const Map<GiftType, Color> _giftTypeColors = {
+    GiftType.quarterGold: Color(0xFFEAD3C1),
+    GiftType.halfGold: Color(0xFFA67926),
+    GiftType.fullGold: Color(0xFFB2C2B1),
+    GiftType.gremseGold: Color(0xFF736757),
+    GiftType.bracelet: Color(0xFFC2B59D),
+    GiftType.necklace: Color(0xFFD89E30),
+    GiftType.cash: Color(0xFF425757),
+    GiftType.other: Color(0xFF8C7B6E),
+    GiftType.gramGold: Color(0xFF736757),
   };
 
   String? _expandedPerson;
   GiftDirection _direction = GiftDirection.received;
-
-  Color _titleColorFor(Color background) =>
-      ThemeData.estimateBrightnessForColor(background) == Brightness.dark
-      ? Colors.white
-      : AppColors.secondary;
 
   @override
   Widget build(BuildContext context) {
@@ -225,89 +221,232 @@ class _DashboardViewState extends State<_DashboardView> {
   }
 
   Widget _totalBalanceCard(BuildContext context, DashboardState state) {
-    final breakdown = _direction == GiftDirection.received
-        ? state.receivedBreakdown
-        : state.givenBreakdown;
-    final total = breakdown.values.fold<double>(0, (sum, v) => sum + v);
-    final types = GiftType.values
-        .where((type) => (breakdown[type] ?? 0) > 0)
-        .toList();
+    final typeGifts = <GiftType, List<GiftModel>>{};
+    for (final gift in state.allGifts) {
+      if (gift.direction != _direction) continue;
+      (typeGifts[gift.giftType] ??= <GiftModel>[]).add(gift);
+    }
+    final typeBreakdown = <GiftType, double>{
+      for (final entry in typeGifts.entries)
+        entry.key: entry.value.fold<double>(0, (s, g) => s + g.estimatedValueTl),
+    };
+    final total = typeBreakdown.values.fold<double>(0, (sum, v) => sum + v);
 
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Toplam Bakiye',
+            'Hediye Dağılımı',
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 12.h),
-          if (total <= 0)
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.pie_chart_outline_rounded,
-                    size: 18,
-                    color: AppColors.muted(context),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Henüz takı eklenmedi.',
-                    style: TextStyle(
-                      color: AppColors.muted(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 180.h,
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 3,
-                      centerSpaceRadius: 46,
-                      sections: [
-                        for (final type in types)
-                          PieChartSectionData(
-                            value: breakdown[type],
-                            color: _giftTypeColors[type],
-                            title:
-                                '${((breakdown[type]! / total) * 100).round()}%',
-                            titleStyle: TextStyle(
-                              color: _titleColorFor(_giftTypeColors[type]!),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                            radius: 42,
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Row(
-                  children: [
-                    for (final type in types)
-                      Expanded(
-                        child: _legendRow(
-                          color: _giftTypeColors[type]!,
-                          label: type.label,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
+          Center(
+            child: _TotalBalanceBubbleChart(
+              centerLabel: '${total.toStringAsFixed(0)} TL',
+              typeBreakdown: typeBreakdown,
+              typeColors: _giftTypeColors,
+              onTypeTap: (type) => _showTypeDetailDialog(context, type, typeGifts[type] ?? const []),
+              onCenterTap: () => _showOverallDetailDialog(context, state.allGifts),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTypeDetailDialog(
+    BuildContext context,
+    GiftType type,
+    List<GiftModel> gifts,
+  ) {
+    const currencyTypes = {GiftType.cash, GiftType.other};
+    const noAdetTypes = {GiftType.other, GiftType.necklace, GiftType.bracelet};
+    const currencyLabels = {
+      'USD': 'Dolar',
+      'EUR': 'Euro',
+      'GBP': 'Sterlin',
+    };
+
+    final recordCount = gifts.length;
+    final totalAmount = gifts.fold<double>(0, (s, g) => s + g.amount);
+    final totalTl = gifts.fold<double>(0, (s, g) => s + g.estimatedValueTl);
+    final isCurrencyType = currencyTypes.contains(type);
+    final showAdet = !noAdetTypes.contains(type) && !isCurrencyType;
+    final totalGram = isCurrencyType
+        ? null
+        : type.gramEquivalent > 0
+        ? totalAmount * type.gramEquivalent
+        : totalAmount;
+
+    final currencyTotals = <String, double>{};
+    if (isCurrencyType) {
+      for (final g in gifts) {
+        final code = g.currencyCode ?? 'TL';
+        currencyTotals[code] = (currencyTotals[code] ?? 0) + g.amount;
+      }
+    }
+
+    String formatNumber(double n) =>
+        n == n.roundToDouble() ? n.toStringAsFixed(0) : n.toStringAsFixed(2);
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(type.label),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _detailRow(
+              context,
+              label: 'Kayıt Sayısı',
+              value: '$recordCount adet kayıt',
+            ),
+            if (showAdet)
+              _detailRow(
+                context,
+                label: 'Toplam Adet',
+                value: '${formatNumber(totalAmount)} adet',
+              ),
+            if (totalGram != null)
+              _detailRow(
+                context,
+                label: 'Toplam Gram',
+                value: '${formatNumber(totalGram)} g',
+              ),
+            if (isCurrencyType)
+              for (final code in ['TL', 'USD', 'EUR', 'GBP'])
+                if (currencyTotals[code] != null)
+                  _detailRow(
+                    context,
+                    label: 'Toplam ${currencyLabels[code] ?? code}',
+                    value: _formatCurrencyAmount(code, currencyTotals[code]!),
+                  ),
+            const Divider(height: 20),
+            _detailRow(
+              context,
+              label: 'Toplam Değer',
+              value: CurrencyConverter.formatTl(totalTl),
+              emphasize: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Kapat'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOverallDetailDialog(BuildContext context, List<GiftModel> allGifts) {
+    const goldTypes = {
+      GiftType.quarterGold,
+      GiftType.halfGold,
+      GiftType.fullGold,
+      GiftType.gremseGold,
+      GiftType.gramGold,
+    };
+    const currencyTypes = {GiftType.cash, GiftType.other};
+    const currencyLabels = {
+      'USD': 'Dolar',
+      'EUR': 'Euro',
+      'GBP': 'Sterlin',
+    };
+
+    final gifts = allGifts.where((g) => g.direction == _direction).toList();
+    final totalTl = gifts.fold<double>(0, (s, g) => s + g.estimatedValueTl);
+    final totalGoldGram = gifts
+        .where((g) => goldTypes.contains(g.giftType))
+        .fold<double>(0, (s, g) => s + g.amount * g.giftType.gramEquivalent);
+
+    final currencyTotals = <String, double>{};
+    for (final g in gifts.where((g) => currencyTypes.contains(g.giftType))) {
+      final code = g.currencyCode ?? 'TL';
+      currencyTotals[code] = (currencyTotals[code] ?? 0) + g.amount;
+    }
+
+    String formatNumber(double n) =>
+        n == n.roundToDouble() ? n.toStringAsFixed(0) : n.toStringAsFixed(2);
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Genel Toplam'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (totalGoldGram > 0)
+              _detailRow(
+                context,
+                label: 'Toplam Gram Altın',
+                value: '${formatNumber(totalGoldGram)} g',
+              ),
+            for (final code in ['TL', 'USD', 'EUR', 'GBP'])
+              if (currencyTotals[code] != null)
+                _detailRow(
+                  context,
+                  label: 'Toplam ${currencyLabels[code] ?? code}',
+                  value: _formatCurrencyAmount(code, currencyTotals[code]!),
+                ),
+            const Divider(height: 20),
+            _detailRow(
+              context,
+              label: 'Genel Toplam Değer',
+              value: CurrencyConverter.formatTl(totalTl),
+              emphasize: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Kapat'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatCurrencyAmount(String code, double n) {
+    const symbols = {'TL': '₺', 'USD': '\$', 'EUR': '€', 'GBP': '£'};
+    final formatted = n == n.roundToDouble() ? n.toStringAsFixed(0) : n.toStringAsFixed(2);
+    return '$formatted ${symbols[code] ?? code}';
+  }
+
+  Widget _detailRow(
+    BuildContext context, {
+    required String label,
+    required String value,
+    bool emphasize = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.muted(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: emphasize ? 17 : 15,
+              fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
+              color: emphasize ? AppColors.secondary : null,
+            ),
+          ),
         ],
       ),
     );
@@ -575,27 +714,182 @@ class _DashboardViewState extends State<_DashboardView> {
         .toUpperCase();
   }
 
-  Widget _legendRow({required Color color, required String label}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: AppColors.muted(context),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+}
+
+class _TotalBalanceBubbleChart extends StatelessWidget {
+  const _TotalBalanceBubbleChart({
+    required this.centerLabel,
+    required this.typeBreakdown,
+    required this.typeColors,
+    required this.onTypeTap,
+    required this.onCenterTap,
+  });
+
+  final String centerLabel;
+  final Map<GiftType, double> typeBreakdown;
+  final Map<GiftType, Color> typeColors;
+  final ValueChanged<GiftType> onTypeTap;
+  final VoidCallback onCenterTap;
+
+  static const double _centerDiameter = 110;
+  static const double _maxSurroundDiameter = _centerDiameter * 0.62;
+  // Populated bubbles never shrink below this, so their label/percentage
+  // stay legible even when their share of the total is small.
+  static const double _minPopulatedDiameter = _centerDiameter * 0.5;
+  static const double _emptyDiameter = _centerDiameter * 0.26;
+  static const double _margin = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    final types = GiftType.values.where((t) => t != GiftType.other).toList();
+    final total = typeBreakdown.values.fold<double>(0, (s, v) => s + v);
+    final maxValue = typeBreakdown.values.isEmpty
+        ? 0.0
+        : typeBreakdown.values.reduce((a, b) => a > b ? a : b);
+
+    // Ring radius must be large enough that two full-size adjacent bubbles
+    // don't overlap each other, and that a full-size bubble doesn't
+    // overlap the center circle.
+    final angleSpacingRadius = _maxSurroundDiameter /
+        (2 * math.sin(math.pi / types.length));
+    final clearCenterRadius =
+        _centerDiameter / 2 + _maxSurroundDiameter / 2 + _margin;
+    final ringRadius = math.max(angleSpacingRadius, clearCenterRadius);
+    final chartSize = 2 * (ringRadius + _maxSurroundDiameter / 2 + _margin);
+
+    return SizedBox(
+      width: chartSize.w,
+      height: chartSize.w,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          for (var i = 0; i < types.length; i++)
+            _positionedBubble(
+              index: i,
+              count: types.length,
+              type: types[i],
+              value: typeBreakdown[types[i]] ?? 0,
+              total: total,
+              maxValue: maxValue,
+              ringRadius: ringRadius,
+            ),
+          GestureDetector(
+            onTap: onCenterTap,
+            child: _bubble(
+              diameter: _centerDiameter.w,
+              color: AppColors.secondary,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Toplam',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
+                  ),
+                  Text(
+                    centerLabel,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _positionedBubble({
+    required int index,
+    required int count,
+    required GiftType type,
+    required double value,
+    required double total,
+    required double ringRadius,
+    required double maxValue,
+  }) {
+    final hasValue = value > 0;
+    final sizeRatio = maxValue > 0 ? value / maxValue : 0.0;
+    final diameter = hasValue
+        ? (_minPopulatedDiameter +
+                  (_maxSurroundDiameter - _minPopulatedDiameter) * sizeRatio)
+              .w
+        : _emptyDiameter.w;
+
+    final angle = (2 * math.pi * index / count) - (math.pi / 2);
+    final dx = ringRadius.w * math.cos(angle);
+    final dy = ringRadius.w * math.sin(angle);
+
+    final color = typeColors[type] ?? AppColors.primary;
+    final bubbleColor = hasValue ? color : color.withValues(alpha: 0.35);
+    const textColor = Colors.white;
+
+    return Transform.translate(
+      offset: Offset(dx, dy),
+      child: GestureDetector(
+        onTap: hasValue ? () => onTypeTap(type) : null,
+        child: _bubble(
+          diameter: diameter,
+          color: bubbleColor,
+          child: hasValue
+              ? Padding(
+                  padding: EdgeInsets.all(4.w),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          type.label,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                          ),
+                        ),
+                        Text(
+                          '%${((value / total) * 100).round()}',
+                          style: TextStyle(
+                            color: textColor.withValues(alpha: 0.85),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : null,
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _bubble({
+    required double diameter,
+    required Color color,
+    Widget? child,
+  }) {
+    return Container(
+      width: diameter,
+      height: diameter,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: child,
     );
   }
 }
