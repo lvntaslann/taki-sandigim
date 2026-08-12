@@ -731,12 +731,16 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
   final ValueChanged<GiftType> onTypeTap;
   final VoidCallback onCenterTap;
 
-  static const double _centerDiameter = 110;
-  static const double _maxSurroundDiameter = _centerDiameter * 0.62;
+  // Reference size the surrounding bubbles scale against — kept separate
+  // from the rendered center diameter so shrinking the center circle
+  // doesn't also shrink (and re-break the readability of) the type bubbles.
+  static const double _sizingReference = 110;
+  static const double _centerDiameter = 92;
+  static const double _maxSurroundDiameter = _sizingReference * 0.62;
   // Populated bubbles never shrink below this, so their label/percentage
   // stay legible even when their share of the total is small.
-  static const double _minPopulatedDiameter = _centerDiameter * 0.5;
-  static const double _emptyDiameter = _centerDiameter * 0.26;
+  static const double _minPopulatedDiameter = _sizingReference * 0.5;
+  static const double _emptyDiameter = _sizingReference * 0.26;
   static const double _margin = 6;
 
   @override

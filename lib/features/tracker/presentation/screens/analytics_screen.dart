@@ -121,7 +121,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hediye Dağılımı',
+                      'Toplam Bakiye',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
