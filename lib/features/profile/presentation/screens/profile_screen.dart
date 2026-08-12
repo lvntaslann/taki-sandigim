@@ -144,6 +144,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
+
+    await _settingsRepository.resetOnboardingComplete();
+
+    if (!mounted) return;
     context.go(AppRoutes.onboarding);
   }
 

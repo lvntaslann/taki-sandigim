@@ -27,6 +27,9 @@ class UserSettingsRepository {
   Future<void> setOnboardingComplete() =>
       _box.put(_onboardingCompleteKey, true);
 
+  Future<void> resetOnboardingComplete() =>
+      _box.put(_onboardingCompleteKey, false);
+
   bool isDarkMode() => _box.get(_darkModeKey, defaultValue: false) as bool;
 
   Future<void> setDarkMode(bool value) => _box.put(_darkModeKey, value);
