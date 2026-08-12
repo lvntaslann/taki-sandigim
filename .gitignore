@@ -55,3 +55,22 @@ CLAUDE.md
 .windsurf/
 .aider*
 .cache/claude*
+
+# Firebase / Cloud Functions - platform config & secrets, never commit
+# (firebase.json itself is safe to commit — it has no secrets, only project
+# id mappings needed for `firebase deploy` to work for anyone cloning this).
+google-services.json
+GoogleService-Info.plist
+lib/firebase_options.dart
+functions/node_modules/
+functions/.env
+functions/.env.local
+functions/.env.*.local
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+pubsub-debug.log
+*firebase-adminsdk*.json
+*service-account*.json
