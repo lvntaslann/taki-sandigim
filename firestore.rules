@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Firestore is only written to by Cloud Functions (Admin SDK, bypasses
+    // rules) — the client never reads/writes these collections directly.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

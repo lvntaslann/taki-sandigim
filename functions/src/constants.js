@@ -1,4 +1,11 @@
 const PREMIUM_ENTITLEMENT_ID = "Takı Sandığım Pro";
 const USERS_COLLECTION = "users";
+const AI_USAGE_COLLECTION = "ai_usage";
+const AI_FREE_DAILY_LIMIT = 5;
 
-module.exports = {PREMIUM_ENTITLEMENT_ID, USERS_COLLECTION};
+module.exports = {
+  PREMIUM_ENTITLEMENT_ID,
+  USERS_COLLECTION,
+  AI_USAGE_COLLECTION,
+  AI_FREE_DAILY_LIMIT,
+};

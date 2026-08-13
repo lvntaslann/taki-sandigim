@@ -13,6 +13,7 @@ dependencies:
 
   # Firebase
   firebase_core: ^3.8.0
+  firebase_app_check: ^0.3.1
 
   # Payments / Subscriptions
   purchases_flutter: ^10.8.0
