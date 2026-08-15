@@ -1,7 +1,8 @@
 const {onRequest} = require("firebase-functions/v2/https");
 const {defineSecret} = require("firebase-functions/params");
+const {getAppCheck} = require("firebase-admin/app-check");
 const {isPremiumUser} = require("../users/repository");
-const {consumeFreeQuota} = require("./rateLimit");
+const {consumeFreeQuota, consumePremiumQuota} = require("./rateLimit");
 const {generateContent} = require("./client");
 const promptTemplates = require("./promptTemplates");
 const {parseNotebookLines, parseInvitation} = require("./parse");
@@ -14,15 +15,32 @@ const VALID_TYPES = new Set(["notebook", "invitation"]);
 // provider, model and prompts entirely server-side so they can change
 // without a Play Store release. Caller identity is the RevenueCat
 // appUserId (this app has no Firebase Auth) — see PurchaseService.appUserId.
+//
+// NOTE: `enforceAppCheck` (used on `onCall`) has no effect on `onRequest`
+// functions like this one — the firebase-functions SDK only wires it up for
+// callable functions. For a raw HTTP endpoint, the App Check token has to be
+// read from the `X-Firebase-AppCheck` header and verified manually below.
 const aiEvaluate = onRequest(
     {
       secrets: [aiApiKey],
       region: "europe-west1",
-      enforceAppCheck: true,
     },
     async (req, res) => {
       if (req.method !== "POST") {
         res.status(405).send("Method Not Allowed");
+        return;
+      }
+
+      const appCheckToken = req.get("X-Firebase-AppCheck");
+      if (!appCheckToken) {
+        res.status(401).json({error: "Missing App Check token"});
+        return;
+      }
+      try {
+        await getAppCheck().verifyToken(appCheckToken);
+      } catch (error) {
+        console.error("App Check verification failed", error);
+        res.status(401).json({error: "Invalid App Check token"});
         return;
       }
 
@@ -47,12 +65,16 @@ const aiEvaluate = onRequest(
 
       try {
         const premium = await isPremiumUser(appUserId);
-        if (!premium) {
-          const allowed = await consumeFreeQuota(appUserId);
-          if (!allowed) {
-            res.status(429).json({error: "Günlük ücretsiz tarama hakkın bitti."});
-            return;
-          }
+        const allowed = premium ?
+          await consumePremiumQuota(appUserId) :
+          await consumeFreeQuota(appUserId);
+        if (!allowed) {
+          res.status(429).json({
+            error: premium ?
+              "Kısa sürede çok fazla istek attın, birkaç saat sonra tekrar dene." :
+              "Günlük ücretsiz tarama hakkın bitti.",
+          });
+          return;
         }
 
         const prompt = type === "notebook" ?

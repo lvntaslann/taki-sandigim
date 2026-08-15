@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../../../core/services/purchase_service.dart';
@@ -84,6 +85,11 @@ class AiEvaluationService {
       throw Exception('Kullanıcı kimliği bulunamadı, lütfen tekrar dene.');
     }
 
+    final appCheckToken = await FirebaseAppCheck.instance.getToken();
+    if (appCheckToken == null) {
+      throw Exception('Güvenlik doğrulaması alınamadı, lütfen tekrar dene.');
+    }
+
     final bytes = await File(imagePath).readAsBytes();
     final base64Image = base64Encode(bytes);
 
@@ -91,7 +97,10 @@ class AiEvaluationService {
       final response = await _dio.post<Map<String, dynamic>>(
         _functionUrl,
         options: Options(
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Firebase-AppCheck': appCheckToken,
+          },
         ),
         data: {
           'appUserId': appUserId,

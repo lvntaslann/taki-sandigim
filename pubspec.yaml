@@ -1,7 +1,7 @@
 name: taki_sandigim
-description: "A new Flutter project."
+description: "Düğün, nişan ve kına hediyelerini kolayca kaydedip takip etmeni sağlayan takı defteri uygulaması."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.11.5
@@ -75,12 +75,12 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/takisandigim_icon.png"
-  adaptive_icon_background: "#C09F8E"
-  adaptive_icon_foreground: "assets/takisandigim_icon.png"
+  image_path: "assets/taki-sandigim-icon.png"
+  adaptive_icon_background: "#032B3D"
+  adaptive_icon_foreground: "assets/taki-sandigim-icon.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/takisandigim_icon.png"
-    background_color: "#C09F8E"
-    theme_color: "#C09F8E"
+    image_path: "assets/taki-sandigim-icon.png"
+    background_color: "#032B3D"
+    theme_color: "#032B3D"
