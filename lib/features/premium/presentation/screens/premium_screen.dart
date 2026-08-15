@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +17,12 @@ class PremiumScreen extends StatefulWidget {
 }
 
 class _PremiumScreenState extends State<PremiumScreen> {
+  // TEMP: Test Store product prices only show in USD (no TL support there).
+  // Blocks the purchase flow behind a blurred "coming soon" overlay until
+  // real Play Store/App Store products (with TL pricing) are wired up —
+  // flip to false then.
+  static const bool _comingSoon = true;
+
   List<Package> _packages = [];
   Package? _selectedPackage;
   bool _loading = true;
@@ -158,42 +166,167 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 20, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: _comingSoon
+            ? _buildComingSoon(context, onSurface, muted)
+            : Column(
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: Icon(Icons.close, color: onSurface),
-                  ),
-                  if (!_purchaseSucceeded)
-                    GestureDetector(
-                      onTap: _restoring ? null : _restore,
-                      child: _restoring
-                          ? SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: muted),
-                            )
-                          : Text(
-                              'Geri Yükle',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: muted,
-                              ),
-                            ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 20, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          icon: Icon(Icons.close, color: onSurface),
+                        ),
+                        if (!_purchaseSucceeded)
+                          GestureDetector(
+                            onTap: _restoring ? null : _restore,
+                            child: _restoring
+                                ? SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: muted,
+                                    ),
+                                  )
+                                : Text(
+                                    'Geri Yükle',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: muted,
+                                    ),
+                                  ),
+                          ),
+                      ],
                     ),
+                  ),
+                  Expanded(child: _buildBody(context, onSurface, muted)),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildComingSoon(BuildContext context, Color onSurface, Color muted) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: AbsorbPointer(child: _buildBody(context, onSurface, muted)),
+        ),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: Container(color: Colors.black.withValues(alpha: 0.25)),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          left: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              icon: Icon(Icons.arrow_back, color: onSurface),
+            ),
+          ),
+        ),
+        Center(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 28),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primaryDark, AppColors.primary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: -28,
+                    right: -18,
+                    child: Icon(
+                      Icons.workspace_premium,
+                      size: 120,
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.hourglass_top_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Text(
+                          'Çok Yakında',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Premium abonelik yakında burada olacak.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.92),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            Expanded(child: _buildBody(context, onSurface, muted)),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
