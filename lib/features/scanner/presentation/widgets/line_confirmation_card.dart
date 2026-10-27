@@ -7,6 +7,7 @@ import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../domain/gift_type_guesser.dart';
 import '../../domain/notebook_line.dart';
@@ -141,13 +142,14 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
   }
 
   void _add() {
+    final l10n = AppLocalizations.of(context);
     final personName = _personNameController.text.trim();
-    if (personName.isEmpty) return _warn('Kişi adı boş olamaz.');
+    if (personName.isEmpty) return _warn(l10n.personNameEmpty);
 
     if (_isGoldBased) {
       final amount =
           double.tryParse(_amountController.text.replaceAll(',', '.'));
-      if (amount == null) return _warn('Geçerli bir miktar girin.');
+      if (amount == null) return _warn('${l10n.enterValidAmount}.');
       widget.onAdd(
         personName: personName,
         giftType: _giftType,
@@ -160,7 +162,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
     } else if (_cashInputMode == _CashInputMode.foreign) {
       final amount =
           double.tryParse(_foreignAmountController.text.replaceAll(',', '.'));
-      if (amount == null) return _warn('Geçerli bir tutar girin.');
+      if (amount == null) return _warn('${l10n.enterValidSum}.');
       widget.onAdd(
         personName: personName,
         giftType: _giftType,
@@ -174,7 +176,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
     } else {
       final amount =
           double.tryParse(_cashAmountController.text.replaceAll(',', '.'));
-      if (amount == null) return _warn('Geçerli bir tutar girin.');
+      if (amount == null) return _warn('${l10n.enterValidSum}.');
       widget.onAdd(
         personName: personName,
         giftType: _giftType,
@@ -188,6 +190,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +202,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Taranan: "${widget.line.rawText}"',
+                  l10n.scannedText(widget.line.rawText),
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontStyle: FontStyle.italic,
@@ -214,14 +217,14 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
           ),
           const SizedBox(height: 12),
           SegmentedButton<GiftDirection>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: GiftDirection.received,
-                label: Text('Bize Takılan'),
+                label: Text(l10n.giftDirectionReceived),
               ),
               ButtonSegment(
                 value: GiftDirection.given,
-                label: Text('Bizim Taktığımız'),
+                label: Text(l10n.giftDirectionGiven),
               ),
             ],
             selected: {_direction},
@@ -229,49 +232,49 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
           ),
           const SizedBox(height: 12),
           CustomTextField(
-            label: 'Kişi Adı',
+            label: l10n.personName,
             controller: _personNameController,
             prefixIcon: Icons.person_outline,
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<RelationType>(
             initialValue: _relationType,
-            decoration: const InputDecoration(labelText: 'İlişki'),
+            decoration: InputDecoration(labelText: l10n.relation),
             items: RelationType.values
-                .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
+                .map((r) => DropdownMenuItem(value: r, child: Text(r.localizedLabel(l10n))))
                 .toList(),
             onChanged: (v) => setState(() => _relationType = v!),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<GiftType>(
             initialValue: _giftType,
-            decoration: const InputDecoration(labelText: 'Takı Türü'),
+            decoration: InputDecoration(labelText: l10n.giftTypeLabel),
             items: GiftType.values
-                .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                .map((t) => DropdownMenuItem(value: t, child: Text(t.localizedLabel(l10n))))
                 .toList(),
             onChanged: (v) => setState(() => _giftType = v!),
           ),
           const SizedBox(height: 12),
           if (_isGoldBased) ...[
             CustomTextField(
-              label: 'Miktar (adet/gram)',
+              label: l10n.amountPiecesOrGrams,
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 8),
             Text(
               _goldRateTl == null
-                  ? 'Kur alınıyor...'
-                  : 'Hesaplanan değer: ${CurrencyConverter.formatTl(_calculatedValue)}',
+                  ? l10n.fetchingRateShort
+                  : l10n.calculatedValue(CurrencyConverter.formatTl(_calculatedValue)),
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ] else ...[
             SegmentedButton<_CashInputMode>(
-              segments: const [
-                ButtonSegment(value: _CashInputMode.tl, label: Text('TL')),
+              segments: [
+                const ButtonSegment(value: _CashInputMode.tl, label: Text('TL')),
                 ButtonSegment(
                   value: _CashInputMode.foreign,
-                  label: Text('Döviz'),
+                  label: Text(l10n.foreignCurrency),
                 ),
               ],
               selected: {_cashInputMode},
@@ -280,7 +283,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
             const SizedBox(height: 12),
             if (_cashInputMode == _CashInputMode.tl)
               CustomTextField(
-                label: 'Tutar (TL)',
+                label: l10n.amountInCurrency('TL'),
                 controller: _cashAmountController,
                 prefixIcon: Icons.payments_outlined,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -288,12 +291,12 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
             else ...[
               DropdownButtonFormField<SupportedCurrency>(
                 initialValue: _currency,
-                decoration: const InputDecoration(labelText: 'Para Birimi'),
+                decoration: InputDecoration(labelText: l10n.currency),
                 items: SupportedCurrency.all
                     .map(
                       (c) => DropdownMenuItem(
                         value: c,
-                        child: Text('${c.label} (${c.code})'),
+                        child: Text('${c.localizedLabel(l10n)} (${c.code})'),
                       ),
                     )
                     .toList(),
@@ -301,7 +304,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
               ),
               const SizedBox(height: 12),
               CustomTextField(
-                label: 'Tutar (${_currency.code})',
+                label: l10n.amountInCurrency(_currency.code),
                 controller: _foreignAmountController,
                 prefixIcon: Icons.currency_exchange,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -309,8 +312,8 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
               const SizedBox(height: 8),
               Text(
                 _currencyRateTl == null
-                    ? 'Kur alınıyor...'
-                    : 'TL karşılığı: ${CurrencyConverter.formatTl(_foreignValueTl)}',
+                    ? l10n.fetchingRateShort
+                    : l10n.tlEquivalent(CurrencyConverter.formatTl(_foreignValueTl)),
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ],
@@ -320,7 +323,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
             children: [
               Expanded(
                 child: CustomButton(
-                  label: 'Atla',
+                  label: l10n.skip,
                   variant: CustomButtonVariant.outline,
                   onPressed: widget.onSkip,
                 ),
@@ -328,7 +331,7 @@ class _LineConfirmationCardState extends State<LineConfirmationCard> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomButton(
-                  label: 'Ekle',
+                  label: l10n.add,
                   icon: Icons.check,
                   onPressed: _add,
                 ),

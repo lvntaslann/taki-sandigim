@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/import_source.dart';
 
 Future<ImportSource?> showImportSourceSheet(BuildContext context) {
@@ -50,28 +51,28 @@ class _ImportSourceSheet extends StatelessWidget {
               ),
             ),
             Text(
-              'Hangi dosyadan yükleyelim?',
+              AppLocalizations.of(context).importSourceTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Daha önce dışa aktardığın dosyayı seç.',
+              AppLocalizations.of(context).importSourceHint,
               style: TextStyle(color: AppColors.muted(context), fontSize: 13.5),
             ),
             const SizedBox(height: 20),
             _SourceOption(
               icon: Icons.table_chart_outlined,
-              title: ImportSource.excel.label,
-              subtitle: 'Uygulamadan dışa aktarılmış .xlsx dosyası',
+              title: ImportSource.excel.localizedLabel(AppLocalizations.of(context)),
+              subtitle: AppLocalizations.of(context).importSourceExcelHint,
               onTap: () => Navigator.of(context).pop(ImportSource.excel),
             ),
             const SizedBox(height: 12),
             _SourceOption(
               icon: Icons.picture_as_pdf_outlined,
-              title: ImportSource.pdf.label,
-              subtitle: 'Yakında eklenecek',
+              title: ImportSource.pdf.localizedLabel(AppLocalizations.of(context)),
+              subtitle: AppLocalizations.of(context).comingSoon,
               enabled: false,
               onTap: () => Navigator.of(context).pop(ImportSource.pdf),
             ),

@@ -32,7 +32,7 @@ class AiEvaluationService {
     );
     final lines = data['lines'] as List?;
     if (lines == null) {
-      throw Exception('AI yanıtında beklenen alan bulunamadı: lines');
+      throw const AiEvaluationException(AiEvaluationError.unexpectedResponse, 'lines');
     }
     return lines
         .whereType<Map<String, dynamic>>()
@@ -64,7 +64,7 @@ class AiEvaluationService {
     );
     final info = data['invitation'] as Map<String, dynamic>?;
     if (info == null) {
-      throw Exception('AI yanıtında beklenen alan bulunamadı: invitation');
+      throw const AiEvaluationException(AiEvaluationError.unexpectedResponse, 'invitation');
     }
     final dateStr = info['date'] as String?;
     return InvitationInfo(
@@ -82,12 +82,12 @@ class AiEvaluationService {
   }) async {
     final appUserId = PurchaseService.instance.appUserId;
     if (appUserId == null || appUserId.isEmpty) {
-      throw Exception('Kullanıcı kimliği bulunamadı, lütfen tekrar dene.');
+      throw const AiEvaluationException(AiEvaluationError.noUserId);
     }
 
     final appCheckToken = await FirebaseAppCheck.instance.getToken();
     if (appCheckToken == null) {
-      throw Exception('Güvenlik doğrulaması alınamadı, lütfen tekrar dene.');
+      throw const AiEvaluationException(AiEvaluationError.appCheckFailed);
     }
 
     final bytes = await File(imagePath).readAsBytes();
@@ -112,7 +112,7 @@ class AiEvaluationService {
       );
       return response.data ?? const {};
     } on DioException catch (e) {
-      throw Exception(_describeError(e));
+      throw _describeError(e);
     }
   }
 
@@ -125,14 +125,37 @@ class AiEvaluationService {
     return 'image/jpeg';
   }
 
-  String _describeError(DioException e) {
+  AiEvaluationException _describeError(DioException e) {
     final data = e.response?.data;
     if (data is Map && data['error'] is String) {
-      return data['error'] as String;
+      return AiEvaluationException(AiEvaluationError.server, data['error'] as String);
     }
     if (e.response?.statusCode == 429) {
-      return 'Şu an yoğunluktan dolayı AI yanıt veremedi (rate limit). Birkaç saniye sonra tekrar dene.';
+      return const AiEvaluationException(AiEvaluationError.rateLimited);
     }
-    return 'AI değerlendirme isteği başarısız: ${e.message}';
+    return AiEvaluationException(AiEvaluationError.requestFailed, e.message);
   }
+}
+
+enum AiEvaluationError {
+  unexpectedResponse,
+  noUserId,
+  appCheckFailed,
+  rateLimited,
+  requestFailed,
+
+  /// [AiEvaluationException.detail] is the backend's own message, shown as is.
+  server,
+}
+
+/// Carries a kind instead of a message so the UI can show it in the app
+/// language.
+class AiEvaluationException implements Exception {
+  const AiEvaluationException(this.kind, [this.detail]);
+
+  final AiEvaluationError kind;
+  final String? detail;
+
+  @override
+  String toString() => 'AiEvaluationException(${kind.name}, $detail)';
 }

@@ -6,6 +6,7 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/utils/name_capitalization_formatter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size shared with onboarding_screen.dart so both screens
@@ -34,7 +35,9 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
   void _continue() {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _errorText = 'Lütfen isminizi giriniz');
+      setState(
+        () => _errorText = AppLocalizations.of(context).nameRequiredError,
+      );
       return;
     }
     _settingsRepository.setName(name);
@@ -43,9 +46,12 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFFCF3E7),
-      resizeToAvoidBottomInset: false,
+      // Shrinks the canvas above the keyboard so "Devam Et" stays reachable
+      // while typing.
+      resizeToAvoidBottomInset: true,
       body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.contain,
@@ -59,7 +65,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   right: 0,
                   top: 478,
                   child: Text(
-                    'Size Nasıl Hitap Edelim?',
+                    l10n.nameEntryTitle,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.greatVibes(
                       fontSize: 76,
@@ -75,6 +81,8 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   child: TextField(
                     controller: _nameController,
                     textAlign: TextAlign.start,
+                    textInputAction: TextInputAction.done,
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
                     inputFormatters: const [NameCapitalizationFormatter()],
                     onChanged: (_) {
                       if (_errorText != null) setState(() => _errorText = null);
@@ -87,7 +95,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                     decoration: InputDecoration(
                       filled: false,
                       border: InputBorder.none,
-                      labelText: 'İsim:',
+                      labelText: l10n.nameLabel,
                       labelStyle: GoogleFonts.playfairDisplay(
                         fontSize: 54,
                         color: AppColors.primary,
@@ -113,7 +121,7 @@ class _NameEntryScreenState extends State<NameEntryScreen> {
                   top: 1450,
                   height: 115,
                   child: OnboardingGradientButton(
-                    label: 'Devam Et',
+                    label: l10n.continueButton,
                     fontSize: 40,
                     onPressed: _continue,
                   ),

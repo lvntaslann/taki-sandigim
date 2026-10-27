@@ -8,6 +8,7 @@ import '../../../../core/database/box_names.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/basis_badge.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../data/tracker_repository.dart';
@@ -39,7 +40,7 @@ class _ValueAnalysisListScreenState extends State<ValueAnalysisListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Değer Analizi')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).valueAnalysis)),
       body: Column(
         children: [
           Padding(
@@ -49,7 +50,7 @@ class _ValueAnalysisListScreenState extends State<ValueAnalysisListScreen> {
               onChanged: (v) =>
                   setState(() => _searchQuery = v.trim().toLowerCase()),
               decoration: InputDecoration(
-                hintText: 'Kişi adına göre ara...',
+                hintText: AppLocalizations.of(context).searchByName,
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: AppColors.surface,
@@ -77,8 +78,8 @@ class _ValueAnalysisListScreenState extends State<ValueAnalysisListScreen> {
                   return Center(
                     child: Text(
                       _searchQuery.isEmpty
-                          ? 'Bu kategoride bir kayıt yok.'
-                          : 'Sonuç bulunamadı.',
+                          ? AppLocalizations.of(context).noRecordsInCategory
+                          : AppLocalizations.of(context).noResults,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 15,
@@ -112,7 +113,8 @@ class _ValueGiftRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCurrency = gift.currencyCode != null;
-    final basisLabel = isCurrency ? gift.currencyCode! : 'Altın';
+    final l10n = AppLocalizations.of(context);
+    final basisLabel = isCurrency ? gift.currencyCode! : l10n.basisGold;
 
     return CustomCard(
       onTap: () => context.push(AppRoutes.giftValueAnalysis, extra: gift),
@@ -128,7 +130,7 @@ class _ValueGiftRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${gift.personName} · ${gift.giftType.label}',
+                  '${gift.personName} · ${gift.giftType.localizedLabel(l10n)}',
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 Text(

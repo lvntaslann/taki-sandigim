@@ -8,6 +8,8 @@ import '../../dashboard/data/models/gift_model.dart';
 import '../../dashboard/data/models/wedding_model.dart';
 import '../../dashboard/data/repositories/gift_repository.dart';
 import '../../dashboard/data/repositories/wedding_repository.dart';
+import '../../../l10n/app_localizations.dart';
+import 'gift_export_service.dart';
 
 /// Thrown when the picked file's header row doesn't match the app's export format.
 class GiftImportFormatException implements Exception {
@@ -33,28 +35,24 @@ class GiftImportService {
   final GiftRepository _repository;
   final WeddingRepository _weddingRepository;
 
-  static const _expectedHeaders = [
-    'Tarih',
-    'Kişi',
-    'Hediye',
-    'Miktar',
-    'Değer (TL)',
-    'Yön',
+  /// Every language an export may have been written in.
+  static final _fileLanguages = [
+    for (final locale in AppLocalizations.supportedLocales)
+      lookupAppLocalizations(locale),
   ];
 
-  static const _expectedWeddingHeaders = ['Başlık', 'Tarih', 'Konum', 'Not'];
-
-  final _dateFormat = DateFormat('d MMM y', 'tr_TR');
+  /// Locale-independent, date-only key part for duplicate detection.
+  static final _keyDateFormat = DateFormat('y-MM-dd');
   final _uuid = const Uuid();
 
   /// Opens a file picker for .xlsx files, validates the format, and restores
-  /// both the gift list ("Takı Listem" sheet) and the wedding/invitation
-  /// records ("Davetiye Bilgileri" sheet) our own export writes. Duplicate
+  /// both the gift list sheet and the wedding/invitation sheet our own export
+  /// writes, in whichever supported language the file was exported. Duplicate
   /// rows are skipped (same date + person name + amount for gifts, same
-  /// title + date for weddings).
+  /// title + date for weddings). Error messages use [l10n], the app language.
   ///
   /// Returns null if the user cancelled the file picker.
-  Future<GiftImportResult?> pickAndImport() async {
+  Future<GiftImportResult?> pickAndImport(AppLocalizations l10n) async {
     final pickerResult = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
@@ -65,48 +63,61 @@ class GiftImportService {
 
     final workbook = xls.Excel.decodeBytes(bytes);
     if (workbook.tables.isEmpty) {
-      throw GiftImportFormatException('Dosyada okunabilir bir sayfa bulunamadı.');
+      throw GiftImportFormatException(l10n.importNoSheet);
     }
     // Prefer the sheet our own export writes to; workbooks may also contain
     // an empty default sheet (e.g. "Sheet1") alongside it.
-    final sheet = workbook.tables['Takı Listem'] ??
+    final sheet = _fileLanguages
+            .map((file) => workbook.tables[file.exportSheetGifts])
+            .nonNulls
+            .firstOrNull ??
         workbook.tables.values.firstWhere(
           (table) => table.rows.isNotEmpty,
           orElse: () => workbook.tables.values.first,
         );
     final rows = sheet.rows;
     if (rows.isEmpty) {
-      throw GiftImportFormatException('Dosya boş.');
+      throw GiftImportFormatException(l10n.importEmptyFile);
     }
 
-    final headerCells = rows.first
-        .map((cell) => cell?.value?.toString().trim() ?? '')
-        .toList();
-    if (headerCells.length < _expectedHeaders.length ||
-        !_expectedHeaders.every(
-          (expected) => headerCells.contains(expected),
-        )) {
-      throw GiftImportFormatException(
-        'Bu dosya Takı Sandığım formatında değil. Lütfen uygulamadan '
-        'dışa aktarılmış bir Excel dosyası seçin.',
-      );
+    final headerCells = _headerCells(rows.first);
+    // The unit column is optional, as in files exported before it existed.
+    final fileLanguage = _fileLanguages
+        .where((file) {
+          final required = GiftExportService.giftHeaders(file)
+            ..remove(file.exportColUnit);
+          return required.every(headerCells.contains);
+        })
+        .firstOrNull;
+    if (fileLanguage == null) {
+      throw GiftImportFormatException(l10n.importWrongFormat);
     }
     final columnIndex = {
       for (final header in headerCells) header: headerCells.indexOf(header),
     };
 
-    final addedCount = await _importGifts(rows, columnIndex);
-    final addedWeddingCount = await _importWeddings(workbook.tables['Davetiye Bilgileri']);
+    final addedCount = await _importGifts(rows, columnIndex, fileLanguage);
+    final addedWeddingCount = await _importWeddings(
+      workbook.tables[fileLanguage.exportSheetWeddings],
+      fileLanguage,
+    );
 
     return GiftImportResult(addedCount: addedCount, addedWeddingCount: addedWeddingCount);
   }
 
-  Future<int> _importGifts(List<List<xls.Data?>> rows, Map<String, int> columnIndex) async {
+  List<String> _headerCells(List<xls.Data?> row) =>
+      row.map((cell) => cell?.value?.toString().trim() ?? '').toList();
+
+  Future<int> _importGifts(
+    List<List<xls.Data?>> rows,
+    Map<String, int> columnIndex,
+    AppLocalizations file,
+  ) async {
     final existingKeys = _repository.getAll().map(_giftKeyFor).toSet();
 
     var addedCount = 0;
     for (final row in rows.skip(1)) {
-      final gift = _parseGiftRow(row, columnIndex);
+      final gift = _parseGiftRow(row, columnIndex, file);
       if (gift == null) continue;
       final key = _giftKeyFor(gift);
       if (existingKeys.contains(key)) continue;
@@ -118,13 +129,11 @@ class GiftImportService {
     return addedCount;
   }
 
-  Future<int> _importWeddings(xls.Sheet? sheet) async {
+  Future<int> _importWeddings(xls.Sheet? sheet, AppLocalizations file) async {
     if (sheet == null || sheet.rows.isEmpty) return 0;
 
-    final headerCells = sheet.rows.first
-        .map((cell) => cell?.value?.toString().trim() ?? '')
-        .toList();
-    if (!_expectedWeddingHeaders.every((expected) => headerCells.contains(expected))) {
+    final headerCells = _headerCells(sheet.rows.first);
+    if (!GiftExportService.weddingHeaders(file).every(headerCells.contains)) {
       return 0;
     }
     final columnIndex = {
@@ -135,7 +144,7 @@ class GiftImportService {
 
     var addedCount = 0;
     for (final row in sheet.rows.skip(1)) {
-      final wedding = _parseWeddingRow(row, columnIndex);
+      final wedding = _parseWeddingRow(row, columnIndex, file);
       if (wedding == null) continue;
       final key = _weddingKeyFor(wedding);
       if (existingKeys.contains(key)) continue;
@@ -147,30 +156,38 @@ class GiftImportService {
     return addedCount;
   }
 
-  GiftModel? _parseGiftRow(List<xls.Data?> row, Map<String, int> columnIndex) {
+  GiftModel? _parseGiftRow(
+    List<xls.Data?> row,
+    Map<String, int> columnIndex,
+    AppLocalizations file,
+  ) {
     String textAt(String header) {
       final index = columnIndex[header];
       if (index == null || index >= row.length) return '';
       return row[index]?.value?.toString().trim() ?? '';
     }
 
-    final dateText = textAt('Tarih');
-    final personName = textAt('Kişi');
-    final giftLabel = textAt('Hediye');
-    final amountText = textAt('Miktar');
-    final unitText = textAt('Birim');
-    final valueText = textAt('Değer (TL)');
-    final directionLabel = textAt('Yön');
+    final dateText = textAt(file.exportColDate);
+    final personName = textAt(file.exportColPerson);
+    final giftLabel = textAt(file.exportColGift);
+    final amountText = textAt(file.exportColAmount);
+    final unitText = textAt(file.exportColUnit);
+    final valueText = textAt(file.exportColValueTl);
+    final directionLabel = textAt(file.exportColDirection);
 
     if (personName.isEmpty) return null;
 
-    final date = _tryParseDate(dateText);
+    final date = _tryParseDate(dateText, file);
     if (date == null) return null;
 
-    final giftType = _giftTypeFromLabel(giftLabel);
+    final giftType = GiftType.values
+        .where((type) => type.localizedLabel(file) == giftLabel)
+        .firstOrNull;
     if (giftType == null) return null;
 
-    final direction = _directionFromLabel(directionLabel);
+    final direction = GiftDirection.values
+        .where((direction) => direction.localizedLabel(file) == directionLabel)
+        .firstOrNull;
     if (direction == null) return null;
 
     final amount = double.tryParse(amountText.replaceAll(',', '.'));
@@ -179,8 +196,8 @@ class GiftImportService {
     final estimatedValueTl = double.tryParse(valueText.replaceAll(',', '.'));
     if (estimatedValueTl == null) return null;
 
-    // "Birim" is only meaningful for cash gifts: 'TL', a foreign currency
-    // code (e.g. 'USD'), or '-' for gold/other types.
+    // The unit column is only meaningful for cash gifts: 'TL', a foreign
+    // currency code (e.g. 'USD'), or '-' for gold/other types.
     final isForeignCurrency =
         giftType == GiftType.cash && unitText.isNotEmpty && unitText != '-' && unitText != 'TL';
     final currencyCode = isForeignCurrency ? unitText : null;
@@ -199,21 +216,25 @@ class GiftImportService {
     );
   }
 
-  WeddingModel? _parseWeddingRow(List<xls.Data?> row, Map<String, int> columnIndex) {
+  WeddingModel? _parseWeddingRow(
+    List<xls.Data?> row,
+    Map<String, int> columnIndex,
+    AppLocalizations file,
+  ) {
     String textAt(String header) {
       final index = columnIndex[header];
       if (index == null || index >= row.length) return '';
       return row[index]?.value?.toString().trim() ?? '';
     }
 
-    final title = textAt('Başlık');
-    final dateText = textAt('Tarih');
-    final location = textAt('Konum');
-    final note = textAt('Not');
+    final title = textAt(file.exportColTitle);
+    final dateText = textAt(file.exportColDate);
+    final location = textAt(file.exportColLocation);
+    final note = textAt(file.exportColNote);
 
     if (title.isEmpty) return null;
 
-    final date = _tryParseDate(dateText);
+    final date = _tryParseDate(dateText, file);
     if (date == null) return null;
 
     return WeddingModel(
@@ -225,34 +246,20 @@ class GiftImportService {
     );
   }
 
-  DateTime? _tryParseDate(String text) {
+  DateTime? _tryParseDate(String text, AppLocalizations file) {
     if (text.isEmpty) return null;
     try {
-      return _dateFormat.parse(text);
+      return GiftExportService.dateFormatFor(file).parse(text);
     } catch (_) {
       return null;
     }
   }
 
-  GiftType? _giftTypeFromLabel(String label) {
-    for (final type in GiftType.values) {
-      if (type.label == label) return type;
-    }
-    return null;
-  }
-
-  GiftDirection? _directionFromLabel(String label) {
-    for (final direction in GiftDirection.values) {
-      if (direction.label == label) return direction;
-    }
-    return null;
-  }
-
   /// Key used for duplicate detection: same date + person + amount.
   String _giftKeyFor(GiftModel gift) =>
-      '${_dateFormat.format(gift.date)}|${gift.personName.toLowerCase()}|${gift.amount}';
+      '${_keyDateFormat.format(gift.date)}|${gift.personName.toLowerCase()}|${gift.amount}';
 
   /// Key used for duplicate detection: same title + date.
   String _weddingKeyFor(WeddingModel wedding) =>
-      '${wedding.title.toLowerCase()}|${_dateFormat.format(wedding.date)}';
+      '${wedding.title.toLowerCase()}|${_keyDateFormat.format(wedding.date)}';
 }

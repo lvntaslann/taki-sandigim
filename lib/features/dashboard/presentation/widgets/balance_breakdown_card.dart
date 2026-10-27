@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/currency_converter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/gift_enums.dart';
 
 class BalanceBreakdownCard extends StatelessWidget {
@@ -44,7 +45,7 @@ class BalanceBreakdownCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Toplam bakiye',
+            AppLocalizations.of(context).totalBalance,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w500,
@@ -96,7 +97,9 @@ class BalanceBreakdownCard extends StatelessWidget {
                     child: _legendRow(
                       context: context,
                       color: _palette[i % _palette.length],
-                      label: entries[i].key.label,
+                      label: entries[i].key.localizedLabel(
+                        AppLocalizations.of(context),
+                      ),
                       percent: (entries[i].value / total * 100).round(),
                     ),
                   ),
@@ -132,7 +135,7 @@ class BalanceBreakdownCard extends StatelessWidget {
           ),
         ),
         Text(
-          '%$percent',
+          AppLocalizations.of(context).percent(percent),
           style: TextStyle(
             fontSize: 15.sp,
             fontWeight: FontWeight.w700,
@@ -148,7 +151,7 @@ class BalanceBreakdownCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 24.h),
       child: Center(
         child: Text(
-          'Henüz kayıt yok',
+          AppLocalizations.of(context).noRecordsYet,
           style: TextStyle(
             color: AppColors.muted(context),
             fontSize: 15.sp,

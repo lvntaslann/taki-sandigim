@@ -6,6 +6,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/box_names.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/wedding_model.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -19,7 +20,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _focusedMonth;
   DateTime? _selectedDay;
 
-  static const _weekdayLabels = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Takvim')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).calendar)),
       body: ValueListenableBuilder<Box<WeddingModel>>(
         valueListenable: Hive.box<WeddingModel>(BoxNames.weddings).listenable(),
         builder: (context, box, _) {
@@ -80,7 +80,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               const SizedBox(height: 16),
               Text(
                 _selectedDay == null
-                    ? 'Tüm Düğünler'
+                    ? AppLocalizations.of(context).allWeddings
                     : DateFormatter.dayMonthYear(_selectedDay!),
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
@@ -92,8 +92,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   child: Center(
                     child: Text(
                       _selectedDay == null
-                          ? 'Henüz kayıtlı bir düğün yok.'
-                          : 'Bu tarihte bir düğün yok.',
+                          ? AppLocalizations.of(context).noWeddingsYet
+                          : AppLocalizations.of(context).noWeddingOnDate,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 15,
@@ -124,7 +124,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           icon: const Icon(Icons.chevron_left_rounded),
         ),
         Text(
-          DateFormat('MMMM yyyy', 'tr_TR').format(_focusedMonth),
+          DateFormat.yMMMM().format(_focusedMonth),
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16.5),
         ),
         IconButton(
@@ -136,9 +136,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _weekdayRow() {
+    final l10n = AppLocalizations.of(context);
+    final weekdayLabels = [
+      l10n.weekdayMon,
+      l10n.weekdayTue,
+      l10n.weekdayWed,
+      l10n.weekdayThu,
+      l10n.weekdayFri,
+      l10n.weekdaySat,
+      l10n.weekdaySun,
+    ];
     return Row(
       children: [
-        for (final label in _weekdayLabels)
+        for (final label in weekdayLabels)
           Expanded(
             child: Center(
               child: Text(

@@ -1,4 +1,5 @@
 import '../../dashboard/data/models/gift_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ValuePoint {
   const ValuePoint({required this.date, required this.valueTl});
@@ -10,18 +11,18 @@ class ValuePoint {
 enum ValueProjectionRange { day, week, month, year, all }
 
 extension ValueProjectionRangeLabel on ValueProjectionRange {
-  String get label {
+  String localizedLabel(AppLocalizations l10n) {
     switch (this) {
       case ValueProjectionRange.day:
-        return 'Gün';
+        return l10n.rangeDay;
       case ValueProjectionRange.week:
-        return 'Hafta';
+        return l10n.rangeWeek;
       case ValueProjectionRange.month:
-        return 'Ay';
+        return l10n.rangeMonth;
       case ValueProjectionRange.year:
-        return 'Yıl';
+        return l10n.rangeYear;
       case ValueProjectionRange.all:
-        return 'Tümü';
+        return l10n.rangeAll;
     }
   }
 

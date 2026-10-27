@@ -69,7 +69,7 @@ class ScannerBloc extends Bloc<ScannerEvent, ScannerState> {
       emit(
         state.copyWith(
           status: ScannerStatus.failure,
-          errorMessage: e.toString(),
+          error: e,
         ),
       );
     }

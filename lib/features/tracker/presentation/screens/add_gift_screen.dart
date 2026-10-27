@@ -10,6 +10,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/utils/name_capitalization_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/presentation/widgets/direction_toggle.dart';
 import '../../../scanner/presentation/widgets/scanner_body.dart';
@@ -23,16 +24,17 @@ class AddGiftScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
       initialIndex: initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Yeni Kayıt Ekle'),
-          bottom: const TabBar(
+          title: Text(l10n.addRecordTitle),
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Yeni Ekle'),
-              Tab(text: 'Defter/Davetiye Tara'),
+              Tab(text: l10n.addManuallyTab),
+              Tab(text: l10n.scanTab),
             ],
           ),
         ),
@@ -235,6 +237,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Form(
       key: _formKey,
       child: ListView(
@@ -242,48 +245,49 @@ class _AddGiftFormState extends State<_AddGiftForm> {
         children: [
           DirectionToggle(
             selected: _direction,
-            receivedLabel: 'Bize Takılan',
+            receivedLabel: l10n.giftDirectionReceived,
+            givenLabel: l10n.giftDirectionGiven,
             onChanged: (direction) => setState(() => _direction = direction),
           ),
           const SizedBox(height: 16),
           CustomTextField(
-            label: 'Kişi Adı',
+            label: l10n.personName,
             controller: _personNameController,
             prefixIcon: Icons.person_outline,
             inputFormatters: const [NameCapitalizationFormatter()],
             validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Kişi adı gerekli' : null,
+                (v == null || v.trim().isEmpty) ? l10n.personNameRequired : null,
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<EventType>(
             initialValue: _eventType,
-            decoration: const InputDecoration(labelText: 'Nerede Takıldı'),
+            decoration: InputDecoration(labelText: l10n.whereGiven),
             items: EventType.values
-                .map((e) => DropdownMenuItem(value: e, child: Text(e.label)))
+                .map((e) => DropdownMenuItem(value: e, child: Text(e.localizedLabel(l10n))))
                 .toList(),
             onChanged: (v) => _selectEventType(v!),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<GiftType>(
             initialValue: _giftType,
-            decoration: const InputDecoration(labelText: 'Takı Türü'),
+            decoration: InputDecoration(labelText: l10n.giftTypeLabel),
             items: GiftType.values
                 .where((t) => t != GiftType.other)
-                .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                .map((t) => DropdownMenuItem(value: t, child: Text(t.localizedLabel(l10n))))
                 .toList(),
             onChanged: (v) => setState(() => _giftType = v!),
           ),
           const SizedBox(height: 16),
           if (_isGoldBased) ...[
             CustomTextField(
-              label: 'Miktar (adet/gram)',
+              label: l10n.amountPiecesOrGrams,
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
               validator: (v) =>
                   (v == null || double.tryParse(v.replaceAll(',', '.')) == null)
-                  ? 'Geçerli bir miktar girin'
+                  ? l10n.enterValidAmount
                   : null,
             ),
             const SizedBox(height: 12),
@@ -295,19 +299,21 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: _isLoadingRate
-                  ? const Text('Güncel kur alınıyor...')
+                  ? Text(l10n.fetchingRate)
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Bugünkü gram altın kuru: '
-                          '${CurrencyConverter.formatTl(_goldRateTl ?? 0)}',
+                          l10n.todayGramGoldRate(
+                            CurrencyConverter.formatTl(_goldRateTl ?? 0),
+                          ),
                           style: TextStyle(color: AppColors.muted(context), fontSize: 15, fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Hesaplanan değer: '
-                          '${CurrencyConverter.formatTl(_calculatedValue)}',
+                          l10n.calculatedValue(
+                            CurrencyConverter.formatTl(_calculatedValue),
+                          ),
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             color: AppColors.secondary,
@@ -318,11 +324,11 @@ class _AddGiftFormState extends State<_AddGiftForm> {
             ),
           ] else ...[
             SegmentedButton<_CashInputMode>(
-              segments: const [
-                ButtonSegment(value: _CashInputMode.tl, label: Text('TL')),
+              segments: [
+                const ButtonSegment(value: _CashInputMode.tl, label: Text('TL')),
                 ButtonSegment(
                   value: _CashInputMode.foreign,
-                  label: Text('Döviz'),
+                  label: Text(l10n.foreignCurrency),
                 ),
               ],
               selected: {_cashInputMode},
@@ -331,7 +337,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
             const SizedBox(height: 12),
             if (_cashInputMode == _CashInputMode.tl)
               CustomTextField(
-                label: 'Tutar (TL)',
+                label: l10n.amountInCurrency('TL'),
                 controller: _cashAmountController,
                 prefixIcon: Icons.payments_outlined,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -340,18 +346,18 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                 validator: (v) =>
                     (v == null ||
                         double.tryParse(v.replaceAll(',', '.')) == null)
-                    ? 'Geçerli bir tutar girin'
+                    ? l10n.enterValidSum
                     : null,
               )
             else ...[
               DropdownButtonFormField<SupportedCurrency>(
                 initialValue: _currency,
-                decoration: const InputDecoration(labelText: 'Para Birimi'),
+                decoration: InputDecoration(labelText: l10n.currency),
                 items: SupportedCurrency.all
                     .map(
                       (c) => DropdownMenuItem(
                         value: c,
-                        child: Text('${c.label} (${c.code})'),
+                        child: Text('${c.localizedLabel(l10n)} (${c.code})'),
                       ),
                     )
                     .toList(),
@@ -359,7 +365,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
               ),
               const SizedBox(height: 12),
               CustomTextField(
-                label: 'Tutar (${_currency.code})',
+                label: l10n.amountInCurrency(_currency.code),
                 controller: _foreignAmountController,
                 prefixIcon: Icons.currency_exchange,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -368,7 +374,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                 validator: (v) =>
                     (v == null ||
                         double.tryParse(v.replaceAll(',', '.')) == null)
-                    ? 'Geçerli bir tutar girin'
+                    ? l10n.enterValidSum
                     : null,
               ),
               const SizedBox(height: 12),
@@ -380,19 +386,22 @@ class _AddGiftFormState extends State<_AddGiftForm> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: _isLoadingCurrencyRate
-                    ? const Text('Güncel kur alınıyor...')
+                    ? Text(l10n.fetchingRate)
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Güncel kur: 1 ${_currency.code} = '
-                            '${CurrencyConverter.formatTl(_currencyRateTl ?? 0)}',
+                            l10n.currentRate(
+                              _currency.code,
+                              CurrencyConverter.formatTl(_currencyRateTl ?? 0),
+                            ),
                             style: TextStyle(color: AppColors.muted(context), fontSize: 15, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'TL karşılığı: '
-                            '${CurrencyConverter.formatTl(_foreignValueTl)}',
+                            l10n.tlEquivalent(
+                              CurrencyConverter.formatTl(_foreignValueTl),
+                            ),
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               color: AppColors.secondary,
@@ -405,7 +414,7 @@ class _AddGiftFormState extends State<_AddGiftForm> {
           ],
           const SizedBox(height: 16),
           CustomTextField(
-            label: 'Tarih',
+            label: l10n.date,
             readOnly: true,
             onTap: _pickDate,
             prefixIcon: Icons.calendar_today_outlined,
@@ -415,12 +424,12 @@ class _AddGiftFormState extends State<_AddGiftForm> {
           ),
           const SizedBox(height: 16),
           CustomTextField(
-            label: 'Not (opsiyonel)',
+            label: l10n.noteOptional,
             controller: _noteController,
             maxLines: 3,
           ),
           const SizedBox(height: 24),
-          CustomButton(label: 'Kaydet', onPressed: _save),
+          CustomButton(label: l10n.save, onPressed: _save),
         ],
       ),
     );

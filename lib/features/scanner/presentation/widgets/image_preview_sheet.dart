@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../l10n/app_localizations.dart';
 
 Future<bool> showImagePreviewSheet(BuildContext context, String imagePath) async {
   final confirmed = await showModalBottomSheet<bool>(
@@ -63,7 +64,7 @@ class _ImagePreviewSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Bu görseli kullanmak istiyor musun?',
+              AppLocalizations.of(context).useThisImage,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -73,7 +74,7 @@ class _ImagePreviewSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: CustomButton(
-                    label: 'Vazgeç',
+                    label: AppLocalizations.of(context).cancel,
                     variant: CustomButtonVariant.outline,
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
@@ -81,7 +82,7 @@ class _ImagePreviewSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
-                    label: 'Kullan',
+                    label: AppLocalizations.of(context).use,
                     icon: Icons.check,
                     onPressed: () => Navigator.of(context).pop(true),
                   ),

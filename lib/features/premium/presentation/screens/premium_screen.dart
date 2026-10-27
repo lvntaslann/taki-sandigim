@@ -8,6 +8,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/services/purchase_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -64,7 +65,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Planlar yüklenemedi. Bağlantını kontrol edip tekrar dene.';
+        _error = AppLocalizations.of(context).plansLoadFailed;
         _loading = false;
       });
     }
@@ -92,7 +93,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       if (!mounted) return;
       setState(() => _purchasing = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Satın alma başarısız oldu, tekrar dene.')),
+        SnackBar(content: Text(AppLocalizations.of(context).purchaseFailed)),
       );
     }
   }
@@ -110,27 +111,27 @@ class _PremiumScreenState extends State<PremiumScreen> {
         SnackBar(
           content: Text(
             restored
-                ? 'Satın alman geri yüklendi.'
-                : 'Geri yüklenecek aktif bir satın alma bulunamadı.',
+                ? AppLocalizations.of(context).purchaseRestored
+                : AppLocalizations.of(context).nothingToRestore,
           ),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Geri yükleme başarısız oldu.')),
+        SnackBar(content: Text(AppLocalizations.of(context).restoreFailed)),
       );
     } finally {
       if (mounted) setState(() => _restoring = false);
     }
   }
 
-  static String _labelFor(PackageType type) => switch (type) {
-    PackageType.monthly => 'Aylık',
-    PackageType.threeMonth => '3 Aylık',
-    PackageType.sixMonth => '6 Aylık',
-    PackageType.annual => 'Yıllık',
-    _ => 'Plan',
+  static String _labelFor(PackageType type, AppLocalizations l10n) => switch (type) {
+    PackageType.monthly => l10n.planMonthly,
+    PackageType.threeMonth => l10n.planThreeMonths,
+    PackageType.sixMonth => l10n.planSixMonths,
+    PackageType.annual => l10n.planAnnual,
+    _ => l10n.planGeneric,
   };
 
   static int _monthsFor(PackageType type) => switch (type) {
@@ -192,7 +193,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                     ),
                                   )
                                 : Text(
-                                    'Geri Yükle',
+                                    AppLocalizations.of(context).restore,
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -300,7 +301,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          'Çok Yakında',
+                          AppLocalizations.of(context).comingSoonTitle,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
@@ -309,7 +310,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Premium abonelik yakında burada olacak.',
+                          AppLocalizations.of(context).premiumComingSoon,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14,
@@ -331,6 +332,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildBody(BuildContext context, Color onSurface, Color muted) {
+    final l10n = AppLocalizations.of(context);
     if (_purchaseSucceeded) {
       return _successView(context, onSurface, muted);
     }
@@ -346,7 +348,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             children: [
               Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: muted)),
               const SizedBox(height: 16),
-              TextButton(onPressed: _loadOfferings, child: const Text('Tekrar Dene')),
+              TextButton(onPressed: _loadOfferings, child: Text(l10n.tryAgain)),
             ],
           ),
         ),
@@ -365,9 +367,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
               color: onSurface,
             ),
             children: [
-              const TextSpan(text: 'Tüm özelliklerin\n'),
+              TextSpan(text: '${l10n.premiumHeadlineStart}\n'),
               TextSpan(
-                text: 'keyfini çıkar',
+                text: l10n.premiumHeadlineEnd,
                 style: const TextStyle(color: AppColors.primary),
               ),
             ],
@@ -377,26 +379,26 @@ class _PremiumScreenState extends State<PremiumScreen> {
         _feature(
           context,
           icon: Icons.block_flipped,
-          title: 'Reklamsız deneyim',
-          subtitle: 'Uygulamayı hiç reklam görmeden kullan.',
+          title: l10n.featureNoAds,
+          subtitle: l10n.featureNoAdsHint,
         ),
         const SizedBox(height: 18),
         _feature(
           context,
           icon: Icons.document_scanner_outlined,
-          title: 'Daha fazla tarama hakkı',
-          subtitle: 'Günlük fotoğraf tarama limitin artar.',
+          title: l10n.featureMoreScans,
+          subtitle: l10n.featureMoreScansHint,
         ),
         const SizedBox(height: 18),
         _feature(
           context,
           icon: Icons.file_download_outlined,
-          title: 'Esnek dışa aktarım',
-          subtitle: 'Kayıtlarını dilediğin formatta indir.',
+          title: l10n.featureExport,
+          subtitle: l10n.featureExportHint,
         ),
         const SizedBox(height: 28),
         if (_packages.isEmpty)
-          Text('Şu anda uygun bir plan bulunamadı.', style: TextStyle(color: muted))
+          Text(l10n.noPlansAvailable, style: TextStyle(color: muted))
         else ...[
           for (final package in _packages) ...[
             _planRow(context, package),
@@ -429,7 +431,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : Text(
-                        'Premium\'a Geç',
+                        l10n.goPremium,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
@@ -445,11 +447,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _footerLink(context, 'Koşullar'),
+            _footerLink(context, l10n.terms),
             const SizedBox(width: 16),
             Text('·', style: TextStyle(color: muted)),
             const SizedBox(width: 16),
-            _footerLink(context, 'Gizlilik'),
+            _footerLink(context, l10n.privacy),
           ],
         ),
       ],
@@ -550,7 +552,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _labelFor(package.packageType),
+                    _labelFor(package.packageType, AppLocalizations.of(context)),
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -565,7 +567,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         const Icon(Icons.check_circle, color: AppColors.primary, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          'En Avantajlı · %${discount.round()} indirim',
+                          AppLocalizations.of(context).bestValueDiscount(discount.round()),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w700,
@@ -577,7 +579,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ] else ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Taahhütsüz',
+                      AppLocalizations.of(context).noCommitment,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
@@ -600,7 +602,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                 ),
                 Text(
-                  '$monthlyEquivalent/ay',
+                  AppLocalizations.of(context).perMonth(monthlyEquivalent),
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -639,7 +641,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           ),
           const SizedBox(height: 28),
           Text(
-            'Premium\'a Hoş Geldin!',
+            AppLocalizations.of(context).welcomePremium,
             textAlign: TextAlign.center,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 24,
@@ -649,7 +651,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Reklamsız deneyim, daha fazla tarama hakkı ve esnek dışa aktarım artık senin.',
+            AppLocalizations.of(context).welcomePremiumHint,
             textAlign: TextAlign.center,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 14.5,
@@ -679,7 +681,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ],
                 ),
                 child: Text(
-                  'Devam Et',
+                  AppLocalizations.of(context).continueButton,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.plusJakartaSans(
                     color: Colors.white,

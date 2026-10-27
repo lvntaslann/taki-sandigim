@@ -9,7 +9,7 @@ class ScannerState extends Equatable {
     this.source,
     this.lines = const [],
     this.invitationInfo,
-    this.errorMessage,
+    this.error,
   });
 
   final ScannerStatus status;
@@ -17,7 +17,7 @@ class ScannerState extends Equatable {
   final ScanSource? source;
   final List<NotebookLine> lines;
   final InvitationInfo? invitationInfo;
-  final String? errorMessage;
+  final Object? error;
 
   ScannerState copyWith({
     ScannerStatus? status,
@@ -25,7 +25,7 @@ class ScannerState extends Equatable {
     ScanSource? source,
     List<NotebookLine>? lines,
     InvitationInfo? invitationInfo,
-    String? errorMessage,
+    Object? error,
   }) {
     return ScannerState(
       status: status ?? this.status,
@@ -33,11 +33,11 @@ class ScannerState extends Equatable {
       source: source ?? this.source,
       lines: lines ?? this.lines,
       invitationInfo: invitationInfo ?? this.invitationInfo,
-      errorMessage: errorMessage,
+      error: error,
     );
   }
 
   @override
   List<Object?> get props =>
-      [status, imagePath, source, lines, invitationInfo, errorMessage];
+      [status, imagePath, source, lines, invitationInfo, error];
 }

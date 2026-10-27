@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_routes.dart';
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 class AppShell extends StatelessWidget {
@@ -35,6 +36,7 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final barTheme = Theme.of(context).bottomNavigationBarTheme;
     final barColor = barTheme.backgroundColor ?? Theme.of(context).colorScheme.surface;
     final unselectedColor =
@@ -67,7 +69,7 @@ class _BottomBar extends StatelessWidget {
                   _navItem(
                     icon: Icons.home_outlined,
                     selectedIcon: Icons.home,
-                    label: 'ana sayfa',
+                    label: l10n.navHome,
                     isSelected: currentIndex == 0,
                     unselectedColor: unselectedColor,
                     onTap: () => onDestinationSelected(0),
@@ -75,7 +77,7 @@ class _BottomBar extends StatelessWidget {
                   _navItem(
                     icon: Icons.bar_chart_outlined,
                     selectedIcon: Icons.bar_chart,
-                    label: 'analiz',
+                    label: l10n.navAnalytics,
                     isSelected: currentIndex == 2,
                     unselectedColor: unselectedColor,
                     onTap: () => onDestinationSelected(2),
@@ -84,7 +86,7 @@ class _BottomBar extends StatelessWidget {
                   _navItem(
                     icon: Icons.person_outline,
                     selectedIcon: Icons.person,
-                    label: 'profil',
+                    label: l10n.navProfile,
                     isSelected: currentIndex == 3,
                     unselectedColor: unselectedColor,
                     onTap: () => onDestinationSelected(3),
@@ -92,7 +94,7 @@ class _BottomBar extends StatelessWidget {
                   _navItem(
                     icon: Icons.settings_outlined,
                     selectedIcon: Icons.settings,
-                    label: 'ayarlar',
+                    label: l10n.navSettings,
                     isSelected: currentIndex == 4,
                     unselectedColor: unselectedColor,
                     onTap: () => onDestinationSelected(4),

@@ -1,9 +1,11 @@
+import '../../../l10n/app_localizations.dart';
+
 enum ImportSource {
   excel,
   pdf;
 
-  String get label => switch (this) {
-        ImportSource.excel => 'Excel Dosyası',
-        ImportSource.pdf => 'PDF Dosyası',
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+        ImportSource.excel => l10n.importSourceExcel,
+        ImportSource.pdf => l10n.importSourcePdf,
       };
 }

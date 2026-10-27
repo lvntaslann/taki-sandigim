@@ -4,6 +4,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/theme_controller.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,31 +24,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _sendFeedback() {
+    final l10n = AppLocalizations.of(context);
     final feedbackController = TextEditingController();
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Geri Bildirim Gönder'),
+        title: Text(l10n.sendFeedback),
         content: TextField(
           controller: feedbackController,
           maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: 'Görüş ve önerilerinizi yazın...',
+          decoration: InputDecoration(
+            hintText: l10n.feedbackHint,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Geri bildiriminiz için teşekkürler!')),
+                SnackBar(content: Text(l10n.feedbackThanks)),
               );
             },
-            child: const Text('Gönder'),
+            child: Text(l10n.send),
           ),
         ],
       ),
@@ -55,24 +57,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showPrivacyPolicy() {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Gizlilik Politikası'),
-        content: const SingleChildScrollView(
-          child: Text(
-            'Takı Sandığım, girdiğiniz isim, mail ve hediye kayıtları gibi '
-            'verileri yalnızca uygulama içindeki hesaplamalar ve yedekleme '
-            'amacıyla kullanır. Verileriniz üçüncü taraflarla paylaşılmaz ve '
-            'cihazınızda güvenli şekilde saklanır. Uygulama ayarlarından '
-            'dilediğiniz zaman verilerinizi güncelleyebilir veya '
-            'silebilirsiniz.',
-          ),
+        title: Text(l10n.privacyPolicy),
+        content: SingleChildScrollView(
+          child: Text(l10n.privacyPolicyBody),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Kapat'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -81,8 +77,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -93,8 +90,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   valueListenable: ThemeController.instance,
                   builder: (context, themeMode, _) => _switchRow(
                     icon: Icons.dark_mode_outlined,
-                    title: 'Karanlık Mod',
-                    subtitle: 'Uygulama genelinde koyu temayı etkinleştirir',
+                    title: l10n.darkMode,
+                    subtitle: l10n.darkModeSubtitle,
                     value: themeMode == ThemeMode.dark,
                     onChanged: (value) =>
                         ThemeController.instance.setDark(value),
@@ -103,8 +100,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 24),
                 _switchRow(
                   icon: Icons.notifications_outlined,
-                  title: 'Bildirimler',
-                  subtitle: 'Yaklaşan düğün hatırlatmaları',
+                  title: l10n.notifications,
+                  subtitle: l10n.notificationsSubtitle,
                   value: _notificationsEnabled,
                   onChanged: (value) {
                     setState(() => _notificationsEnabled = value);
@@ -114,8 +111,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 24),
                 _settingRow(
                   icon: Icons.currency_lira,
-                  title: 'Altın Kuru',
-                  subtitle: 'Güncel gram altın kuruna göre hesaplanır',
+                  title: l10n.goldRate,
+                  subtitle: l10n.goldRateSubtitle,
                 ),
               ],
             ),
@@ -125,17 +122,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Yardım',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  l10n.help,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 InkWell(
                   onTap: _sendFeedback,
                   child: _settingRow(
                     icon: Icons.feedback_outlined,
-                    title: 'Geri Bildirim Gönder',
-                    subtitle: 'Görüş ve önerilerinizi bizimle paylaşın',
+                    title: l10n.sendFeedback,
+                    subtitle: l10n.sendFeedbackSubtitle,
                     trailing: Icon(
                       Icons.chevron_right,
                       color: AppColors.muted(context),
@@ -145,16 +142,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 24),
                 _settingRow(
                   icon: Icons.info_outline,
-                  title: 'Uygulama Versiyonu',
-                  subtitle: 'Sürüm 0.1.0',
+                  title: l10n.appVersion,
+                  subtitle: l10n.versionValue('0.1.0'),
                 ),
                 const Divider(height: 24),
                 InkWell(
                   onTap: _showPrivacyPolicy,
                   child: _settingRow(
                     icon: Icons.privacy_tip_outlined,
-                    title: 'Gizlilik Politikası',
-                    subtitle: 'Verilerinizin nasıl kullanıldığını görüntüleyin',
+                    title: l10n.privacyPolicy,
+                    subtitle: l10n.privacyPolicySubtitle,
                     trailing: Icon(
                       Icons.chevron_right,
                       color: AppColors.muted(context),
@@ -169,21 +166,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Geliştiriciler',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  l10n.developers,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 _settingRow(
                   icon: Icons.code,
                   title: 'Levent ASLAN',
-                  subtitle: 'Geliştirici',
+                  subtitle: l10n.developer,
                 ),
                 const Divider(height: 24),
                 _settingRow(
                   icon: Icons.code,
                   title: 'Halime ÖZOYMAK',
-                  subtitle: 'Geliştirici',
+                  subtitle: l10n.developer,
                 ),
               ],
             ),
