@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size of assets/images/onboarding_bg_new.png.
@@ -15,6 +16,7 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFFCF3E7),
       body: SizedBox.expand(
@@ -36,7 +38,7 @@ class OnboardingScreen extends StatelessWidget {
                   right: 0,
                   top: 240,
                   child: Text(
-                    'Takı Sandığım',
+                    l10n.appTitle,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.greatVibes(
                       fontSize: 130,
@@ -50,7 +52,7 @@ class OnboardingScreen extends StatelessWidget {
                   right: 220,
                   top: 740,
                   child: Text(
-                    'Düğün, nişan ve kına\nhediyelerini kolayca kaydedin',
+                    l10n.onboardingTagline,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.baloo2(
                       fontSize: 48,
@@ -66,16 +68,12 @@ class OnboardingScreen extends StatelessWidget {
                   top: 940,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      _BulletItem(
-                        'Kimin ne taktığını, ne verdiğinizi tek bir yerde takip edin',
-                      ),
-                      SizedBox(height: 45),
-                      _BulletItem(
-                        'Takı defterinizi veya davetiyenizi kamera ile tarayarak bilgileri otomatik olarak sisteme aktarın',
-                      ),
-                      SizedBox(height: 45),
-                      _BulletItem('Takılanlar ve verilenler olarak ayırın'),
+                    children: [
+                      _BulletItem(l10n.onboardingBullet1),
+                      const SizedBox(height: 45),
+                      _BulletItem(l10n.onboardingBullet2),
+                      const SizedBox(height: 45),
+                      _BulletItem(l10n.onboardingBullet3),
                     ],
                   ),
                 ),
@@ -85,7 +83,7 @@ class OnboardingScreen extends StatelessWidget {
                   top: 1630,
                   height: 150,
                   child: OnboardingGradientButton(
-                    label: 'Haydi Başlayalım',
+                    label: l10n.onboardingStart,
                     fontSize: 48,
                     onPressed: () => context.go(AppRoutes.nameEntry),
                   ),

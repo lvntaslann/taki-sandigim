@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/scan_source.dart';
 
 Future<ScanSource?> showScanSourceSheet(BuildContext context) {
@@ -50,28 +51,28 @@ class _ScanSourceSheet extends StatelessWidget {
               ),
             ),
             Text(
-              'Ne taranıyor?',
+              AppLocalizations.of(context).scanSourceTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Görselin türünü seç, ona göre okuyalım.',
+              AppLocalizations.of(context).scanSourceHint,
               style: TextStyle(color: AppColors.muted(context), fontSize: 13.5),
             ),
             const SizedBox(height: 20),
             _SourceOption(
               icon: Icons.menu_book_outlined,
-              title: 'Takı Defteri',
-              subtitle: 'Kişi adı, hediye türü ve miktar bilgisi içeren sayfa',
+              title: AppLocalizations.of(context).sourceNotebook,
+              subtitle: AppLocalizations.of(context).sourceNotebookHint,
               onTap: () => Navigator.of(context).pop(ScanSource.notebook),
             ),
             const SizedBox(height: 12),
             _SourceOption(
               icon: Icons.mail_outline,
-              title: 'Davetiye',
-              subtitle: 'Çift adı, tarih, saat ve konum bilgisi',
+              title: AppLocalizations.of(context).sourceInvitation,
+              subtitle: AppLocalizations.of(context).sourceInvitationHint,
               onTap: () => Navigator.of(context).pop(ScanSource.invitation),
             ),
           ],

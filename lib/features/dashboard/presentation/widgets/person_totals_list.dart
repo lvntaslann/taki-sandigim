@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/gift_enums.dart';
 import '../../data/repositories/gift_repository.dart';
 import '../../domain/budget_summary.dart';
@@ -77,7 +78,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Text(
-                'Henüz kayıt yok',
+                AppLocalizations.of(context).noRecordsYet,
                 style: TextStyle(
                   color: AppColors.muted(context),
                   fontSize: 15.sp,
@@ -175,7 +176,7 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
       ),
       child: gifts.isEmpty
           ? Text(
-              'Henüz kayıt yok',
+              AppLocalizations.of(context).noRecordsYet,
               style: TextStyle(
                 color: AppColors.muted(context),
                 fontSize: 14.sp,
@@ -197,7 +198,9 @@ class _PersonTotalsListState extends State<PersonTotalsList> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                gifts[i].giftType.label,
+                                gifts[i].giftType.localizedLabel(
+                                  AppLocalizations.of(context),
+                                ),
                                 style: TextStyle(
                                   fontSize: 14.5.sp,
                                   fontWeight: FontWeight.w700,

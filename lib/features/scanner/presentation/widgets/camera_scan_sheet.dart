@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/image_cropper.dart';
 
 const double _frameMarginH = 32;
@@ -41,7 +42,7 @@ class _CameraScanSheetState extends State<_CameraScanSheet> {
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
-        setState(() => _errorMessage = 'Kamera bulunamadı.');
+        setState(() => _errorMessage = AppLocalizations.of(context).cameraNotFound);
         return;
       }
       final backCamera = cameras.firstWhere(
@@ -57,7 +58,9 @@ class _CameraScanSheetState extends State<_CameraScanSheet> {
       await _initFuture;
       if (mounted) setState(() {});
     } catch (e) {
-      if (mounted) setState(() => _errorMessage = 'Kamera açılamadı: $e');
+      if (mounted) {
+        setState(() => _errorMessage = AppLocalizations.of(context).cameraOpenFailed('$e'));
+      }
     }
   }
 
@@ -87,7 +90,7 @@ class _CameraScanSheetState extends State<_CameraScanSheet> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Fotoğraf çekilemedi: $e';
+          _errorMessage = AppLocalizations.of(context).photoCaptureFailed('$e');
           _isCapturing = false;
         });
       }

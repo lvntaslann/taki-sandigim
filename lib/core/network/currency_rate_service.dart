@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'dio_client.dart';
 
 class SupportedCurrency {
@@ -12,6 +13,13 @@ class SupportedCurrency {
   final String code;
   final String label;
   final double fallbackRateTl;
+
+  String localizedLabel(AppLocalizations l10n) => switch (code) {
+    'USD' => l10n.currencyUsd,
+    'EUR' => l10n.currencyEur,
+    'GBP' => l10n.currencyGbp,
+    _ => label,
+  };
 
   static const List<SupportedCurrency> all = [
     SupportedCurrency(code: 'USD', label: 'Dolar', fallbackRateTl: 40),

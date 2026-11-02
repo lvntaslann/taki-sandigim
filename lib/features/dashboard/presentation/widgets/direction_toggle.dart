@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/gift_enums.dart';
 
 class DirectionToggle extends StatelessWidget {
@@ -9,17 +10,20 @@ class DirectionToggle extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onChanged,
-    this.receivedLabel = 'Bize Takılanlar',
-    this.givenLabel = 'Bizim Taktığımız',
+    this.receivedLabel,
+    this.givenLabel,
   });
 
   final GiftDirection selected;
   final ValueChanged<GiftDirection> onChanged;
-  final String receivedLabel;
-  final String givenLabel;
+
+  /// Defaults to the localized "Bize Takılanlar" / "Bizim Taktığımız".
+  final String? receivedLabel;
+  final String? givenLabel;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
@@ -30,14 +34,14 @@ class DirectionToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _segment(
-              label: receivedLabel,
+              label: receivedLabel ?? l10n.receivedGiftsTitle,
               isSelected: selected == GiftDirection.received,
               onTap: () => onChanged(GiftDirection.received),
             ),
           ),
           Expanded(
             child: _segment(
-              label: givenLabel,
+              label: givenLabel ?? l10n.givenGiftsTitle,
               isSelected: selected == GiftDirection.given,
               onTap: () => onChanged(GiftDirection.given),
             ),

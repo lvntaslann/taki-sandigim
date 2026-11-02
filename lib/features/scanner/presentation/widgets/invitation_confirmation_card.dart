@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/invitation_info.dart';
 
 class InvitationConfirmationCard extends StatefulWidget {
@@ -46,7 +47,7 @@ class _InvitationConfirmationCardState
   }
 
   String get _formattedDate =>
-      _date == null ? '' : DateFormat('d MMMM y', 'tr_TR').format(_date!);
+      _date == null ? '' : DateFormat.yMMMMd().format(_date!);
 
   @override
   void dispose() {
@@ -77,9 +78,10 @@ class _InvitationConfirmationCardState
   }
 
   void _save() {
+    final l10n = AppLocalizations.of(context);
     final title = _titleController.text.trim();
-    if (title.isEmpty) return _warn('Çift/kutlanan adı boş olamaz.');
-    if (_date == null) return _warn('Lütfen bir tarih seçin.');
+    if (title.isEmpty) return _warn(l10n.coupleNameEmpty);
+    if (_date == null) return _warn(l10n.pleasePickDate);
 
     widget.onSave(
       title: title,
@@ -92,6 +94,7 @@ class _InvitationConfirmationCardState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +105,7 @@ class _InvitationConfirmationCardState
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Davetiyeden okunan bilgiler',
+                  l10n.invitationReadDetails,
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontStyle: FontStyle.italic,
@@ -115,13 +118,13 @@ class _InvitationConfirmationCardState
           ),
           const SizedBox(height: 12),
           CustomTextField(
-            label: 'Çift / Kutlanan',
+            label: l10n.coupleName,
             controller: _titleController,
             prefixIcon: Icons.favorite_outline,
           ),
           const SizedBox(height: 12),
           CustomTextField(
-            label: 'Tarih',
+            label: l10n.date,
             readOnly: true,
             onTap: _pickDate,
             prefixIcon: Icons.event_outlined,
@@ -129,19 +132,19 @@ class _InvitationConfirmationCardState
           ),
           const SizedBox(height: 12),
           CustomTextField(
-            label: 'Saat (opsiyonel)',
+            label: l10n.timeOptional,
             controller: _timeController,
             prefixIcon: Icons.schedule_outlined,
           ),
           const SizedBox(height: 12),
           CustomTextField(
-            label: 'Mekan / Konum (opsiyonel)',
+            label: l10n.locationOptional,
             controller: _locationController,
             prefixIcon: Icons.location_on_outlined,
           ),
           const SizedBox(height: 16),
           CustomButton(
-            label: 'Yaklaşan Düğünlere Ekle',
+            label: l10n.addToUpcomingWeddings,
             icon: Icons.check,
             onPressed: _save,
           ),

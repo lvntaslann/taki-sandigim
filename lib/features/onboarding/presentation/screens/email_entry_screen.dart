@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/onboarding_gradient_button.dart';
 
 /// Native pixel size shared with name_entry_screen.dart so both screens
@@ -34,13 +35,14 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
   }
 
   void _continue() {
+    final l10n = AppLocalizations.of(context);
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      setState(() => _errorText = 'Lütfen mail adresinizi giriniz');
+      setState(() => _errorText = l10n.emailRequiredError);
       return;
     }
     if (!_emailPattern.hasMatch(email)) {
-      setState(() => _errorText = 'Lütfen geçerli bir mail adresi giriniz');
+      setState(() => _errorText = l10n.emailInvalidError);
       return;
     }
     _settingsRepository.setEmail(email);
@@ -55,9 +57,12 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFFCF3E7),
-      resizeToAvoidBottomInset: false,
+      // Shrinks the canvas above the keyboard so "Devam Et" and the skip
+      // link stay visible and tappable while typing.
+      resizeToAvoidBottomInset: true,
       body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.contain,
@@ -71,7 +76,7 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   right: 0,
                   top: 478,
                   child: Text(
-                    'Yedekleme için mail adresinizi\ngiriniz...',
+                    l10n.emailEntryTitle,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.greatVibes(
                       fontSize: 76,
@@ -87,6 +92,8 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   child: TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.done,
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
                     textAlign: TextAlign.start,
                     onChanged: (_) {
                       if (_errorText != null) setState(() => _errorText = null);
@@ -99,7 +106,7 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                     decoration: InputDecoration(
                       filled: false,
                       border: InputBorder.none,
-                      labelText: 'Mail:',
+                      labelText: l10n.emailLabel,
                       labelStyle: GoogleFonts.playfairDisplay(
                         fontSize: 54,
                         color: AppColors.primary,
@@ -125,7 +132,7 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                   top: 1440,
                   height: 115,
                   child: OnboardingGradientButton(
-                    label: 'Devam Et',
+                    label: l10n.continueButton,
                     fontSize: 40,
                     onPressed: _continue,
                   ),
@@ -133,27 +140,37 @@ class _EmailEntryScreenState extends State<EmailEntryScreen> {
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: 1600,
+                  // 40 above the label's original 1600 to offset the tap padding.
+                  top: 1560,
                   child: Center(
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       onEnter: (_) => setState(() => _skipHovered = true),
                       onExit: (_) => setState(() => _skipHovered = false),
                       child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: _skip,
-                        child: Text(
-                          'ATLA',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 30,
-                            color: _skipHovered
-                                ? AppColors.primaryDark
-                                : AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.5,
-                            decoration: _skipHovered
-                                ? TextDecoration.underline
-                                : TextDecoration.none,
-                            decorationColor: AppColors.primaryDark,
+                        // The bare label is only ~10pt tall on a phone; the
+                        // padding widens the tap target without moving it.
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 80,
+                            vertical: 40,
+                          ),
+                          child: Text(
+                            l10n.skipButton,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 30,
+                              color: _skipHovered
+                                  ? AppColors.primaryDark
+                                  : AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.5,
+                              decoration: _skipHovered
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                              decorationColor: AppColors.primaryDark,
+                            ),
                           ),
                         ),
                       ),

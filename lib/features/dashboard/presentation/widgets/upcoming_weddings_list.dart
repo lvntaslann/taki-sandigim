@@ -7,6 +7,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/wedding_model.dart';
 
 class UpcomingWeddingsList extends StatelessWidget {
@@ -17,6 +18,7 @@ class UpcomingWeddingsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (weddings.isEmpty) {
       return CustomCard(
         child: Column(
@@ -28,7 +30,7 @@ class UpcomingWeddingsList extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Yaklaşan bir düğün yok.',
+              l10n.noUpcomingWeddings,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 14,
@@ -37,7 +39,7 @@ class UpcomingWeddingsList extends StatelessWidget {
             ),
             const SizedBox(height: 3),
             Text(
-              'Bir davetiye tarayarak otomatik ekleyebilirsin.',
+              l10n.scanInvitationHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.5,
@@ -47,7 +49,7 @@ class UpcomingWeddingsList extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             CustomButton(
-              label: 'Davetiye Tara',
+              label: l10n.scanInvitation,
               icon: Icons.document_scanner_outlined,
               variant: CustomButtonVariant.outline,
               onPressed: () => context.push(AppRoutes.addGift, extra: 1),
@@ -148,7 +150,7 @@ class UpcomingWeddingsList extends StatelessWidget {
             ),
           ),
           Text(
-            DateFormat('MMM', 'tr_TR').format(date).toUpperCase(),
+            DateFormat.MMM().format(date).toUpperCase(),
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -169,7 +171,7 @@ class UpcomingWeddingsList extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        DateFormatter.remainingDays(date),
+        DateFormatter.remainingDays(date, AppLocalizations.of(context)),
         textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 12,

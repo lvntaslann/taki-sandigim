@@ -7,6 +7,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/database/user_settings_repository.dart';
 import '../../../../core/services/purchase_service.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../data/gift_export_service.dart';
@@ -38,7 +39,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   List<GiftModel>? _giftsOrWarn() {
     final gifts = _giftRepository.getAll();
     if (gifts.isEmpty) {
-      _showMessage('Henüz bir takı kaydı yok.');
+      _showMessage(AppLocalizations.of(context).noGiftRecordsYet);
       return null;
     }
     return gifts;
@@ -63,15 +64,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Future<void> _export({required String key, required bool asPdf}) async {
     final gifts = _giftsOrWarn();
     if (gifts == null || _processingKey != null) return;
+    final l10n = AppLocalizations.of(context);
     setState(() => _processingKey = key);
     try {
       await _exportService.exportAndShare(
         gifts,
         asPdf: asPdf,
         fileName: _buildFileName(),
+        l10n: l10n,
       );
     } catch (e) {
-      _showMessage('Rapor oluşturulamadı: $e');
+      _showMessage(l10n.reportFailed('$e'));
     } finally {
       if (mounted) setState(() => _processingKey = null);
     }
@@ -81,23 +84,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (_processingKey != null) return;
     final source = await showImportSourceSheet(context);
     if (source == null || !mounted) return;
+    final l10n = AppLocalizations.of(context);
 
     if (source == ImportSource.pdf) {
-      _showMessage('PDF\'den içe aktarma yakında eklenecek.');
+      _showMessage(l10n.pdfImportComingSoon);
       return;
     }
 
     setState(() => _processingKey = 'import');
     try {
-      final result = await _importService.pickAndImport();
+      final result = await _importService.pickAndImport(l10n);
       if (result == null) return; // user cancelled the picker
       _showMessage(
-        '${result.addedCount} kayıt, ${result.addedWeddingCount} davetiye eklendi.',
+        l10n.importResult(result.addedCount, result.addedWeddingCount),
       );
     } on GiftImportFormatException catch (e) {
       _showMessage(e.message);
     } catch (e) {
-      _showMessage('Veriler içe aktarılamadı: $e');
+      _showMessage(l10n.importFailed('$e'));
     } finally {
       if (mounted) setState(() => _processingKey = null);
     }
@@ -106,11 +110,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Future<void> _share() async {
     final gifts = _giftsOrWarn();
     if (gifts == null || _processingKey != null) return;
+    final l10n = AppLocalizations.of(context);
     setState(() => _processingKey = 'share');
     try {
-      await _exportService.shareSummary(gifts);
+      await _exportService.shareSummary(gifts, l10n);
     } catch (e) {
-      _showMessage('Paylaşılamadı: $e');
+      _showMessage(l10n.shareFailed('$e'));
     } finally {
       if (mounted) setState(() => _processingKey = null);
     }
@@ -118,8 +123,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Raporlar')),
+      appBar: AppBar(title: Text(l10n.reportsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -143,13 +149,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Takı Listesi Raporu',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        l10n.giftListReport,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Verilerinizi PDF veya Excel formatında dışa aktarın.',
+                        l10n.giftListReportHint,
                         style: TextStyle(
                           color: AppColors.muted(context),
                           fontSize: 14.5,
@@ -172,8 +178,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _reportRow(
                     rowKey: 'pdf',
                     icon: Icons.picture_as_pdf_outlined,
-                    title: 'PDF Raporu (A4)',
-                    subtitle: 'Detaylı takı listesi',
+                    title: l10n.pdfReport,
+                    subtitle: l10n.pdfReportHint,
                     onTap: _exportPdf,
                     locked: !isPremium,
                   ),
@@ -182,7 +188,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     rowKey: 'excel',
                     icon: Icons.table_chart_outlined,
                     title: 'Excel (CSV)',
-                    subtitle: 'Düzenlenebilir tablo',
+                    subtitle: l10n.excelReportHint,
                     onTap: _exportExcel,
                     locked: !isPremium,
                   ),
@@ -190,16 +196,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _reportRow(
                     rowKey: 'share',
                     icon: Icons.ios_share,
-                    title: 'Paylaş',
-                    subtitle: 'Aile bireyleriyle bilgi paylaşın',
+                    title: l10n.share,
+                    subtitle: l10n.shareHint,
                     onTap: _share,
                   ),
                   const Divider(height: 1),
                   _reportRow(
                     rowKey: 'import',
                     icon: Icons.upload_file_outlined,
-                    title: 'Verileri Yükle',
-                    subtitle: 'Daha önce dışa aktarılan Excel dosyasını içe aktarın',
+                    title: l10n.importData,
+                    subtitle: l10n.importDataHint,
                     onTap: _import,
                     locked: !isPremium,
                   ),
@@ -240,7 +246,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   children: [
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text(
-                      locked ? 'Premium gerekli' : subtitle,
+                      locked ? AppLocalizations.of(context).premiumRequired : subtitle,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 14.5,

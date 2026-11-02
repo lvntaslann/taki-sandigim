@@ -10,6 +10,7 @@ import '../../../../core/database/scan_usage_repository.dart';
 import '../../../../core/services/purchase_service.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/widgets/interstitial_ad_manager.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/wedding_model.dart';
@@ -89,12 +90,25 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     _interstitialAdManager.showIfReady();
   }
 
-  String _formatResetIn(Duration? duration) {
-    if (duration == null || duration <= Duration.zero) return 'birazdan';
+  String _formatResetIn(Duration? duration, AppLocalizations l10n) {
+    if (duration == null || duration <= Duration.zero) return l10n.resetSoon;
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
-    if (hours <= 0) return '$minutes dk';
-    return '$hours sa $minutes dk';
+    if (hours <= 0) return l10n.durationMinutes(minutes);
+    return l10n.durationHoursMinutes(hours, minutes);
+  }
+
+  String _errorText(Object? error, AppLocalizations l10n) {
+    if (error is! AiEvaluationException) return l10n.textReadFailed('$error');
+    return switch (error.kind) {
+      AiEvaluationError.rateLimited => l10n.aiRateLimited,
+      AiEvaluationError.server => l10n.textReadFailed(error.detail ?? ''),
+      AiEvaluationError.unexpectedResponse => l10n.textReadFailed(l10n.aiUnexpectedResponse),
+      AiEvaluationError.noUserId => l10n.textReadFailed(l10n.aiNoUserId),
+      AiEvaluationError.appCheckFailed => l10n.textReadFailed(l10n.aiAppCheckFailed),
+      AiEvaluationError.requestFailed =>
+        l10n.textReadFailed(l10n.aiRequestFailed(error.detail ?? '')),
+    };
   }
 
   Widget _quotaBanner() {
@@ -102,11 +116,14 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
       valueListenable: PurchaseService.instance.isPremium,
       builder: (context, isPremium, _) {
         if (isPremium) return const SizedBox.shrink();
+        final l10n = AppLocalizations.of(context);
         final remaining = _scanUsageRepository.remainingScans();
         final hasQuota = remaining > 0;
         final text = hasQuota
-            ? '$remaining/${ScanUsageRepository.freeScanLimit} tarama hakkın var'
-            : 'Tarama hakkın bitti · ${_formatResetIn(_scanUsageRepository.timeUntilReset())} sonra yenilenir';
+            ? l10n.scansRemaining(remaining, ScanUsageRepository.freeScanLimit)
+            : l10n.scansExhausted(
+                _formatResetIn(_scanUsageRepository.timeUntilReset(), l10n),
+              );
         final color = hasQuota ? AppColors.primary : AppColors.error;
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -232,7 +249,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
         title: title,
         date: date,
         location: location,
-        note: time != null ? 'Saat: $time' : null,
+        note: time != null ? AppLocalizations.of(context).invitationTimeNote(time) : null,
       ),
     );
     if (!mounted) return;
@@ -242,6 +259,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         _quotaBanner(),
@@ -251,7 +269,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
             children: [
               Expanded(
                 child: CustomButton(
-                  label: 'Kamerayla Tara',
+                  label: l10n.scanWithCamera,
                   icon: Icons.camera_alt_outlined,
                   onPressed: () => _openCamera(context),
                 ),
@@ -259,7 +277,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomButton(
-                  label: 'Galeriden Seç',
+                  label: l10n.pickFromGallery,
                   variant: CustomButtonVariant.outline,
                   icon: Icons.photo_library_outlined,
                   onPressed: () => _pickFromGallery(context),
@@ -275,9 +293,6 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (state.status == ScannerStatus.failure) {
-                final isRateLimited =
-                    state.errorMessage?.toLowerCase().contains('rate limit') ??
-                        false;
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -285,16 +300,14 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isRateLimited
-                              ? 'Şu an yoğunluktan dolayı AI yanıt veremedi. Birkaç saniye sonra tekrar dene.'
-                              : 'Metin okunamadı: ${state.errorMessage}',
+                          _errorText(state.error, l10n),
                           style: const TextStyle(color: AppColors.error),
                           textAlign: TextAlign.center,
                         ),
                         if (state.imagePath != null && state.source != null) ...[
                           const SizedBox(height: 16),
                           CustomButton(
-                            label: 'Tekrar Dene',
+                            label: l10n.tryAgain,
                             icon: Icons.refresh,
                             onPressed: () => context.read<ScannerBloc>().add(
                                   ScannerImageCaptured(
@@ -339,13 +352,13 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Bir takı defteri sayfası ya da davetiye tarat',
+              AppLocalizations.of(context).scanIdleTitle,
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5),
             ),
             const SizedBox(height: 6),
             Text(
-              'Kamerayla çek ya da galeriden seç, AI otomatik okusun.',
+              AppLocalizations.of(context).scanIdleHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.muted(context),
@@ -357,9 +370,9 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _sourceHint(Icons.menu_book_outlined, 'Defter'),
+                _sourceHint(Icons.menu_book_outlined, AppLocalizations.of(context).sourceNotebookShort),
                 const SizedBox(width: 10),
-                _sourceHint(Icons.mail_outline, 'Davetiye'),
+                _sourceHint(Icons.mail_outline, AppLocalizations.of(context).sourceInvitation),
               ],
             ),
           ],
@@ -398,7 +411,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     if (info == null) {
       return Center(
         child: Text(
-          'Davetiyeden bilgi okunamadı.',
+          AppLocalizations.of(context).invitationReadFailed,
           style: TextStyle(
             color: AppColors.muted(context),
             fontSize: 15,
@@ -412,7 +425,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
         alignment: Alignment.topCenter,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: _addedCard('${info.title} kaydedildi.'),
+          child: _addedCard(AppLocalizations.of(context).itemSaved(info.title)),
         ),
       );
     }
@@ -434,7 +447,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
     if (state.lines.isEmpty) {
       return Center(
         child: Text(
-          'Görüntüde okunabilir bir satır bulunamadı.',
+          AppLocalizations.of(context).noReadableLines,
           style: TextStyle(
             color: AppColors.muted(context),
             fontSize: 15,
@@ -452,14 +465,14 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Kayıt ${_activePage + 1} / ${state.lines.length}',
+                AppLocalizations.of(context).recordPosition(_activePage + 1, state.lines.length),
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
-                '${_addedLines.length} eklendi',
+                AppLocalizations.of(context).addedCount(_addedLines.length),
                 style: const TextStyle(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,
@@ -482,7 +495,7 @@ class _ScannerBodyViewState extends State<_ScannerBodyView> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: added
                     ? _addedCard(
-                        '${line.personName} eklendi. Diğer kayıtları görmek için kaydırın.',
+                        AppLocalizations.of(context).lineAdded(line.personName),
                       )
                     : LineConfirmationCard(
                         key: ValueKey(index),

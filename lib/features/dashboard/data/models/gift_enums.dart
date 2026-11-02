@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 part 'gift_enums.g.dart';
 
 @HiveType(typeId: 2)
@@ -25,26 +27,26 @@ enum GiftType {
 }
 
 extension GiftTypeLabel on GiftType {
-  String get label {
+  String localizedLabel(AppLocalizations l10n) {
     switch (this) {
       case GiftType.quarterGold:
-        return 'Çeyrek Altın';
+        return l10n.giftTypeQuarterGold;
       case GiftType.halfGold:
-        return 'Yarım Altın';
+        return l10n.giftTypeHalfGold;
       case GiftType.fullGold:
-        return 'Tam Altın';
+        return l10n.giftTypeFullGold;
       case GiftType.gremseGold:
-        return 'Gremse Altın';
+        return l10n.giftTypeGremseGold;
       case GiftType.gramGold:
-        return 'Gram Altın';
+        return l10n.giftTypeGramGold;
       case GiftType.bracelet:
-        return 'Bilezik';
+        return l10n.giftTypeBracelet;
       case GiftType.necklace:
-        return 'Kolye';
+        return l10n.giftTypeNecklace;
       case GiftType.cash:
-        return 'Para';
+        return l10n.giftTypeCash;
       case GiftType.other:
-        return 'Diğer';
+        return l10n.giftTypeOther;
     }
   }
 
@@ -78,8 +80,9 @@ enum GiftDirection {
 }
 
 extension GiftDirectionLabel on GiftDirection {
-  String get label =>
-      this == GiftDirection.received ? 'Bize Takılan' : 'Bizim Taktığımız';
+  String localizedLabel(AppLocalizations l10n) => this == GiftDirection.received
+      ? l10n.giftDirectionReceived
+      : l10n.giftDirectionGiven;
 }
 
 @HiveType(typeId: 4)
@@ -93,14 +96,14 @@ enum RelationType {
 }
 
 extension RelationTypeLabel on RelationType {
-  String get label {
+  String localizedLabel(AppLocalizations l10n) {
     switch (this) {
       case RelationType.family:
-        return 'Aile';
+        return l10n.relationFamily;
       case RelationType.relative:
-        return 'Akraba';
+        return l10n.relationRelative;
       case RelationType.friend:
-        return 'Arkadaş';
+        return l10n.relationFriend;
     }
   }
 }
@@ -118,29 +121,29 @@ enum EventType {
 }
 
 extension EventTypeLabel on EventType {
-  String get label {
+  String localizedLabel(AppLocalizations l10n) {
     switch (this) {
       case EventType.wedding:
-        return 'Düğün';
+        return l10n.eventWedding;
       case EventType.engagement:
-        return 'Nişan';
+        return l10n.eventEngagement;
       case EventType.henna:
-        return 'Kına';
+        return l10n.eventHenna;
       case EventType.nikah:
-        return 'Nikah';
+        return l10n.eventNikah;
     }
   }
 
-  String get locationLabel {
+  String localizedLocationLabel(AppLocalizations l10n) {
     switch (this) {
       case EventType.wedding:
-        return 'Düğünde takıldı';
+        return l10n.eventWeddingLocation;
       case EventType.engagement:
-        return 'Nişanda takıldı';
+        return l10n.eventEngagementLocation;
       case EventType.henna:
-        return 'Kınada takıldı';
+        return l10n.eventHennaLocation;
       case EventType.nikah:
-        return 'Nikahta takıldı';
+        return l10n.eventNikahLocation;
     }
   }
 }

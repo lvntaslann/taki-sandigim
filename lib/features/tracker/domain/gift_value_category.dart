@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../dashboard/data/models/gift_enums.dart';
 import '../../dashboard/data/models/gift_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Groups gifts eligible for value analysis (gold or currency based) into
 /// a fixed, small set of categories, so the UI never has to render an
@@ -9,13 +10,16 @@ import '../../dashboard/data/models/gift_model.dart';
 class GiftValueCategory {
   const GiftValueCategory({
     required this.key,
-    required this.label,
     required this.icon,
   });
 
+  /// `'currency'` or a [GiftType] name.
   final String key;
-  final String label;
   final IconData icon;
+
+  String localizedLabel(AppLocalizations l10n) => key == 'currency'
+      ? l10n.categoryCurrency
+      : GiftType.values.byName(key).localizedLabel(l10n);
 
   /// Returns the category a gift belongs to, or `null` if it has no rate
   /// captured (nothing to analyze).
@@ -23,7 +27,6 @@ class GiftValueCategory {
     if (gift.currencyCode != null) {
       return GiftValueCategory(
         key: 'currency',
-        label: 'Döviz',
         icon: Icons.currency_exchange,
       );
     }
@@ -33,43 +36,36 @@ class GiftValueCategory {
       case GiftType.quarterGold:
         return const GiftValueCategory(
           key: 'quarterGold',
-          label: 'Çeyrek Altın',
           icon: Icons.circle,
         );
       case GiftType.halfGold:
         return const GiftValueCategory(
           key: 'halfGold',
-          label: 'Yarım Altın',
           icon: Icons.circle,
         );
       case GiftType.fullGold:
         return const GiftValueCategory(
           key: 'fullGold',
-          label: 'Tam Altın',
           icon: Icons.circle,
         );
       case GiftType.gremseGold:
         return const GiftValueCategory(
           key: 'gremseGold',
-          label: 'Gremse Altın',
           icon: Icons.circle,
         );
       case GiftType.gramGold:
         return const GiftValueCategory(
           key: 'gramGold',
-          label: 'Gram Altın',
           icon: Icons.circle,
         );
       case GiftType.bracelet:
         return const GiftValueCategory(
           key: 'bracelet',
-          label: 'Bilezik',
           icon: Icons.watch_outlined,
         );
       case GiftType.necklace:
         return const GiftValueCategory(
           key: 'necklace',
-          label: 'Kolye',
           icon: Icons.diamond_outlined,
         );
       case GiftType.cash:

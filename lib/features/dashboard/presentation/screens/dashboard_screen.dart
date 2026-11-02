@@ -16,6 +16,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/banner_ad_widget.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/gift_enums.dart';
 import '../../data/models/gift_model.dart';
 import '../../data/repositories/gift_repository.dart';
@@ -64,6 +65,7 @@ class _DashboardViewState extends State<_DashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -98,7 +100,7 @@ class _DashboardViewState extends State<_DashboardView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Yaklaşan Düğünler',
+                        l10n.upcomingWeddings,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -120,7 +122,7 @@ class _DashboardViewState extends State<_DashboardView> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                'Takvim',
+                                l10n.calendar,
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 13.5,
@@ -145,6 +147,7 @@ class _DashboardViewState extends State<_DashboardView> {
   }
 
   Widget _appHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Icon(Icons.card_giftcard_outlined, color: AppColors.primary, size: 32.sp),
@@ -153,7 +156,7 @@ class _DashboardViewState extends State<_DashboardView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Takı Sandığım',
+              l10n.appTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -166,8 +169,8 @@ class _DashboardViewState extends State<_DashboardView> {
               builder: (context, box, _) {
                 final name = UserSettingsRepository().getName();
                 final greeting = (name == null || name.isEmpty)
-                    ? 'Merhaba'
-                    : 'Merhaba, $name';
+                    ? l10n.greeting
+                    : l10n.greetingWithName(name);
                 return Text(
                   greeting,
                   style: TextStyle(
@@ -231,13 +234,14 @@ class _DashboardViewState extends State<_DashboardView> {
         entry.key: entry.value.fold<double>(0, (s, g) => s + g.estimatedValueTl),
     };
     final total = typeBreakdown.values.fold<double>(0, (sum, v) => sum + v);
+    final l10n = AppLocalizations.of(context);
 
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hediye Dağılımı',
+            l10n.giftDistribution,
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -264,11 +268,8 @@ class _DashboardViewState extends State<_DashboardView> {
   ) {
     const currencyTypes = {GiftType.cash, GiftType.other};
     const noAdetTypes = {GiftType.other, GiftType.necklace, GiftType.bracelet};
-    const currencyLabels = {
-      'USD': 'Dolar',
-      'EUR': 'Euro',
-      'GBP': 'Sterlin',
-    };
+    final l10n = AppLocalizations.of(context);
+    final currencyLabels = _currencyLabels(l10n);
 
     final recordCount = gifts.length;
     final totalAmount = gifts.fold<double>(0, (s, g) => s + g.amount);
@@ -295,26 +296,26 @@ class _DashboardViewState extends State<_DashboardView> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(type.label),
+        title: Text(type.localizedLabel(l10n)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _detailRow(
               context,
-              label: 'Kayıt Sayısı',
-              value: '$recordCount adet kayıt',
+              label: l10n.recordCount,
+              value: l10n.recordCountValue(recordCount),
             ),
             if (showAdet)
               _detailRow(
                 context,
-                label: 'Toplam Adet',
-                value: '${formatNumber(totalAmount)} adet',
+                label: l10n.totalQuantity,
+                value: l10n.quantityValue(formatNumber(totalAmount)),
               ),
             if (totalGram != null)
               _detailRow(
                 context,
-                label: 'Toplam Gram',
+                label: l10n.totalGram,
                 value: '${formatNumber(totalGram)} g',
               ),
             if (isCurrencyType)
@@ -322,13 +323,13 @@ class _DashboardViewState extends State<_DashboardView> {
                 if (currencyTotals[code] != null)
                   _detailRow(
                     context,
-                    label: 'Toplam ${currencyLabels[code] ?? code}',
+                    label: l10n.totalOf(currencyLabels[code] ?? code),
                     value: _formatCurrencyAmount(code, currencyTotals[code]!),
                   ),
             const Divider(height: 20),
             _detailRow(
               context,
-              label: 'Toplam Değer',
+              label: l10n.totalValue,
               value: CurrencyConverter.formatTl(totalTl),
               emphasize: true,
             ),
@@ -337,7 +338,7 @@ class _DashboardViewState extends State<_DashboardView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Kapat'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -353,11 +354,8 @@ class _DashboardViewState extends State<_DashboardView> {
       GiftType.gramGold,
     };
     const currencyTypes = {GiftType.cash, GiftType.other};
-    const currencyLabels = {
-      'USD': 'Dolar',
-      'EUR': 'Euro',
-      'GBP': 'Sterlin',
-    };
+    final l10n = AppLocalizations.of(context);
+    final currencyLabels = _currencyLabels(l10n);
 
     final gifts = allGifts.where((g) => g.direction == _direction).toList();
     final totalTl = gifts.fold<double>(0, (s, g) => s + g.estimatedValueTl);
@@ -377,7 +375,7 @@ class _DashboardViewState extends State<_DashboardView> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Genel Toplam'),
+        title: Text(l10n.grandTotal),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,20 +383,20 @@ class _DashboardViewState extends State<_DashboardView> {
             if (totalGoldGram > 0)
               _detailRow(
                 context,
-                label: 'Toplam Gram Altın',
+                label: l10n.totalGramGold,
                 value: '${formatNumber(totalGoldGram)} g',
               ),
             for (final code in ['TL', 'USD', 'EUR', 'GBP'])
               if (currencyTotals[code] != null)
                 _detailRow(
                   context,
-                  label: 'Toplam ${currencyLabels[code] ?? code}',
+                  label: l10n.totalOf(currencyLabels[code] ?? code),
                   value: _formatCurrencyAmount(code, currencyTotals[code]!),
                 ),
             const Divider(height: 20),
             _detailRow(
               context,
-              label: 'Genel Toplam Değer',
+              label: l10n.grandTotalValue,
               value: CurrencyConverter.formatTl(totalTl),
               emphasize: true,
             ),
@@ -407,12 +405,18 @@ class _DashboardViewState extends State<_DashboardView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Kapat'),
+            child: Text(l10n.close),
           ),
         ],
       ),
     );
   }
+
+  Map<String, String> _currencyLabels(AppLocalizations l10n) => {
+    'USD': l10n.currencyUsd,
+    'EUR': l10n.currencyEur,
+    'GBP': l10n.currencyGbp,
+  };
 
   String _formatCurrencyAmount(String code, double n) {
     const symbols = {'TL': '₺', 'USD': '\$', 'EUR': '€', 'GBP': '£'};
@@ -456,7 +460,8 @@ class _DashboardViewState extends State<_DashboardView> {
     final isReceived = _direction == GiftDirection.received;
     final people = isReceived ? state.receivedByPerson : state.givenByPerson;
     final total = people.fold<double>(0, (sum, p) => sum + p.totalTl);
-    final title = isReceived ? 'Bize Takılanlar' : 'Bizim Taktığımız';
+    final l10n = AppLocalizations.of(context);
+    final title = isReceived ? l10n.receivedGiftsTitle : l10n.givenGiftsTitle;
 
     return CustomCard(
       child: Column(
@@ -492,9 +497,9 @@ class _DashboardViewState extends State<_DashboardView> {
                     ? Icons.card_giftcard_outlined
                     : Icons.volunteer_activism_outlined,
                 message: isReceived
-                    ? 'Henüz sana takılan bir şey yok.'
-                    : 'Henüz kimseye takı vermedin.',
-                actionLabel: 'Takı Ekle',
+                    ? l10n.noReceivedGifts
+                    : l10n.noGivenGifts,
+                actionLabel: l10n.addGift,
                 onAction: () => context.push(AppRoutes.addGift),
               ),
             )
@@ -542,7 +547,7 @@ class _DashboardViewState extends State<_DashboardView> {
               padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
               child: gifts.isEmpty
                   ? Text(
-                      'Kayıt bulunamadı.',
+                      AppLocalizations.of(context).noRecordsFound,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 15,
@@ -565,8 +570,9 @@ class _DashboardViewState extends State<_DashboardView> {
   }
 
   Widget _giftDetailRow(GiftModel gift, List<GiftModel> allGifts) {
+    final l10n = AppLocalizations.of(context);
     final dateText = DateFormatter.shortDate(gift.date);
-    final locationText = gift.eventType?.locationLabel;
+    final locationText = gift.eventType?.localizedLocationLabel(l10n);
     final oppositeDirection = gift.direction == GiftDirection.received
         ? GiftDirection.given
         : GiftDirection.received;
@@ -577,15 +583,15 @@ class _DashboardViewState extends State<_DashboardView> {
           g.giftType == gift.giftType,
     );
     final noteText = gift.direction == GiftDirection.received
-        ? (isMatched ? 'Karşılığı Verildi' : 'Karşılığı Verilecek')
-        : (isMatched ? 'Karşılığı Alındı' : 'Karşılığı Bekleniyor');
+        ? (isMatched ? l10n.returnGiven : l10n.returnToGive)
+        : (isMatched ? l10n.returnReceived : l10n.returnPending);
     final noteColor = isMatched ? AppColors.success : AppColors.primaryDark;
     final typeColor = _giftTypeColors[gift.giftType] ?? AppColors.primary;
     final titleText = gift.giftType == GiftType.cash && gift.currencyCode != null
-        ? '${gift.giftType.label} '
+        ? '${gift.giftType.localizedLabel(l10n)} '
               '(${gift.amount.toStringAsFixed(gift.amount % 1 == 0 ? 0 : 2)} '
               '${gift.currencyCode})'
-        : gift.giftType.label;
+        : gift.giftType.localizedLabel(l10n);
 
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -745,6 +751,7 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final types = GiftType.values.where((t) => t != GiftType.other).toList();
     final total = typeBreakdown.values.fold<double>(0, (s, v) => s + v);
     final maxValue = typeBreakdown.values.isEmpty
@@ -776,6 +783,7 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
               total: total,
               maxValue: maxValue,
               ringRadius: ringRadius,
+              l10n: l10n,
             ),
           GestureDetector(
             onTap: onCenterTap,
@@ -786,10 +794,10 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Toplam',
+                  Text(
+                    l10n.total,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
@@ -821,6 +829,7 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
     required double total,
     required double ringRadius,
     required double maxValue,
+    required AppLocalizations l10n,
   }) {
     final hasValue = value > 0;
     final sizeRatio = maxValue > 0 ? value / maxValue : 0.0;
@@ -855,7 +864,7 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          type.label,
+                          type.localizedLabel(l10n),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -866,7 +875,7 @@ class _TotalBalanceBubbleChart extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '%${((value / total) * 100).round()}',
+                          l10n.percent(((value / total) * 100).round()),
                           style: TextStyle(
                             color: textColor.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w600,

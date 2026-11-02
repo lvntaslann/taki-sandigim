@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/models/gift_enums.dart';
 import '../../data/models/gift_model.dart';
 import '../../data/repositories/gift_repository.dart';
@@ -36,7 +37,7 @@ class PersonGiftsScreen extends StatelessWidget {
       body: gifts.isEmpty
           ? Center(
               child: Text(
-                'Henüz kayıt yok',
+                AppLocalizations.of(context).noRecordsYet,
                 style: TextStyle(
                   color: AppColors.muted(context),
                   fontSize: 15.sp,
@@ -97,7 +98,7 @@ class _GiftTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  gift.giftType.label,
+                  gift.giftType.localizedLabel(AppLocalizations.of(context)),
                   style: TextStyle(
                     fontSize: 15.5.sp,
                     fontWeight: FontWeight.w700,
@@ -115,7 +116,8 @@ class _GiftTile extends StatelessWidget {
                 ),
                 SizedBox(height: 3.h),
                 Text(
-                  gift.eventType?.locationLabel ?? 'Etkinlik belirtilmemiş',
+                  gift.eventType?.localizedLocationLabel(AppLocalizations.of(context)) ??
+                      AppLocalizations.of(context).eventNotSpecified,
                   style: TextStyle(
                     fontSize: 14.5.sp,
                     color: AppColors.muted(context),

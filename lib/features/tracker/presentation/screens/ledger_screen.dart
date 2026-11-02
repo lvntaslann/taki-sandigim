@@ -6,6 +6,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../data/tracker_repository.dart';
@@ -47,7 +48,7 @@ class _LedgerViewState extends State<_LedgerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Defterim')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).ledgerTitle)),
       body: Column(
         children: [
           Padding(
@@ -57,7 +58,7 @@ class _LedgerViewState extends State<_LedgerView> {
               onChanged: (v) =>
                   setState(() => _searchQuery = v.trim().toLowerCase()),
               decoration: InputDecoration(
-                hintText: 'Defterim içinde ara...',
+                hintText: AppLocalizations.of(context).ledgerSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: AppColors.surface,
@@ -86,8 +87,8 @@ class _LedgerViewState extends State<_LedgerView> {
                   return Center(
                     child: Text(
                       _searchQuery.isEmpty
-                          ? 'Henüz bir kayıt yok.'
-                          : 'Sonuç bulunamadı.',
+                          ? AppLocalizations.of(context).noRecordsYetDot
+                          : AppLocalizations.of(context).noResults,
                       style: TextStyle(
                         color: AppColors.muted(context),
                         fontSize: 15,
@@ -135,6 +136,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
     final ledger = widget.ledger;
     final status = ledger.status;
     final lastEntry = ledger.entries.first;
+    final l10n = AppLocalizations.of(context);
 
     return CustomCard(
       padding: EdgeInsets.zero,
@@ -173,7 +175,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${lastEntry.giftType.label} (${lastEntry.date.year})',
+                          '${lastEntry.giftType.localizedLabel(l10n)} (${lastEntry.date.year})',
                           style: TextStyle(
                             color: AppColors.muted(context),
                             fontSize: 15,
@@ -202,6 +204,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
     PersonLedger ledger,
     BalanceStatus status,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -213,11 +216,11 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
         children: [
           const SizedBox(height: 12),
           if (ledger.lastGiven != null)
-            _summaryRow('SENİN TAKTIĞIN', ledger.lastGiven!, AppColors.accent),
+            _summaryRow(l10n.youGave, ledger.lastGiven!, AppColors.accent),
           if (ledger.lastReceived != null) ...[
             const SizedBox(height: 8),
             _summaryRow(
-              'SANA TAKILAN',
+              l10n.youReceived,
               ledger.lastReceived!,
               AppColors.success,
             ),
@@ -227,7 +230,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Toplam Bakiye',
+                l10n.totalBalanceTitle,
                 style: TextStyle(
                   color: AppColors.muted(context),
                   fontSize: 15,
@@ -249,7 +252,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Tüm Kayıtlar (${ledger.entries.length})',
+            l10n.allRecordsCount(ledger.entries.length),
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
@@ -273,7 +276,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
           ),
         ),
         const SizedBox(height: 2),
-        Text('${entry.giftType.label} (${entry.date.year})'),
+        Text('${entry.giftType.localizedLabel(AppLocalizations.of(context))} (${entry.date.year})'),
       ],
     );
   }
@@ -294,7 +297,7 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${entry.giftType.label} · ${CurrencyConverter.formatTl(entry.estimatedValueTl)}',
+                  '${entry.giftType.localizedLabel(AppLocalizations.of(context))} · ${CurrencyConverter.formatTl(entry.estimatedValueTl)}',
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 Text(
@@ -319,21 +322,25 @@ class _PersonLedgerCardState extends State<_PersonLedgerCard> {
 
   Future<void> _confirmDelete(BuildContext context, GiftModel entry) async {
     final bloc = context.read<TrackerBloc>();
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Kaydı sil'),
+        title: Text(l10n.deleteRecordTitle),
         content: Text(
-          '${entry.personName} - ${entry.giftType.label} kaydını silmek istediğine emin misin?',
+          l10n.deleteRecordConfirm(
+            entry.personName,
+            entry.giftType.localizedLabel(l10n),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Sil', style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),

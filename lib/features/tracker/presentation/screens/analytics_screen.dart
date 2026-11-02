@@ -9,6 +9,7 @@ import '../../../../core/database/box_names.dart';
 import '../../../../core/network/gold_rate_service.dart';
 import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../data/tracker_repository.dart';
@@ -46,8 +47,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Analiz')),
+      appBar: AppBar(title: Text(l10n.analyticsTitle)),
       body: ValueListenableBuilder<Box<GiftModel>>(
         valueListenable: Hive.box<GiftModel>(BoxNames.gifts).listenable(),
         builder: (context, box, _) {
@@ -56,7 +58,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           if (entries.isEmpty) {
             return Center(
               child: Text(
-                'Analiz için henüz yeterli kayıt yok.',
+                l10n.notEnoughDataForAnalytics,
                 style: TextStyle(
                   color: AppColors.muted(context),
                   fontSize: 15,
@@ -109,10 +111,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _statTile('Toplam Kayıt', '${entries.length}'),
+                    child: _statTile(l10n.totalRecords, '${entries.length}'),
                   ),
                   SizedBox(width: 12.w),
-                  Expanded(child: _statTile('Kişi Sayısı', '$personCount')),
+                  Expanded(child: _statTile(l10n.personCount, '$personCount')),
                 ],
               ),
               SizedBox(height: 16.h),
@@ -121,7 +123,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Toplam Bakiye',
+                      l10n.totalBalanceTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -141,7 +143,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Kişi Bazında Net Bakiye',
+                      l10n.netBalanceByPerson,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -153,7 +155,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Biz borçluyuz',
+                            l10n.weOwe,
                             style: TextStyle(
                               fontSize: 15,
                               color: _NetBalanceBarChart._weOweColor,
@@ -161,7 +163,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                           ),
                           Text(
-                            'Bize borçlu',
+                            l10n.theyOwe,
                             style: TextStyle(
                               fontSize: 15,
                               color: _NetBalanceBarChart._theyOweColor,
@@ -176,7 +178,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             height: 80.h,
                             child: Center(
                               child: Text(
-                                'Herkesle hesap dengede.',
+                                l10n.allBalanced,
                                 style: TextStyle(
                                   color: AppColors.muted(context),
                                   fontSize: 15,
@@ -196,15 +198,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               if (categories.isNotEmpty) ...[
                 SizedBox(height: 16.h),
                 Text(
-                  'Değer Analizi',
+                  l10n.valueAnalysis,
                   style: Theme.of(context)
                       .textTheme
                       .titleSmall
                       ?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Bir kategoriye dokun, içindeki kişileri ve değer '
-                  'değişimlerini incele.',
+                  l10n.valueAnalysisHint,
                   style: TextStyle(
                     fontSize: 15,
                     color: AppColors.muted(context),
@@ -253,14 +254,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Güncel Gram Altın Kuru',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  AppLocalizations.of(context).currentGramGoldRate,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 _isRateLoading
                     ? Text(
-                        'Güncelleniyor...',
+                        AppLocalizations.of(context).updating,
                         style: TextStyle(
                           color: AppColors.muted(context),
                           fontSize: 15,
@@ -288,6 +289,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _categoryTile(GiftValueCategory category, int count) {
+    final l10n = AppLocalizations.of(context);
     return CustomCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       onTap: () => context.push(
@@ -304,12 +306,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  category.label,
+                  category.localizedLabel(l10n),
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                 ),
                 Text(
-                  '$count kayıt',
+                  l10n.recordCountShort(count),
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontSize: 15,
@@ -361,11 +363,12 @@ class _ReceivedGivenBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final total = received + given;
     if (total <= 0) {
       return Center(
         child: Text(
-          'Veri yok',
+          l10n.noData,
           style: TextStyle(
             color: AppColors.muted(context),
             fontSize: 15,
@@ -387,14 +390,14 @@ class _ReceivedGivenBar extends StatelessWidget {
           children: [
             _amountColumn(
               context,
-              'BİZE GELEN',
+              l10n.receivedUpper,
               CurrencyConverter.formatTl(received),
               AppColors.primary,
               CrossAxisAlignment.start,
             ),
             _amountColumn(
               context,
-              'BİZİM VERDİĞİMİZ',
+              l10n.givenUpper,
               CurrencyConverter.formatTl(given),
               AppColors.secondary,
               CrossAxisAlignment.end,
@@ -447,7 +450,7 @@ class _ReceivedGivenBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '%$receivedPercent',
+              l10n.percent(receivedPercent),
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.muted(context),
@@ -455,7 +458,7 @@ class _ReceivedGivenBar extends StatelessWidget {
               ),
             ),
             Text(
-              '%$givenPercent',
+              l10n.percent(givenPercent),
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.muted(context),
@@ -599,11 +602,12 @@ class _NetBalanceBarChart extends StatelessWidget {
   }
 
   void _showBalanceInfo(BuildContext context, BalanceStatus balance) {
+    final l10n = AppLocalizations.of(context);
     final statusText = balance.isBalanced
-        ? 'Hesap dengede'
+        ? l10n.balanced
         : balance.weOwe
-        ? 'Biz borçluyuz'
-        : 'Bize borçlu';
+        ? l10n.weOwe
+        : l10n.theyOwe;
     final statusColor = balance.isBalanced
         ? AppColors.muted(context)
         : balance.weOwe
@@ -625,7 +629,7 @@ class _NetBalanceBarChart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${balance.personName} taktı',
+                    l10n.personGave(balance.personName),
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.muted(context),
@@ -647,7 +651,7 @@ class _NetBalanceBarChart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Biz taktık',
+                    l10n.weGave,
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.muted(context),
@@ -688,7 +692,7 @@ class _NetBalanceBarChart extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Kapat'),
+            child: Text(l10n.close),
           ),
         ],
       ),

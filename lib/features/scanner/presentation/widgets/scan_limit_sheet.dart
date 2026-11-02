@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/custom_button.dart';
+import '../../../../l10n/app_localizations.dart';
 
 Future<void> showScanLimitSheet(BuildContext context, {required Duration? resetIn}) {
   return showModalBottomSheet<void>(
@@ -14,12 +15,12 @@ Future<void> showScanLimitSheet(BuildContext context, {required Duration? resetI
   );
 }
 
-String _formatResetIn(Duration? duration) {
-  if (duration == null || duration <= Duration.zero) return 'birazdan';
+String _formatResetIn(Duration? duration, AppLocalizations l10n) {
+  if (duration == null || duration <= Duration.zero) return l10n.resetSoon;
   final hours = duration.inHours;
   final minutes = duration.inMinutes % 60;
-  if (hours <= 0) return '$minutes dk';
-  return '$hours sa $minutes dk';
+  if (hours <= 0) return l10n.durationMinutes(minutes);
+  return l10n.durationHoursMinutes(hours, minutes);
 }
 
 class _ScanLimitSheet extends StatelessWidget {
@@ -74,20 +75,21 @@ class _ScanLimitSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Tarama hakkın doldu',
+              AppLocalizations.of(context).scanLimitTitle,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
-              'Ücretsiz tarama hakkın ${_formatResetIn(resetIn)} sonra yenilenecek. '
-              'Premium ile sınırsız tara.',
+              AppLocalizations.of(context).scanLimitBody(
+                _formatResetIn(resetIn, AppLocalizations.of(context)),
+              ),
               style: TextStyle(color: muted, fontSize: 13.5, height: 1.4),
             ),
             const SizedBox(height: 20),
             CustomButton(
-              label: 'Premium\'a Geç',
+              label: AppLocalizations.of(context).goPremium,
               icon: Icons.workspace_premium,
               onPressed: () {
                 Navigator.of(context).pop();
@@ -99,7 +101,7 @@ class _ScanLimitSheet extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Kapat'),
+                child: Text(AppLocalizations.of(context).close),
               ),
             ),
           ],

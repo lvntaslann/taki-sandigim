@@ -11,13 +11,19 @@ import 'package:share_plus/share_plus.dart';
 import '../../dashboard/data/models/gift_model.dart';
 import '../../dashboard/data/models/gift_enums.dart';
 import '../../dashboard/data/repositories/wedding_repository.dart';
+import '../../../l10n/app_localizations.dart';
 
+/// Writes exports in the app's current language. [GiftImportService] reads
+/// back files written in any supported language.
 class GiftExportService {
   GiftExportService({WeddingRepository? weddingRepository})
     : _weddingRepository = weddingRepository ?? WeddingRepository();
 
   final WeddingRepository _weddingRepository;
-  final _dateFormat = DateFormat('d MMM y', 'tr_TR');
+
+  /// "27 Eki 2026" / "Oct 27, 2026"; must stay in sync with the import parser.
+  static DateFormat dateFormatFor(AppLocalizations l10n) =>
+      DateFormat.yMMMd(l10n.localeName);
 
   /// Currency/unit for the raw `amount` figure — cash gifts are recorded in
   /// either TL or a foreign currency (`currencyCode`); gold/other gift types
@@ -27,9 +33,27 @@ class GiftExportService {
     return gift.currencyCode ?? 'TL';
   }
 
-  Future<void> shareSummary(List<GiftModel> gifts) async {
+  static List<String> giftHeaders(AppLocalizations l10n) => [
+    l10n.exportColDate,
+    l10n.exportColPerson,
+    l10n.exportColGift,
+    l10n.exportColAmount,
+    l10n.exportColUnit,
+    l10n.exportColValueTl,
+    l10n.exportColDirection,
+  ];
+
+  static List<String> weddingHeaders(AppLocalizations l10n) => [
+    l10n.exportColTitle,
+    l10n.exportColDate,
+    l10n.exportColLocation,
+    l10n.exportColNote,
+  ];
+
+  Future<void> shareSummary(List<GiftModel> gifts, AppLocalizations l10n) async {
+    final dateFormat = dateFormatFor(l10n);
     final weddings = _weddingRepository.getAll();
-    final buffer = StringBuffer('Takı Sandığım - Takı Listem\n\n');
+    final buffer = StringBuffer('${l10n.exportDocumentTitle}\n\n');
     for (final gift in gifts) {
       final formattedAmount = gift.amount.toStringAsFixed(
         gift.amount % 1 == 0 ? 0 : 2,
@@ -37,17 +61,17 @@ class GiftExportService {
       final unit = _unitLabel(gift);
       final amountText = unit == '-' ? formattedAmount : '$formattedAmount $unit';
       buffer.writeln(
-        '${_dateFormat.format(gift.date)} - ${gift.personName}: '
-        '${gift.giftType.label} ($amountText) '
+        '${dateFormat.format(gift.date)} - ${gift.personName}: '
+        '${gift.giftType.localizedLabel(l10n)} ($amountText) '
         '- ${gift.estimatedValueTl.toStringAsFixed(0)} TL '
-        '[${gift.direction.label}]',
+        '[${gift.direction.localizedLabel(l10n)}]',
       );
     }
     if (weddings.isNotEmpty) {
-      buffer.writeln('\nDavetiye Bilgileri\n');
+      buffer.writeln('\n${l10n.exportSheetWeddings}\n');
       for (final wedding in weddings) {
         buffer.writeln(
-          '${wedding.title} - ${_dateFormat.format(wedding.date)}'
+          '${wedding.title} - ${dateFormat.format(wedding.date)}'
           '${wedding.location != null ? ' - ${wedding.location}' : ''}',
         );
       }
@@ -59,8 +83,11 @@ class GiftExportService {
     List<GiftModel> gifts, {
     required bool asPdf,
     required String fileName,
+    required AppLocalizations l10n,
   }) async {
-    final bytes = asPdf ? await _buildPdfBytes(gifts) : await _buildExcelBytes(gifts);
+    final bytes = asPdf
+        ? await _buildPdfBytes(gifts, l10n)
+        : await _buildExcelBytes(gifts, l10n);
     final extension = asPdf ? 'pdf' : 'xlsx';
     final mimeType = asPdf
         ? 'application/pdf'
@@ -74,7 +101,8 @@ class GiftExportService {
     await Share.shareXFiles([file]);
   }
 
-  Future<Uint8List> _buildPdfBytes(List<GiftModel> gifts) async {
+  Future<Uint8List> _buildPdfBytes(List<GiftModel> gifts, AppLocalizations l10n) async {
+    final dateFormat = dateFormatFor(l10n);
     final weddings = _weddingRepository.getAll();
     final baseFont = await PdfGoogleFonts.notoSansRegular();
     final boldFont = await PdfGoogleFonts.notoSansBold();
@@ -84,37 +112,37 @@ class GiftExportService {
     document.addPage(
       pw.MultiPage(
         build: (context) => [
-          pw.Header(level: 0, text: 'Takı Sandığım - Takı Listem'),
+          pw.Header(level: 0, text: l10n.exportDocumentTitle),
           pw.TableHelper.fromTextArray(
-            headers: ['Tarih', 'Kişi', 'Hediye', 'Miktar', 'Birim', 'Değer (TL)', 'Yön'],
+            headers: giftHeaders(l10n),
             headerStyle: pw.TextStyle(font: boldFont),
             cellStyle: pw.TextStyle(font: baseFont),
             data: gifts
                 .map(
                   (gift) => [
-                    _dateFormat.format(gift.date),
+                    dateFormat.format(gift.date),
                     gift.personName,
-                    gift.giftType.label,
+                    gift.giftType.localizedLabel(l10n),
                     gift.amount.toStringAsFixed(gift.amount % 1 == 0 ? 0 : 2),
                     _unitLabel(gift),
                     gift.estimatedValueTl.toStringAsFixed(0),
-                    gift.direction.label,
+                    gift.direction.localizedLabel(l10n),
                   ],
                 )
                 .toList(),
           ),
           if (weddings.isNotEmpty) ...[
             pw.SizedBox(height: 20),
-            pw.Header(level: 1, text: 'Davetiye Bilgileri'),
+            pw.Header(level: 1, text: l10n.exportSheetWeddings),
             pw.TableHelper.fromTextArray(
-              headers: ['Başlık', 'Tarih', 'Konum', 'Not'],
+              headers: weddingHeaders(l10n),
               headerStyle: pw.TextStyle(font: boldFont),
               cellStyle: pw.TextStyle(font: baseFont),
               data: weddings
                   .map(
                     (wedding) => [
                       wedding.title,
-                      _dateFormat.format(wedding.date),
+                      dateFormat.format(wedding.date),
                       wedding.location ?? '-',
                       wedding.note ?? '-',
                     ],
@@ -128,45 +156,33 @@ class GiftExportService {
     return document.save();
   }
 
-  Future<Uint8List> _buildExcelBytes(List<GiftModel> gifts) async {
+  Future<Uint8List> _buildExcelBytes(List<GiftModel> gifts, AppLocalizations l10n) async {
+    final dateFormat = dateFormatFor(l10n);
     final weddings = _weddingRepository.getAll();
     final workbook = xls.Excel.createExcel();
     final defaultSheetName = workbook.getDefaultSheet()!;
-    workbook.rename(defaultSheetName, 'Takı Listem');
-    final giftSheet = workbook['Takı Listem'];
-    giftSheet.appendRow([
-      xls.TextCellValue('Tarih'),
-      xls.TextCellValue('Kişi'),
-      xls.TextCellValue('Hediye'),
-      xls.TextCellValue('Miktar'),
-      xls.TextCellValue('Birim'),
-      xls.TextCellValue('Değer (TL)'),
-      xls.TextCellValue('Yön'),
-    ]);
+    workbook.rename(defaultSheetName, l10n.exportSheetGifts);
+    final giftSheet = workbook[l10n.exportSheetGifts];
+    giftSheet.appendRow(giftHeaders(l10n).map(xls.TextCellValue.new).toList());
     for (final gift in gifts) {
       giftSheet.appendRow([
-        xls.TextCellValue(_dateFormat.format(gift.date)),
+        xls.TextCellValue(dateFormat.format(gift.date)),
         xls.TextCellValue(gift.personName),
-        xls.TextCellValue(gift.giftType.label),
+        xls.TextCellValue(gift.giftType.localizedLabel(l10n)),
         xls.DoubleCellValue(gift.amount),
         xls.TextCellValue(_unitLabel(gift)),
         xls.DoubleCellValue(gift.estimatedValueTl),
-        xls.TextCellValue(gift.direction.label),
+        xls.TextCellValue(gift.direction.localizedLabel(l10n)),
       ]);
     }
 
     if (weddings.isNotEmpty) {
-      final weddingSheet = workbook['Davetiye Bilgileri'];
-      weddingSheet.appendRow([
-        xls.TextCellValue('Başlık'),
-        xls.TextCellValue('Tarih'),
-        xls.TextCellValue('Konum'),
-        xls.TextCellValue('Not'),
-      ]);
+      final weddingSheet = workbook[l10n.exportSheetWeddings];
+      weddingSheet.appendRow(weddingHeaders(l10n).map(xls.TextCellValue.new).toList());
       for (final wedding in weddings) {
         weddingSheet.appendRow([
           xls.TextCellValue(wedding.title),
-          xls.TextCellValue(_dateFormat.format(wedding.date)),
+          xls.TextCellValue(dateFormat.format(wedding.date)),
           xls.TextCellValue(wedding.location ?? '-'),
           xls.TextCellValue(wedding.note ?? '-'),
         ]);

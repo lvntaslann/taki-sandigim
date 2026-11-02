@@ -9,6 +9,7 @@ import '../../../../core/utils/currency_converter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/basis_badge.dart';
 import '../../../../core/widgets/custom_card.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/models/gift_model.dart';
 import '../../domain/gift_value_projection.dart';
@@ -77,33 +78,23 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
   }
 
   void _showInfo() {
+    final l10n = AppLocalizations.of(context);
     final basisText = switch (_rateBasis) {
       _RateBasis.currency =>
-        'O günkü değer, kaydı eklediğin andaki ${widget.gift.currencyCode} '
-            'kuruna göredir. Bugünkü değer ise güncel döviz kuruyla yeniden '
-            'hesaplanır.',
-      _RateBasis.gold =>
-        'O günkü değer, kaydı eklediğin andaki altın kuruna göredir. '
-            'Bugünkü değer ise güncel gram altın kuruyla yeniden hesaplanır.',
-      _RateBasis.none =>
-        'Bu kayıt bir kur bilgisiyle eklenmediği için değeri zamanla '
-            'değişmez; o günkü ve bugünkü değer aynıdır.',
+        l10n.valueInfoCurrencyBasis(widget.gift.currencyCode ?? ''),
+      _RateBasis.gold => l10n.valueInfoGoldBasis,
+      _RateBasis.none => l10n.valueInfoNoBasis,
     };
 
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Bu grafik nasıl hesaplanıyor?'),
-        content: Text(
-          '$basisText Aradaki noktalar gerçek piyasa verisi değildir; '
-          'sadece iki değer arasındaki değişimi görselleştirmek için '
-          'doğrusal olarak tahmin edilmiştir. Üstteki dönem seçici sadece '
-          'aynı doğrunun hangi zaman penceresini gösterdiğini değiştirir.',
-        ),
+        title: Text(l10n.valueInfoTitle),
+        content: Text(l10n.valueInfoBody(basisText)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Anladım'),
+            child: Text(l10n.gotIt),
           ),
         ],
       ),
@@ -113,10 +104,11 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final gift = widget.gift;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Değer Analizi'),
+        title: Text(l10n.valueAnalysis),
         actions: [
           IconButton(
             onPressed: _showInfo,
@@ -156,7 +148,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    '${_formatAmount(gift.amount)} ${gift.giftType.label}',
+                                    '${_formatAmount(gift.amount)} ${gift.giftType.localizedLabel(l10n)}',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -168,7 +160,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Takıldığı Tarih: ${DateFormatter.shortDate(gift.date)}',
+                              l10n.dateGiven(DateFormatter.shortDate(gift.date)),
                               style: TextStyle(
                                 color: AppColors.muted(context),
                                 fontSize: 15,
@@ -179,10 +171,13 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 _rateBasis == _RateBasis.currency
-                                    ? 'Güncel kur: 1 ${gift.currencyCode} = '
-                                          '${CurrencyConverter.formatTl(_currentRateTl!)}'
-                                    : 'Güncel gram altın kuru: '
-                                          '${CurrencyConverter.formatTl(_currentRateTl!)}',
+                                    ? l10n.currentRate(
+                                        gift.currencyCode ?? '',
+                                        CurrencyConverter.formatTl(_currentRateTl!),
+                                      )
+                                    : l10n.currentGramGoldRateValue(
+                                        CurrencyConverter.formatTl(_currentRateTl!),
+                                      ),
                                 style: TextStyle(
                                   color: AppColors.muted(context),
                                   fontSize: 15,
@@ -210,9 +205,10 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
   }
 
   String get _basisLabel => switch (_rateBasis) {
-    _RateBasis.currency => widget.gift.currencyCode ?? 'Döviz',
-    _RateBasis.gold => 'Altın',
-    _RateBasis.none => 'Sabit',
+    _RateBasis.currency =>
+      widget.gift.currencyCode ?? AppLocalizations.of(context).categoryCurrency,
+    _RateBasis.gold => AppLocalizations.of(context).basisGold,
+    _RateBasis.none => AppLocalizations.of(context).basisFixed,
   };
 
   String _formatAmount(double amount) =>
@@ -228,7 +224,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'O günkü değeri',
+                  AppLocalizations.of(context).valueThen,
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontSize: 15,
@@ -258,7 +254,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Bugünkü değeri',
+                    AppLocalizations.of(context).valueNow,
                     style: TextStyle(
                       color: AppColors.muted(context),
                       fontSize: 15,
@@ -303,7 +299,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Değer Artışı',
+                AppLocalizations.of(context).valueIncrease,
                 style: TextStyle(
                   color: AppColors.muted(context),
                   fontSize: 15,
@@ -345,13 +341,13 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Değer Değişimi Grafiği',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          Text(
+            AppLocalizations.of(context).valueChangeChart,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            'Uç noktalar gerçek, aradaki çizgi tahminidir.',
+            AppLocalizations.of(context).valueChartHint,
             style: TextStyle(
               color: AppColors.muted(context),
               fontSize: 14,
@@ -460,7 +456,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
             (r) => ButtonSegment(
               value: r,
               label: Text(
-                r.label,
+                r.localizedLabel(AppLocalizations.of(context)),
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
@@ -486,15 +482,15 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
     return Row(
       children: [
         Expanded(
-          child: _statBox('En Düşük', lowest.valueTl, lowest.date),
+          child: _statBox(AppLocalizations.of(context).lowest, lowest.valueTl, lowest.date),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _statBox('En Yüksek', highest.valueTl, highest.date),
+          child: _statBox(AppLocalizations.of(context).highest, highest.valueTl, highest.date),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _statBox('Ortalama', average, null),
+          child: _statBox(AppLocalizations.of(context).average, average, null),
         ),
       ],
     );
@@ -521,7 +517,7 @@ class _GiftValueAnalysisScreenState extends State<GiftValueAnalysisScreen> {
           if (date != null) ...[
             const SizedBox(height: 2),
             Text(
-              DateFormat('dd.MM.yyyy').format(date),
+              DateFormatter.shortDate(date),
               style: TextStyle(
                 color: AppColors.muted(context),
                 fontSize: 13,

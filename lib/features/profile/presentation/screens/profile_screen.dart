@@ -13,6 +13,7 @@ import '../../../../core/services/purchase_service.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_card.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../dashboard/data/models/gift_enums.dart';
 import '../../../dashboard/data/repositories/gift_repository.dart';
 import '../../../dashboard/data/repositories/wedding_repository.dart';
@@ -54,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _formatDate(DateTime date) =>
-      DateFormat('d MMMM y', 'tr_TR').format(date);
+      DateFormat.yMMMMd().format(date);
 
   @override
   void dispose() {
@@ -69,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _settingsRepository.setName(name);
     FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('İsim kaydedildi.')),
+      SnackBar(content: Text(AppLocalizations.of(context).nameSaved)),
     );
     setState(() => _savedName = name);
   }
@@ -79,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _settingsRepository.setEmail(email);
     FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mail adresi kaydedildi.')),
+      SnackBar(content: Text(AppLocalizations.of(context).emailSaved)),
     );
   }
 
@@ -126,19 +127,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _confirmLogout() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Çıkış Yap'),
-        content: const Text('Hesabınızdan çıkış yapmak istediğinize emin misiniz?'),
+        title: Text(l10n.logOut),
+        content: Text(l10n.logOutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Çıkış Yap'),
+            child: Text(l10n.logOut),
           ),
         ],
       ),
@@ -152,23 +154,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _confirmDeleteAccount() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hesabı Sil'),
-        content: const Text(
-          'Hesabınızı silmek, profil bilgilerinizi ve tüm takı kayıtlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?',
-        ),
+        title: Text(l10n.deleteAccount),
+        content: Text(l10n.deleteAccountConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Hesabı Sil',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              l10n.deleteAccount,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -186,8 +187,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -250,13 +252,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Adınız',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  l10n.yourName,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ana Sayfa\'daki selamlamada kullanılır.',
+                  l10n.yourNameHint,
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontSize: 14.5,
@@ -268,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Expanded(
                       child: CustomTextField(
-                        label: 'İsim',
+                        label: l10n.nameField,
                         controller: _nameController,
                         prefixIcon: Icons.badge_outlined,
                       ),
@@ -276,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(width: 12),
                     SizedBox(
                       width: 100,
-                      child: CustomButton(label: 'Kaydet', onPressed: _saveName),
+                      child: CustomButton(label: l10n.save, onPressed: _saveName),
                     ),
                   ],
                 ),
@@ -288,13 +290,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Mail Adresi',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  l10n.emailAddress,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Yedekleme ve bildirimler için kullanılır.',
+                  l10n.emailAddressHint,
                   style: TextStyle(
                     color: AppColors.muted(context),
                     fontSize: 14.5,
@@ -306,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Expanded(
                       child: CustomTextField(
-                        label: 'Mail',
+                        label: l10n.emailField,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.mail_outline,
@@ -316,7 +318,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 100,
                       child: CustomButton(
-                        label: 'Kaydet',
+                        label: l10n.save,
                         onPressed: _saveEmail,
                       ),
                     ),
@@ -330,9 +332,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Özel Günlerinizin Tarihi',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                Text(
+                  l10n.specialDates,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -341,7 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: EventType.values
                       .map(
                         (option) => ChoiceChip(
-                          label: Text(option.label),
+                          label: Text(option.localizedLabel(l10n)),
                           selected: _eventType == option,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
@@ -357,11 +359,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
-                  label: '${_eventType.label} Tarihi',
+                  label: l10n.eventDate(_eventType.localizedLabel(l10n)),
                   controller: _weddingDateController,
                   readOnly: true,
                   prefixIcon: Icons.calendar_month_outlined,
-                  hintText: 'Tarih seçin',
+                  hintText: l10n.pickDate,
                   onTap: _pickWeddingDate,
                 ),
               ],
@@ -378,12 +380,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Takı Listesi Raporları',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        l10n.giftListReports,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        'PDF, Excel olarak indir veya paylaş.',
+                        l10n.giftListReportsHint,
                         style: TextStyle(
                           color: AppColors.muted(context),
                           fontSize: 14.5,
@@ -408,12 +410,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Çıkış Yap',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        l10n.logOut,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        'Hesabınızdan çıkış yapın.',
+                        l10n.logOutHint,
                         style: TextStyle(
                           color: AppColors.muted(context),
                           fontSize: 14.5,
@@ -427,7 +429,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   width: 100,
                   child: CustomButton(
-                    label: 'Çıkış',
+                    label: l10n.logOutShort,
                     onPressed: _confirmLogout,
                   ),
                 ),
@@ -444,12 +446,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Hesabı Sil',
-                        style: TextStyle(fontWeight: FontWeight.w700, color: Colors.red),
+                      Text(
+                        l10n.deleteAccount,
+                        style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.red),
                       ),
                       Text(
-                        'Tüm verileriniz kalıcı olarak silinir.',
+                        l10n.deleteAccountHint,
                         style: TextStyle(
                           color: AppColors.muted(context),
                           fontSize: 14.5,
@@ -468,7 +470,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       side: const BorderSide(color: Colors.red),
                     ),
                     onPressed: _confirmDeleteAccount,
-                    child: const Text('Sil'),
+                    child: Text(l10n.delete),
                   ),
                 ),
               ],
@@ -568,7 +570,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Premium\'a Geç',
+                      AppLocalizations.of(context).goPremium,
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
@@ -577,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Reklamsız deneyim, daha fazla tarama hakkı ve esnek dışa aktarım',
+                      AppLocalizations.of(context).goPremiumHint,
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.white.withValues(alpha: 0.92),
                         fontSize: 14,
@@ -650,7 +652,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Premium Aktif',
+                          AppLocalizations.of(context).premiumActive,
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
@@ -659,7 +661,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Reklamsız ve sınırsız kullanım keyfini çıkarıyorsun.',
+                          AppLocalizations.of(context).premiumActiveHint,
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white.withValues(alpha: 0.92),
                             fontSize: 13.5,

@@ -1,0 +1,664 @@
+{
+  "@@locale": "tr",
+  "appTitle": "Takı Sandığım",
+  "onboardingTagline": "Düğün, nişan ve kına\nhediyelerini kolayca kaydedin",
+  "onboardingBullet1": "Kimin ne taktığını, ne verdiğinizi tek bir yerde takip edin",
+  "onboardingBullet2": "Takı defterinizi veya davetiyenizi kamera ile tarayarak bilgileri otomatik olarak sisteme aktarın",
+  "onboardingBullet3": "Takılanlar ve verilenler olarak ayırın",
+  "onboardingStart": "Haydi Başlayalım",
+  "continueButton": "Devam Et",
+  "skipButton": "ATLA",
+  "@skipButton": {
+    "description": "Mail girme ekranındaki atla bağlantısı, büyük harfle gösterilir."
+  },
+  "nameEntryTitle": "Size Nasıl Hitap Edelim?",
+  "nameLabel": "İsim:",
+  "nameRequiredError": "Lütfen isminizi giriniz",
+  "emailEntryTitle": "Yedekleme için mail adresinizi\ngiriniz...",
+  "emailLabel": "Mail:",
+  "emailRequiredError": "Lütfen mail adresinizi giriniz",
+  "emailInvalidError": "Lütfen geçerli bir mail adresi giriniz",
+  "giftTypeQuarterGold": "Çeyrek Altın",
+  "giftTypeHalfGold": "Yarım Altın",
+  "giftTypeFullGold": "Tam Altın",
+  "giftTypeGremseGold": "Gremse Altın",
+  "giftTypeGramGold": "Gram Altın",
+  "giftTypeBracelet": "Bilezik",
+  "giftTypeNecklace": "Kolye",
+  "giftTypeCash": "Para",
+  "giftTypeOther": "Diğer",
+  "giftDirectionReceived": "Bize Takılan",
+  "giftDirectionGiven": "Bizim Taktığımız",
+  "relationFamily": "Aile",
+  "relationRelative": "Akraba",
+  "relationFriend": "Arkadaş",
+  "eventWedding": "Düğün",
+  "eventEngagement": "Nişan",
+  "eventHenna": "Kına",
+  "eventNikah": "Nikah",
+  "eventWeddingLocation": "Düğünde takıldı",
+  "eventEngagementLocation": "Nişanda takıldı",
+  "eventHennaLocation": "Kınada takıldı",
+  "eventNikahLocation": "Nikahta takıldı",
+  "today": "Bugün",
+  "tomorrow": "Yarın",
+  "daysAgo": "{count} gün önce",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysLater": "{count} gün sonra",
+  "@daysLater": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "upcomingWeddings": "Yaklaşan Düğünler",
+  "calendar": "Takvim",
+  "greeting": "Merhaba",
+  "greetingWithName": "Merhaba, {name}",
+  "@greetingWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "giftDistribution": "Hediye Dağılımı",
+  "recordCount": "Kayıt Sayısı",
+  "recordCountValue": "{count} adet kayıt",
+  "@recordCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalQuantity": "Toplam Adet",
+  "quantityValue": "{amount} adet",
+  "@quantityValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "totalGram": "Toplam Gram",
+  "totalOf": "Toplam {currency}",
+  "@totalOf": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "totalValue": "Toplam Değer",
+  "close": "Kapat",
+  "grandTotal": "Genel Toplam",
+  "totalGramGold": "Toplam Gram Altın",
+  "grandTotalValue": "Genel Toplam Değer",
+  "currencyUsd": "Dolar",
+  "currencyEur": "Euro",
+  "currencyGbp": "Sterlin",
+  "receivedGiftsTitle": "Bize Takılanlar",
+  "givenGiftsTitle": "Bizim Taktığımız",
+  "noReceivedGifts": "Henüz sana takılan bir şey yok.",
+  "noGivenGifts": "Henüz kimseye takı vermedin.",
+  "addGift": "Takı Ekle",
+  "noRecordsFound": "Kayıt bulunamadı.",
+  "returnGiven": "Karşılığı Verildi",
+  "returnToGive": "Karşılığı Verilecek",
+  "returnReceived": "Karşılığı Alındı",
+  "returnPending": "Karşılığı Bekleniyor",
+  "total": "Toplam",
+  "percent": "%{value}",
+  "@percent": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "noUpcomingWeddings": "Yaklaşan bir düğün yok.",
+  "scanInvitationHint": "Bir davetiye tarayarak otomatik ekleyebilirsin.",
+  "scanInvitation": "Davetiye Tara",
+  "totalBalance": "Toplam bakiye",
+  "noRecordsYet": "Henüz kayıt yok",
+  "navHome": "ana sayfa",
+  "navAnalytics": "analiz",
+  "navProfile": "profil",
+  "navSettings": "ayarlar",
+  "eventNotSpecified": "Etkinlik belirtilmemiş",
+  "allWeddings": "Tüm Düğünler",
+  "noWeddingsYet": "Henüz kayıtlı bir düğün yok.",
+  "noWeddingOnDate": "Bu tarihte bir düğün yok.",
+  "weekdayMon": "Pt",
+  "weekdayTue": "Sa",
+  "weekdayWed": "Ça",
+  "weekdayThu": "Pe",
+  "weekdayFri": "Cu",
+  "weekdaySat": "Ct",
+  "weekdaySun": "Pz",
+  "settingsTitle": "Ayarlar",
+  "sendFeedback": "Geri Bildirim Gönder",
+  "sendFeedbackSubtitle": "Görüş ve önerilerinizi bizimle paylaşın",
+  "feedbackHint": "Görüş ve önerilerinizi yazın...",
+  "feedbackThanks": "Geri bildiriminiz için teşekkürler!",
+  "cancel": "Vazgeç",
+  "send": "Gönder",
+  "privacyPolicy": "Gizlilik Politikası",
+  "privacyPolicySubtitle": "Verilerinizin nasıl kullanıldığını görüntüleyin",
+  "privacyPolicyBody": "Takı Sandığım, girdiğiniz isim, mail ve hediye kayıtları gibi verileri yalnızca uygulama içindeki hesaplamalar ve yedekleme amacıyla kullanır. Verileriniz üçüncü taraflarla paylaşılmaz ve cihazınızda güvenli şekilde saklanır. Uygulama ayarlarından dilediğiniz zaman verilerinizi güncelleyebilir veya silebilirsiniz.",
+  "darkMode": "Karanlık Mod",
+  "darkModeSubtitle": "Uygulama genelinde koyu temayı etkinleştirir",
+  "notifications": "Bildirimler",
+  "notificationsSubtitle": "Yaklaşan düğün hatırlatmaları",
+  "goldRate": "Altın Kuru",
+  "goldRateSubtitle": "Güncel gram altın kuruna göre hesaplanır",
+  "help": "Yardım",
+  "appVersion": "Uygulama Versiyonu",
+  "versionValue": "Sürüm {version}",
+  "@versionValue": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "developers": "Geliştiriciler",
+  "developer": "Geliştirici",
+  "addRecordTitle": "Yeni Kayıt Ekle",
+  "addManuallyTab": "Yeni Ekle",
+  "scanTab": "Defter/Davetiye Tara",
+  "personName": "Kişi Adı",
+  "personNameRequired": "Kişi adı gerekli",
+  "whereGiven": "Nerede Takıldı",
+  "giftTypeLabel": "Takı Türü",
+  "amountPiecesOrGrams": "Miktar (adet/gram)",
+  "enterValidAmount": "Geçerli bir miktar girin",
+  "enterValidSum": "Geçerli bir tutar girin",
+  "fetchingRate": "Güncel kur alınıyor...",
+  "todayGramGoldRate": "Bugünkü gram altın kuru: {rate}",
+  "@todayGramGoldRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "calculatedValue": "Hesaplanan değer: {value}",
+  "@calculatedValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "foreignCurrency": "Döviz",
+  "amountInCurrency": "Tutar ({currency})",
+  "@amountInCurrency": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "currency": "Para Birimi",
+  "currentRate": "Güncel kur: 1 {code} = {rate}",
+  "@currentRate": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "tlEquivalent": "TL karşılığı: {value}",
+  "@tlEquivalent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "date": "Tarih",
+  "noteOptional": "Not (opsiyonel)",
+  "save": "Kaydet",
+  "ledgerTitle": "Defterim",
+  "ledgerSearchHint": "Defterim içinde ara...",
+  "noRecordsYetDot": "Henüz bir kayıt yok.",
+  "noResults": "Sonuç bulunamadı.",
+  "youGave": "SENİN TAKTIĞIN",
+  "youReceived": "SANA TAKILAN",
+  "totalBalanceTitle": "Toplam Bakiye",
+  "allRecordsCount": "Tüm Kayıtlar ({count})",
+  "@allRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteRecordTitle": "Kaydı sil",
+  "deleteRecordConfirm": "{name} - {giftType} kaydını silmek istediğine emin misin?",
+  "@deleteRecordConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "giftType": {
+        "type": "String"
+      }
+    }
+  },
+  "delete": "Sil",
+  "categoryCurrency": "Döviz",
+  "rangeDay": "Gün",
+  "rangeWeek": "Hafta",
+  "rangeMonth": "Ay",
+  "rangeYear": "Yıl",
+  "rangeAll": "Tümü",
+  "analyticsTitle": "Analiz",
+  "notEnoughDataForAnalytics": "Analiz için henüz yeterli kayıt yok.",
+  "totalRecords": "Toplam Kayıt",
+  "personCount": "Kişi Sayısı",
+  "netBalanceByPerson": "Kişi Bazında Net Bakiye",
+  "weOwe": "Biz borçluyuz",
+  "theyOwe": "Bize borçlu",
+  "allBalanced": "Herkesle hesap dengede.",
+  "valueAnalysis": "Değer Analizi",
+  "valueAnalysisHint": "Bir kategoriye dokun, içindeki kişileri ve değer değişimlerini incele.",
+  "currentGramGoldRate": "Güncel Gram Altın Kuru",
+  "updating": "Güncelleniyor...",
+  "recordCountShort": "{count} kayıt",
+  "@recordCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noData": "Veri yok",
+  "receivedUpper": "BİZE GELEN",
+  "givenUpper": "BİZİM VERDİĞİMİZ",
+  "balanced": "Hesap dengede",
+  "personGave": "{name} taktı",
+  "@personGave": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "weGave": "Biz taktık",
+  "valueInfoCurrencyBasis": "O günkü değer, kaydı eklediğin andaki {code} kuruna göredir. Bugünkü değer ise güncel döviz kuruyla yeniden hesaplanır.",
+  "@valueInfoCurrencyBasis": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "valueInfoGoldBasis": "O günkü değer, kaydı eklediğin andaki altın kuruna göredir. Bugünkü değer ise güncel gram altın kuruyla yeniden hesaplanır.",
+  "valueInfoNoBasis": "Bu kayıt bir kur bilgisiyle eklenmediği için değeri zamanla değişmez; o günkü ve bugünkü değer aynıdır.",
+  "valueInfoTitle": "Bu grafik nasıl hesaplanıyor?",
+  "valueInfoBody": "{basis} Aradaki noktalar gerçek piyasa verisi değildir; sadece iki değer arasındaki değişimi görselleştirmek için doğrusal olarak tahmin edilmiştir. Üstteki dönem seçici sadece aynı doğrunun hangi zaman penceresini gösterdiğini değiştirir.",
+  "@valueInfoBody": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      }
+    }
+  },
+  "gotIt": "Anladım",
+  "dateGiven": "Takıldığı Tarih: {date}",
+  "@dateGiven": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "currentGramGoldRateValue": "Güncel gram altın kuru: {rate}",
+  "@currentGramGoldRateValue": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "basisGold": "Altın",
+  "basisFixed": "Sabit",
+  "valueThen": "O günkü değeri",
+  "valueNow": "Bugünkü değeri",
+  "valueIncrease": "Değer Artışı",
+  "valueChangeChart": "Değer Değişimi Grafiği",
+  "valueChartHint": "Uç noktalar gerçek, aradaki çizgi tahminidir.",
+  "lowest": "En Düşük",
+  "highest": "En Yüksek",
+  "average": "Ortalama",
+  "searchByName": "Kişi adına göre ara...",
+  "noRecordsInCategory": "Bu kategoride bir kayıt yok.",
+  "nameSaved": "İsim kaydedildi.",
+  "emailSaved": "Mail adresi kaydedildi.",
+  "logOut": "Çıkış Yap",
+  "logOutShort": "Çıkış",
+  "logOutConfirm": "Hesabınızdan çıkış yapmak istediğinize emin misiniz?",
+  "logOutHint": "Hesabınızdan çıkış yapın.",
+  "deleteAccount": "Hesabı Sil",
+  "deleteAccountConfirm": "Hesabınızı silmek, profil bilgilerinizi ve tüm takı kayıtlarınızı kalıcı olarak silecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
+  "deleteAccountHint": "Tüm verileriniz kalıcı olarak silinir.",
+  "profileTitle": "Profil",
+  "yourName": "Adınız",
+  "yourNameHint": "Ana Sayfa'daki selamlamada kullanılır.",
+  "nameField": "İsim",
+  "emailAddress": "Mail Adresi",
+  "emailAddressHint": "Yedekleme ve bildirimler için kullanılır.",
+  "emailField": "Mail",
+  "specialDates": "Özel Günlerinizin Tarihi",
+  "eventDate": "{event} Tarihi",
+  "@eventDate": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "pickDate": "Tarih seçin",
+  "giftListReports": "Takı Listesi Raporları",
+  "giftListReportsHint": "PDF, Excel olarak indir veya paylaş.",
+  "goPremium": "Premium'a Geç",
+  "goPremiumHint": "Reklamsız deneyim, daha fazla tarama hakkı ve esnek dışa aktarım",
+  "premiumActive": "Premium Aktif",
+  "premiumActiveHint": "Reklamsız ve sınırsız kullanım keyfini çıkarıyorsun.",
+  "exportDocumentTitle": "Takı Sandığım - Takı Listem",
+  "exportSheetGifts": "Takı Listem",
+  "@exportSheetGifts": {
+    "description": "Excel sayfa adı. Değiştirilirse eski dosyalar bu dilde içe aktarılamaz."
+  },
+  "exportSheetWeddings": "Davetiye Bilgileri",
+  "exportColDate": "Tarih",
+  "@exportColDate": {
+    "description": "Excel sütun başlığı. İçe aktarma bu başlıkla eşleştirir; değiştirmek eski dosyaları bozar."
+  },
+  "exportColPerson": "Kişi",
+  "exportColGift": "Hediye",
+  "exportColAmount": "Miktar",
+  "exportColUnit": "Birim",
+  "exportColValueTl": "Değer (TL)",
+  "exportColDirection": "Yön",
+  "exportColTitle": "Başlık",
+  "exportColLocation": "Konum",
+  "exportColNote": "Not",
+  "importNoSheet": "Dosyada okunabilir bir sayfa bulunamadı.",
+  "importEmptyFile": "Dosya boş.",
+  "importWrongFormat": "Bu dosya Takı Sandığım formatında değil. Lütfen uygulamadan dışa aktarılmış bir Excel dosyası seçin.",
+  "importSourceExcel": "Excel Dosyası",
+  "importSourcePdf": "PDF Dosyası",
+  "importSourceTitle": "Hangi dosyadan yükleyelim?",
+  "importSourceHint": "Daha önce dışa aktardığın dosyayı seç.",
+  "importSourceExcelHint": "Uygulamadan dışa aktarılmış .xlsx dosyası",
+  "comingSoon": "Yakında eklenecek",
+  "noGiftRecordsYet": "Henüz bir takı kaydı yok.",
+  "reportFailed": "Rapor oluşturulamadı: {error}",
+  "@reportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfImportComingSoon": "PDF'den içe aktarma yakında eklenecek.",
+  "importResult": "{gifts} kayıt, {weddings} davetiye eklendi.",
+  "@importResult": {
+    "placeholders": {
+      "gifts": {
+        "type": "int"
+      },
+      "weddings": {
+        "type": "int"
+      }
+    }
+  },
+  "importFailed": "Veriler içe aktarılamadı: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "shareFailed": "Paylaşılamadı: {error}",
+  "@shareFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsTitle": "Raporlar",
+  "giftListReport": "Takı Listesi Raporu",
+  "giftListReportHint": "Verilerinizi PDF veya Excel formatında dışa aktarın.",
+  "pdfReport": "PDF Raporu (A4)",
+  "pdfReportHint": "Detaylı takı listesi",
+  "excelReportHint": "Düzenlenebilir tablo",
+  "share": "Paylaş",
+  "shareHint": "Aile bireyleriyle bilgi paylaşın",
+  "importData": "Verileri Yükle",
+  "importDataHint": "Daha önce dışa aktarılan Excel dosyasını içe aktarın",
+  "premiumRequired": "Premium gerekli",
+  "plansLoadFailed": "Planlar yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+  "purchaseFailed": "Satın alma başarısız oldu, tekrar dene.",
+  "purchaseRestored": "Satın alman geri yüklendi.",
+  "nothingToRestore": "Geri yüklenecek aktif bir satın alma bulunamadı.",
+  "restoreFailed": "Geri yükleme başarısız oldu.",
+  "planMonthly": "Aylık",
+  "planThreeMonths": "3 Aylık",
+  "planSixMonths": "6 Aylık",
+  "planAnnual": "Yıllık",
+  "planGeneric": "Plan",
+  "restore": "Geri Yükle",
+  "comingSoonTitle": "Çok Yakında",
+  "premiumComingSoon": "Premium abonelik yakında burada olacak.",
+  "tryAgain": "Tekrar Dene",
+  "premiumHeadlineStart": "Tüm özelliklerin",
+  "premiumHeadlineEnd": "keyfini çıkar",
+  "featureNoAds": "Reklamsız deneyim",
+  "featureNoAdsHint": "Uygulamayı hiç reklam görmeden kullan.",
+  "featureMoreScans": "Daha fazla tarama hakkı",
+  "featureMoreScansHint": "Günlük fotoğraf tarama limitin artar.",
+  "featureExport": "Esnek dışa aktarım",
+  "featureExportHint": "Kayıtlarını dilediğin formatta indir.",
+  "noPlansAvailable": "Şu anda uygun bir plan bulunamadı.",
+  "terms": "Koşullar",
+  "privacy": "Gizlilik",
+  "bestValueDiscount": "En Avantajlı · %{percent} indirim",
+  "@bestValueDiscount": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "noCommitment": "Taahhütsüz",
+  "perMonth": "{price}/ay",
+  "@perMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomePremium": "Premium'a Hoş Geldin!",
+  "welcomePremiumHint": "Reklamsız deneyim, daha fazla tarama hakkı ve esnek dışa aktarım artık senin.",
+  "resetSoon": "birazdan",
+  "durationMinutes": "{minutes} dk",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} sa {minutes} dk",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "textReadFailed": "Metin okunamadı: {reason}",
+  "@textReadFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "aiRateLimited": "Şu an yoğunluktan dolayı AI yanıt veremedi. Birkaç saniye sonra tekrar dene.",
+  "aiUnexpectedResponse": "AI yanıtında beklenen alan bulunamadı.",
+  "aiNoUserId": "Kullanıcı kimliği bulunamadı, lütfen tekrar dene.",
+  "aiAppCheckFailed": "Güvenlik doğrulaması alınamadı, lütfen tekrar dene.",
+  "aiRequestFailed": "AI değerlendirme isteği başarısız: {detail}",
+  "@aiRequestFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "scansRemaining": "{remaining}/{limit} tarama hakkın var",
+  "@scansRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "scansExhausted": "Tarama hakkın bitti · {resetIn} sonra yenilenir",
+  "@scansExhausted": {
+    "placeholders": {
+      "resetIn": {
+        "type": "String"
+      }
+    }
+  },
+  "invitationTimeNote": "Saat: {time}",
+  "@invitationTimeNote": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanWithCamera": "Kamerayla Tara",
+  "pickFromGallery": "Galeriden Seç",
+  "scanIdleTitle": "Bir takı defteri sayfası ya da davetiye tarat",
+  "scanIdleHint": "Kamerayla çek ya da galeriden seç, AI otomatik okusun.",
+  "sourceNotebookShort": "Defter",
+  "sourceInvitation": "Davetiye",
+  "invitationReadFailed": "Davetiyeden bilgi okunamadı.",
+  "itemSaved": "{title} kaydedildi.",
+  "@itemSaved": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "noReadableLines": "Görüntüde okunabilir bir satır bulunamadı.",
+  "recordPosition": "Kayıt {current} / {total}",
+  "@recordPosition": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "addedCount": "{count} eklendi",
+  "@addedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lineAdded": "{name} eklendi. Diğer kayıtları görmek için kaydırın.",
+  "@lineAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "scanSourceTitle": "Ne taranıyor?",
+  "scanSourceHint": "Görselin türünü seç, ona göre okuyalım.",
+  "sourceNotebook": "Takı Defteri",
+  "sourceNotebookHint": "Kişi adı, hediye türü ve miktar bilgisi içeren sayfa",
+  "sourceInvitationHint": "Çift adı, tarih, saat ve konum bilgisi",
+  "scanLimitTitle": "Tarama hakkın doldu",
+  "scanLimitBody": "Ücretsiz tarama hakkın {resetIn} sonra yenilenecek. Premium ile sınırsız tara.",
+  "@scanLimitBody": {
+    "placeholders": {
+      "resetIn": {
+        "type": "String"
+      }
+    }
+  },
+  "cameraNotFound": "Kamera bulunamadı.",
+  "cameraOpenFailed": "Kamera açılamadı: {error}",
+  "@cameraOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "photoCaptureFailed": "Fotoğraf çekilemedi: {error}",
+  "@photoCaptureFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "useThisImage": "Bu görseli kullanmak istiyor musun?",
+  "use": "Kullan",
+  "personNameEmpty": "Kişi adı boş olamaz.",
+  "scannedText": "Taranan: \"{text}\"",
+  "@scannedText": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "relation": "İlişki",
+  "fetchingRateShort": "Kur alınıyor...",
+  "skip": "Atla",
+  "add": "Ekle",
+  "coupleNameEmpty": "Çift/kutlanan adı boş olamaz.",
+  "pleasePickDate": "Lütfen bir tarih seçin.",
+  "invitationReadDetails": "Davetiyeden okunan bilgiler",
+  "coupleName": "Çift / Kutlanan",
+  "timeOptional": "Saat (opsiyonel)",
+  "locationOptional": "Mekan / Konum (opsiyonel)",
+  "addToUpcomingWeddings": "Yaklaşan Düğünlere Ekle"
+}
